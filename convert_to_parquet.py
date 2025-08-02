@@ -5,9 +5,9 @@ import os
 import pyarrow.parquet as pq
 import pyarrow as pa
 
-file_type = 'inflows'
-folder = f'rof_tables_opt/'
-col_names = 'tier_'
+file_type = 'evaporation'
+folder = f'TestFiles/{file_type}_bs200/'
+col_names = 'week_'
 
 # for each file in the folder, convert the csv to parquet
 for filename in os.listdir(folder):

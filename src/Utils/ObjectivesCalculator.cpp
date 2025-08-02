@@ -161,6 +161,7 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
     double realizations_year_cont_fund_contribution = 0;
     double realizations_year_gross_revenue = 1e-6;
     double realizations_year_insurance_contract_cost = 0;
+
     vector<double> year_financial_costs;
     vector<double> realization_financial_costs(utility_data.size(), 0);
 
@@ -191,19 +192,11 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
                         (realizations_year_gross_revenue *
                          (1. + pow(1. + discount_rate, y)));
                 */
-               // REMOVED SCALING BY DISCOUNT RATE ON 2025-08-01 by Lillian Lau
-                double denominator = realizations_year_gross_revenue * pow(1. + discount_rate, y);
-                if (fabs(denominator) < 1e-6) {
-                    // Avoid division by zero or near-zero denominator
-                    year_financial_costs[y] += 0.0;
-                } else {
-                    year_financial_costs[y] +=
+                year_financial_costs[y] +=
                         (realizations_year_debt_payment +
                          realizations_year_cont_fund_contribution +
                          realizations_year_insurance_contract_cost) /
-                        denominator;
-                }
-                
+                        realizations_year_gross_revenue;
                 // update year count.
                 y++;
 
@@ -232,6 +225,10 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
     if (std::isinf(obj_value)) {
         string error_inf = "Infinite peak financial cost.";
         throw logic_error(error_inf.c_str());
+    // Adding check for very high peak financial costs 
+    } else if (obj_value > 2.0) {
+        string error_inf = "Peak financial cost >200 percent of annual revenue.";
+        throw logic_error(error_inf.c_str());
     } else {
         return obj_value;
     }
@@ -251,7 +248,7 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
     unsigned long n_weeks = utility_data[realizations[0]]->getGross_revenues().size();
     unsigned long n_years = (unsigned long) round(n_weeks / WEEKS_IN_YEAR);
     
-    double discount_rate = utility_data[0]->getUtility()->getInfraDiscountRate();
+    //double discount_rate = utility_data[0]->getUtility()->getInfraDiscountRate();
 
     vector<double> worse_year_financial_costs;
     vector<double> year_financial_costs;
@@ -277,18 +274,13 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
                             - utility_data[r]->getContingency_fund_size()[w],
                             0.0) / (year_gross_revenue * (1. + pow(1. + discount_rate, y)));
                 */
-               // REMOVED SCALING BY DISCOUNT RATE ON 2025-08-01 by Lillian Lau
-                double denominator = year_gross_revenue * pow(1. + discount_rate, y-1);
-                if (fabs(denominator) < 1e-6) {
-                    // Avoid division by zero or near-zero denominator
-                    year_financial_costs[y] = 0.0;
-                } else {
-                    year_financial_costs[y] =   
+               double available_contingency_fund = utility_data[r]->getContingency_fund_size()[w];
+                year_financial_costs[y] =   
                         max(year_drought_mitigation_cost
-                            - utility_data[r]->getContingency_fund_size()[w],
-                            0.0) / denominator;
-                }
+                            - available_contingency_fund,
+                            0.0) / year_gross_revenue;
                 
+                // Reset accounts.
                 year_gross_revenue = 1e-6;
                 year_drought_mitigation_cost = 0;
                 // update year count.
@@ -310,6 +302,9 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
 
     if (std::isinf(obj_value)) {
         string error_inf = "Infinite worse case cost.";
+        throw logic_error(error_inf.c_str());
+    } else if (obj_value > 1.0) {
+        string error_inf = "Worse case cost >100 percent of annual revenue.";
         throw logic_error(error_inf.c_str());
     } else {
         return obj_value;
