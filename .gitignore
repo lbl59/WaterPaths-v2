@@ -1,0 +1,20 @@
+# Ignore TestFiles subdirectories and files
+TestFiles/DU_SOWs/
+TestFiles/*_bs200/
+
+# Ignore ROF tables, output, logs
+rof_tables*/
+output*/
+logs/*
+
+# Ignore build-related or generated directories
+Borg/
+lib/
+sol_perturbations/
+profiling/*
+objs_reeval/
+bootstrapping/
+objectives_dvs/
+
+# Ignore figures and plots
+figures/
