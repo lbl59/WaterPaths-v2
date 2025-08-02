@@ -21,3 +21,11 @@ figures/
 
 # Ignore object files 
 src/*.o
+
+# Ignore compressed files 
+*.gz
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
