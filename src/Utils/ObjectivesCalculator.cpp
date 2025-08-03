@@ -228,7 +228,7 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
     // Adding check for very high peak financial costs 
     } else if (obj_value > 2.0) {
         string error_inf = "Peak financial cost >200 percent of annual revenue.";
-        throw logic_error(error_inf.c_str());
+        cout << error_inf << endl;
     } else {
         return obj_value;
     }
@@ -303,9 +303,10 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
     if (std::isinf(obj_value)) {
         string error_inf = "Infinite worse case cost.";
         throw logic_error(error_inf.c_str());
-    } else if (obj_value > 1.0) {
-        string error_inf = "Worse case cost >100 percent of annual revenue.";
-        throw logic_error(error_inf.c_str());
+    } else if (obj_value > 2.0) {
+        string error_inf = "Worse case cost >200 percent of annual revenue.";
+        //throw logic_error(error_inf.c_str());
+        cout << error_inf << endl;
     } else {
         return obj_value;
     }

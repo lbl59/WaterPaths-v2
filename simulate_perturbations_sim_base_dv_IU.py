@@ -28,7 +28,7 @@ for current_perturbation in my_perturbations:
     OUTPUT_DIR = f'output_perturbations/output_refset_{MODE}_p{current_perturbation}/'
 
     command_run_rdm = "./SedentoValleySimulation -T {} -t 2344 -r 200 \
-        -d {} -C -1 -O rof_tables_opt/ -I _bs200 \
+        -d {} -C -1 -O rof_tables_opt_parquet/ -I _bs200 \
         -s {} -f 0 -l {} -v {} -p 0 \
         -U TestFiles/rdm_utilities_test_problem_opt_bs200.csv \
         -P TestFiles/rdm_dmp_test_problem_opt_bs200.csv \
