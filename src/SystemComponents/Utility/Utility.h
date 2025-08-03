@@ -59,13 +59,14 @@ private:
     double restricted_demand = 0;
     double unrestricted_demand = 0;
     int n_sources = 0;
-    double infra_discount_rate = NON_INITIALIZED;
-    double bond_term_multiplier = 1.;
-    double bond_interest_rate_multiplier = 1.;
+    double infra_discount_rate;
+    double bond_term_multiplier;
+    double bond_interest_rate_multiplier;
     double max_capacity = 0;
 
     /// Infrastructure cost
     double current_debt_payment = 0;
+    double current_present_valued_debt_payment = 0;
     vector<vector<double>> debt_payment_streams;
     double infra_net_present_cost = 0;
     vector<Bond *> issued_bonds;
@@ -175,6 +176,9 @@ public:
 
     double updateCurrent_debt_payment(int week);
 
+    // ADDED ON 2025-05-01 BY LILLIAN LAU 
+    double updateCurrent_present_value_debt_payment(int week);
+
     double getContingency_fund() const;
 
     double getUnrestrictedDemand() const;
@@ -190,6 +194,8 @@ public:
     double getInfrastructure_net_present_cost() const;
 
     double getCurrent_debt_payment() const;
+
+    double getCurrent_debt_payment_present_valued() const;
 
     double getCurrent_contingency_fund_contribution() const;
 

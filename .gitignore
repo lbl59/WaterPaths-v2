@@ -4,6 +4,8 @@ TestFiles/*_bs200/
 
 # Ignore ROF tables, output, logs
 rof_tables*/
+rof_tables/
+output/
 output*/
 logs/*
 
@@ -20,7 +22,8 @@ objectives_dvs/
 figures/
 
 # Ignore object files 
-src/*.o
+*.o
+**.optrpt
 
 # Ignore compressed files 
 *.gz

@@ -684,38 +684,38 @@ void Utility::updateContingencyFundAndDebtService(
             restricted_demand * (current_price - unrestricted_price);
 
     // contingency fund cannot get negative.
-    
+    /**
     contingency_fund = max(contingency_fund + projected_fund_contribution -
                            revenue_losses - transfer_costs +
                            recouped_loss_price_surcharge,
                            0.0);
-    
+    */
+        
     double previous_fund_level = contingency_fund;
-    //double contingency_fund_cap = 100000000.0; // $100 million cap
+    double contingency_fund_cap = 100000000.0; // $100 million cap
     // ADDED A CONTINGENCY FUND CAP of $100 MILLION ON 2025-08-01
-    /**
+    
     contingency_fund = max(
             min(contingency_fund + projected_fund_contribution - revenue_losses -
                     transfer_costs + recouped_loss_price_surcharge,
                 contingency_fund_cap), 0.0);
-     */
+    
     // Update variables for data collection and next iteration.
     drought_mitigation_cost = max(revenue_losses + transfer_costs -
                                   insurance_payout -
                                   recouped_loss_price_surcharge,
                                   0.0);
-    
+    /**
     fund_contribution =
             projected_fund_contribution - revenue_losses - transfer_costs +
             recouped_loss_price_surcharge;
-     
+    */
     // ADDED ON 2025-08-01 by Lillian Lau
     // reduce actual contribution based on revenue losses and transfer costs or cap on fund
-    /**
     fund_contribution =
             min(projected_fund_contribution - revenue_losses - transfer_costs + recouped_loss_price_surcharge,
                     contingency_fund_cap - previous_fund_level);
-    */
+
     resetDroughtMitigationVariables();
 
     // Calculate current debt payment to be made on that week (if first
@@ -756,6 +756,22 @@ double Utility::updateCurrent_debt_payment(int week) {
     }
 
     return current_debt_payment;
+}
+
+// ADDED ON 2025-08-01 by Lillian Lau
+double Utility::updateCurrent_present_value_debt_payment(int week) {
+    double current_pv_debt_payment = 0;
+
+    // Checks if it's the first week of the year, when outstanding debt
+    // payments should be made. This version of calculating debt payment
+    // determines present-valued payment for current year and adds that
+    // to handle cases where debt service allocated to a utility can
+    // change over the course of repayment (aka a capacity-sharing agreement)
+    for (Bond *bond : issued_bonds) {
+        current_pv_debt_payment += bond->getPresentValueDebtService(week, infra_discount_rate);
+    }
+
+    return current_pv_debt_payment;
 }
 
 void Utility::issueBond(int new_infra_triggered, int week) {
@@ -998,6 +1014,11 @@ double Utility::getInfrastructure_net_present_cost() const {
 double Utility::getCurrent_debt_payment() const {
     return current_debt_payment;
 }
+
+double Utility::getCurrent_debt_payment_present_valued() const {
+    return current_present_valued_debt_payment;
+}
+
 
 double Utility::getCurrent_contingency_fund_contribution() const {
     return fund_contribution;
