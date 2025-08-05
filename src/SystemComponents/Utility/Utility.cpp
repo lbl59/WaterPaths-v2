@@ -314,7 +314,8 @@ void Utility::calculateWeeklyAverageWaterPrices(
          */
         // CORRECTION ON 2025-04-17
         // monthly_average_price is already a per-unit average
-        weekly_average_volumetric_price[w] = monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
+        weekly_average_volumetric_price[w] = \
+            monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;
     }
 }
 
@@ -869,7 +870,9 @@ void Utility::purchaseInsurance(double insurance_price) {
 
 void
 Utility::setDemand_offset(double demand_offset, double offset_rate_per_volume) {
-    this->demand_offset = demand_offset;
+    // if a utility has >1 transfer agreement, make this additive
+    // UPDATED BY LILLIAN LAU ON 2025-08-01
+    this->demand_offset += demand_offset; 
     this->offset_rate_per_volume = offset_rate_per_volume;
 }
 

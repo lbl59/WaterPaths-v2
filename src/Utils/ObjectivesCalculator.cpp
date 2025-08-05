@@ -225,10 +225,6 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
     if (std::isinf(obj_value)) {
         string error_inf = "Infinite peak financial cost.";
         throw logic_error(error_inf.c_str());
-    // Adding check for very high peak financial costs 
-    } else if (obj_value > 2.0) {
-        string error_inf = "Peak financial cost >200 percent of annual revenue.";
-        cout << error_inf << endl;
     } else {
         return obj_value;
     }
@@ -248,8 +244,6 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
     unsigned long n_weeks = utility_data[realizations[0]]->getGross_revenues().size();
     unsigned long n_years = (unsigned long) round(n_weeks / WEEKS_IN_YEAR);
     
-    //double discount_rate = utility_data[0]->getUtility()->getInfraDiscountRate();
-
     vector<double> worse_year_financial_costs;
     vector<double> year_financial_costs;
     double year_drought_mitigation_cost = 0;
@@ -303,10 +297,6 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
     if (std::isinf(obj_value)) {
         string error_inf = "Infinite worse case cost.";
         throw logic_error(error_inf.c_str());
-    } else if (obj_value > 2.0) {
-        string error_inf = "Worse case cost >200 percent of annual revenue.";
-        //throw logic_error(error_inf.c_str());
-        cout << error_inf << endl;
     } else {
         return obj_value;
     }

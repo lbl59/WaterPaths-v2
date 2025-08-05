@@ -5,11 +5,12 @@ import os
 import pyarrow.parquet as pq
 import pyarrow as pa
 
-folder = 'TestFiles/DU_SOWs/rdm_82/evaporation'
+folder = 'rof_tables_opt_parquet/'
 
 # for each file in the folder, convert the csv to parquet
 for filename in os.listdir(folder):
-    if filename.endswith('.parquet'):
+    #if filename.endswith('.parquet'):
+    if filename == "tables_r79_u0.parquet":
         parquet_file = os.path.join(folder, filename)
         
         # Read the Parquet file

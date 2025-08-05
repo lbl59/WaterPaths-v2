@@ -24,6 +24,7 @@ figures/
 # Ignore object files 
 *.o
 **.optrpt
+SedentoValleySimulation 
 
 # Ignore compressed files 
 *.gz

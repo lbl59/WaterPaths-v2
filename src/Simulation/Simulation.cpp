@@ -352,8 +352,6 @@ Simulation::runFullSimulation(unsigned long n_threads, double *vars) {
     set<unsigned long> s(realizations_to_run.begin(),realizations_to_run.end());
     vector<unsigned long> realizations_to_run_unique;
     realizations_to_run_unique.assign(s.begin(), s.end());
-    cout << "Number of unique realizations to run: "
-         << realizations_to_run_unique.size() << endl;
 
     // Prepare error output.
     int had_catch = 0;
@@ -366,7 +364,7 @@ Simulation::runFullSimulation(unsigned long n_threads, double *vars) {
     if (max_threads > n_realizations) {
         max_threads = n_realizations;
     }
-    cout << "Num threads launched: " << max_threads << endl;
+    //cout << "Num threads launched: " << max_threads << endl;
     
     #pragma omp parallel num_threads(max_threads)
     {
@@ -422,7 +420,7 @@ Simulation::runFullSimulation(unsigned long n_threads, double *vars) {
                 #pragma omp critical(master_data_collector_exportROFTables)
                 {
                     if (import_export_rof_tables == EXPORT_ROF_TABLES) {
-                        cout << "Writing ROF table for utilities in realization " << realization << endl;
+                        //cout << "Writing ROF table for utilities in realization " << realization << endl;
                         //rof_model->printROFTable(rof_tables_folder);
                         rof_model->printROFTableParquet(rof_tables_folder);
                     }

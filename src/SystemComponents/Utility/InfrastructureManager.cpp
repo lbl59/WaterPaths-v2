@@ -145,6 +145,7 @@ vector<double> InfrastructureManager::rearrangeInfraRofVector(
                                     demand_infra_construction_order.end()));
     int size = max(size_rof, size_demand) + 1;
 
+    /**
     auto n_options = max(rof_infra_construction_order.size(),
                          demand_infra_construction_order.size());
     if (infra_construction_triggers.size() != n_options) {
@@ -157,6 +158,7 @@ vector<double> InfrastructureManager::rearrangeInfraRofVector(
                 demand_infra_construction_order.size());
         throw invalid_argument(error);
     }
+    */
 
     vector<double> infra_construction_triggers_new((unsigned long) size, 1e10);
     

@@ -239,7 +239,7 @@ int main(int argc, char *argv[]) {
                                         utilities_rdm_file,
                                         policies_rdm_file,
                                         water_sources_rdm_file,
-                                        actions_rdm_file,  // ADDED ON 2025-04-25 by Lillian Lau --> NEED TO ADD TO PAPERTESTPROBLEM.H
+                                        actions_rdm_file,  // ADDED ON 2025-04-25 by Lillian Lau
                                         n_sets, n_bs_samples, solution_file,
                                         solutions_to_run_range, plotting,
                                         print_objs_row, 
@@ -295,25 +295,26 @@ int main(int argc, char *argv[]) {
             WaterSource::setSeed(seed);
             BORG_Random_seed(seed);
         }
-        char output_directory[256], output_file_name[256];
-        char io_directory[256];
-        char runtime[256];
+        //char output_directory[256]
+        //char io_directory[256];
+        char output_file_name[256], runtime_file_name[256];
 
         FILE *outputFile = nullptr;
 
-        sprintf(output_directory, "%s", system_io.c_str());
+        // make output_dir if it does not exist
+        Utils::createDir(output_dir);
+        //sprintf(output_dir, "%s", system_io.c_str());
+
+        //sprintf(output_directory, "%s", system_io.c_str());
         //Utils::createDir(string(output_directory));
 
-        sprintf(output_file_name, "%soutput/refset_MM4_N%lu_bs200_noIns_seed%lu.set", output_directory, nfe, seed);
-        //sprintf(output_file_name, "%soutput/refset_MW_NFE%d.set", output_directory, nfe);
-        //printf("Reference set will be in %s.\n", output_file_name);
-        // output path (make sure this exists)
-        sprintf(runtime, "%soutput/runtime_MM4_N%lu_M%lu_bs200_noIns_seed%lu.runtime", output_directory, nfe, rank, seed);
-        //sprintf(runtime, "%soutput/runtime_MW_NFE%d.runtime", output_directory, nfe); 
-        //printf("Runtime files will be in %s.\n", runtime);
-        // path (make sure this exists)
+        sprintf(output_file_name, "%srefset_MM4_N%lu_bs200_seed%lu.set", output_dir, nfe, seed);
+        // sprintf(output_file_name, "%soutput/refset_MM4_N%lu_bs200_noIns_seed%lu.set", output_directory, nfe, seed);
+        
+        sprintf(runtime_file_name, "%sruntime_MM4_N%lu_M%lu_bs200_seed%lu.runtime", output_dir, nfe, rank, seed);
+        //sprintf(runtime, "%soutput/runtime_MM4_N%lu_M%lu_bs200_noIns_seed%lu.runtime", output_directory, nfe, rank, seed);
 
-        BORG_Algorithm_output_runtime(runtime);
+        BORG_Algorithm_output_runtime(runtime_file_name);
         
         BORG_Random_seed(37*seed*(rank+1));
 

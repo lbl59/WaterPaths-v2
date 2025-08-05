@@ -27,6 +27,8 @@ public:
 
     double getNetPresentValueAtIssuance(double discount_rate, int week) const override;
 
+    double getPresentValueDebtService(int week, double discount_rate) override;
+
     void issueBond(int week, int construction_time, double bond_term_multiplier, double bond_interest_rate_multiplier) override;
 };
 

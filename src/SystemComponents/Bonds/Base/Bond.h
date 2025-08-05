@@ -39,6 +39,8 @@ public:
 
     virtual double getDebtService(int week) = 0;
 
+    virtual double getPresentValueDebtService(int week, double discount_rate) = 0;
+
     virtual double getNetPresentValueAtIssuance(double discount_rate, int week) const = 0;
 
     virtual void

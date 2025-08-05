@@ -131,6 +131,7 @@ Problem::Problem(unsigned long n_weeks, int n_realizations, int import_export_ro
                     " the rdm files.");
             }
 
+            cout << "Setting RDM for optimization" << endl;
             setRDMReevaluation(rdm_no, 
                 utilities_rdm,
                 water_sources_rdm, 

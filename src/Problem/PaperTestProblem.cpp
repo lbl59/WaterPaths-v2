@@ -878,7 +878,6 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                 vector<double>(),
                 vector<int>());
     drought_mitigation_policies.push_back(&t);
-
     /**
     // Set up insurance
     vector<double> insurance_triggers = {watertown_insurance_use,
@@ -889,7 +888,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                                     dryville_insurance_payment,
                                     fallsland_insurance_payment};
 
-    //vector<int> insured_utilities = {0, 1, 2};
+    vector<int> insured_utilities = {0, 1, 2};
     
     InsuranceStorageToROF in(4, {5, 6, 7}, water_sources, g,
                              reservoir_utility_connectivity_matrix, utilities,
@@ -898,8 +897,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                              insurance_triggers, 1.2, fixed_payouts, n_weeks);
 
     drought_mitigation_policies.push_back(&in);
-     */
-  
+    */
     // Creates simulation object depending on use (or lack thereof) ROF tables
     //double start_time = omp_get_wtime();
     if (import_export_rof_tables == EXPORT_ROF_TABLES) {
@@ -968,14 +966,14 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                             objectives[2*NUM_OBJECTIVES + i]);
         }
 
-    for (int i = 0; i < NUM_OBJECTIVES; ++i) {
-         if (isnan(objs[i])) {
-        for (int j = 0; j < NUM_OBJECTIVES; ++j) {
-            objs[i] = 1e5;
+        for (int i = 0; i < NUM_OBJECTIVES; ++i) {
+            if (isnan(objs[i])) {
+                for (int j = 0; j < NUM_OBJECTIVES; ++j) {
+                    objs[i] = 1e5;
+               }
+            break;
+            }
         }
-        break;
-        }
-    }
     }
 
     if (s != nullptr) {
@@ -1004,7 +1002,6 @@ void PaperTestProblem::readInputData() {
         data_dir = rdm_directory + BAR + "rdm_" + to_string(rdm_no) + BAR;
     }
    
-    
     //double start_time = omp_get_wtime();
 #pragma omp parallel num_threads(omp_get_thread_num())
     {
@@ -1253,7 +1250,7 @@ void PaperTestProblem::readInputData() {
                 io_directory + data_dir + "demands" +
                 inflow_demand_evap_suffix +
                 BAR + "raleigh_demands.parquet", n_realizations);
-         
+        
 #pragma omp single
         {
             demand_to_wastewater_fraction_fallsland = Utils::parse2DCsvFile(
