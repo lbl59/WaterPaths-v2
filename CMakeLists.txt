@@ -60,6 +60,10 @@ set(SOURCE_FILES
         src/SystemComponents/WaterSources/Base/WaterSource.h
         src/SystemComponents/WaterSources/AllocatedReservoir.cpp
         src/SystemComponents/WaterSources/AllocatedReservoir.h
+        src/SystemComponents/WaterSources/GroundwaterWell.cpp
+        src/SystemComponents/WaterSources/GroundwaterWell.h
+        src/SystemComponents/WaterSources/GroundwaterTreatment.cpp
+        src/SystemComponents/WaterSources/GroundwaterTreatment.h
         src/SystemComponents/WaterSources/Intake.cpp
         src/SystemComponents/WaterSources/Intake.h
         src/SystemComponents/WaterSources/Quarry.cpp
