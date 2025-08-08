@@ -12,7 +12,9 @@
 #include <algorithm>
 #include <getopt.h>
 #include <fstream>
+#include <filesystem>
 
+using namespace filesystem;
 using namespace std;
 using namespace Constants;
 using namespace Solutions;
@@ -142,7 +144,7 @@ int main(int argc, char *argv[]) {
                 n_realizations = (unsigned long) atoi(optarg);
                 break;
             case 't':
-                n_weeks = (unsigned long) atoi(optarg);
+                n_weeks = atoi(optarg);
                 break;
             case 'd':
                 system_io = optarg;
@@ -296,22 +298,23 @@ int main(int argc, char *argv[]) {
             BORG_Random_seed(seed);
         }
         //char output_directory[256]
-        //char io_directory[256];
+        char io_directory[256];
         char output_file_name[256], runtime_file_name[256];
 
         FILE *outputFile = nullptr;
 
-        // make output_dir if it does not exist
-        Utils::createDir(output_dir);
-        //sprintf(output_dir, "%s", system_io.c_str());
+        // convert output_dir to char array
+        sprintf(io_directory, "%s", output_dir.c_str());
 
-        //sprintf(output_directory, "%s", system_io.c_str());
-        //Utils::createDir(string(output_directory));
+        // Create the output directory if it does not exist
+        if (exists(output_dir)) {
+            Utils::createDir(string(output_dir));
+        }
 
-        sprintf(output_file_name, "%srefset_MM4_N%lu_bs200_seed%lu.set", output_dir, nfe, seed);
+        sprintf(output_file_name, "%srefset_MM4_N%lu_bs200_seed%lu.set", io_directory, nfe, seed);
         // sprintf(output_file_name, "%soutput/refset_MM4_N%lu_bs200_noIns_seed%lu.set", output_directory, nfe, seed);
         
-        sprintf(runtime_file_name, "%sruntime_MM4_N%lu_M%lu_bs200_seed%lu.runtime", output_dir, nfe, rank, seed);
+        sprintf(runtime_file_name, "%sruntime_MM4_N%lu_M%lu_bs200_seed%lu.runtime", io_directory, nfe, rank, seed);
         //sprintf(runtime, "%soutput/runtime_MM4_N%lu_M%lu_bs200_noIns_seed%lu.runtime", output_directory, nfe, rank, seed);
 
         BORG_Algorithm_output_runtime(runtime_file_name);
