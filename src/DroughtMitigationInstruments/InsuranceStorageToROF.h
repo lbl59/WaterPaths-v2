@@ -7,14 +7,11 @@
 
 
 #include "Base/DroughtMitigationPolicy.h"
-#include "../ContinuityModels/ContinuityModelROF.h"
-#include "../ContinuityModels/ContinuityModelRealization.h"
+#include "../Utils/Constants.h"
 
-class InsuranceStorageToROF : public DroughtMitigationPolicy,
-                              public ContinuityModelROF {
+class InsuranceStorageToROF : public DroughtMitigationPolicy {
 private:
     vector<double> rof_triggers;// = vector<double>(40, 0.);
-    const unsigned long total_simulation_time;
     const double insurance_premium;
     vector<int> action_multiplier_ids;  // ADDED ON 2025-04-28 by Lillian Lau.
     vector<double> payout_multiplier;
@@ -25,11 +22,7 @@ private:
     vector<DroughtMitigationPolicy *> drought_mitigation_policies;
 
 public:
-
     InsuranceStorageToROF(const int id, const vector<int> &action_multiplier_ids, // ADDED ON 2025-04-28 BY LILLIAN LAU
-                              vector<WaterSource *> &water_sources,
-                              const Graph &water_sources_graph,
-                              const vector<vector<int>> &water_sources_to_utilities,
                               vector<Utility *> &utilities,
                               vector<DroughtMitigationPolicy *> &drought_mitigation_policies,
                               vector<MinEnvFlowControl *> min_env_flow_controls,
@@ -38,8 +31,8 @@ public:
                               vector<vector<double>>& policy_rdm, 
                               vector<vector<double>>& actions_rdm, 
                               vector<double> &rof_triggers,
-                              const double insurance_premium, const vector<double> &fixed_payouts,
-                              unsigned long total_simulation_time);
+                              const double insurance_premium, 
+                              const vector<double> &fixed_payouts);
 
     InsuranceStorageToROF(InsuranceStorageToROF &insurance);
 
@@ -58,10 +51,6 @@ public:
         const vector<double> &water_sources_rdm, 
         const vector<double> &policy_rdm,
         const vector<double> &actions_rdm) override;
-
-    vector<double> calculateShortTermROFTable(int week, const vector<Utility *> &utilities, const int &n_utilities);
-
-    void updateOnlineInfrastructure(int week) override;
 };
 
 

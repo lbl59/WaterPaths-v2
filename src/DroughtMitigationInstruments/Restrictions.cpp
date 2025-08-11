@@ -77,7 +77,7 @@ void Restrictions::applyPolicy(int week) {
     // Loop through restriction stage rof triggers to see which stage should be applied, if any.
     for (unsigned long i = 0; i < stage_triggers.size(); ++i) {
         if (realization_utilities[0]->getRisk_of_failure() > stage_triggers[i]) {
-            // Demand multiplier to be applied, based on the rofs.
+            // Demand multiplier to be applied, based on the ROFs.
             current_multiplier = stage_multipliers[i];
             stage = i + 1;
         } else
@@ -103,7 +103,7 @@ void Restrictions::addSystemComponents(vector<Utility *> systems_utilities,
         if (u->id == id) {
             if (!realization_utilities.empty())
                 throw std::logic_error("This restriction policy already has a systems_utilities assigned to it.");
-            /// Link utility to policy.
+            // Link utility to policy.
             this->realization_utilities.push_back(u);
         }
     }
@@ -167,9 +167,7 @@ void Restrictions::setRealization(unsigned long realization_id,
     // Shift the stage_triggers by the action multiplier.
     double action_multiplier = actions_rdm.at((unsigned long) action_multiplier_id);
     for (double &st : stage_triggers) {
-        cout << "Before adjustment, stage trigger: " << st << endl;
         st = max(0.0, min(1.0, st + action_multiplier));
-        cout << "After adjustment, stage trigger: " << st << endl;
     }
 
 }
