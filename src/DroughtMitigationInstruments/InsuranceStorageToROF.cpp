@@ -57,11 +57,8 @@ InsuranceStorageToROF::InsuranceStorageToROF(const int id, const vector<int>&act
 
     for (Utility *u : utilities) {
         utilities_ids.push_back(u->id);
-        utility_base_storage_capacity.push_back(u->getTotal_storage_capacity());
     }
     
-    current_storage_table_shift = vector<double>(utilities.size(), 0.0);
-
     insurance_price = vector<double>((unsigned long) utilities.size(), 0.);
     payout_multiplier = vector<double>((unsigned long) utilities.size(), 1.);
 }
@@ -77,9 +74,7 @@ InsuranceStorageToROF::InsuranceStorageToROF(
         action_multiplier_ids(insurance.action_multiplier_ids),  // ADDED ON 2025-04-28 by Lillian Lau.
         utilities_revenue_update(vector<double>((unsigned long) insurance.utilities_ids.size(), 0.)),
         utilities_revenue_last_year(vector<double>((unsigned long) insurance.utilities_ids.size(), 0.)),
-        drought_mitigation_policies(vector<DroughtMitigationPolicy *>()),
-        utility_base_storage_capacity(insurance.utility_base_storage_capacity),
-        current_storage_table_shift(insurance.current_storage_table_shift) {
+        drought_mitigation_policies(vector<DroughtMitigationPolicy *>()) {
 
     utilities_ids = insurance.utilities_ids;
 }
@@ -115,7 +110,7 @@ void InsuranceStorageToROF::applyPolicy(int week) {
     // No insurance was purchased during the first year
     if (week > WEEKS_IN_YEAR) {
         // Make payouts, if needed.
-        for (unsigned long u = 0; u < utilities_rof.size(); ++u) {
+        for (unsigned long u = 0; u < utilities_ids.size(); ++u) {
             // Get storage-based ROFs for the utility
             double utility_rof = realization_utilities[u]->getRisk_of_failure();
             if (utility_rof > rof_triggers[u]) {
