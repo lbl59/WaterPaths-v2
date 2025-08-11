@@ -311,11 +311,17 @@ void Utility::calculateWeeklyAverageWaterPrices(
         weekly_average_volumetric_price[w] =
                 monthly_average_price[(int) (w / WEEKS_IN_MONTH)] /
                 WEEKS_IN_MONTH;
-         */
+        */
         // CORRECTION ON 2025-04-17
-        // monthly_average_price is already a per-unit average
+        // monthly_average_price is already a per-unit average 
+        // prices are in $/MGD --> need to convert to $/gal (Zeff et al 2014)
+         
         weekly_average_volumetric_price[w] = \
             monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;
+        /**
+        weekly_average_volumetric_price[w] = \
+            monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
+        */
     }
 }
 
@@ -645,7 +651,7 @@ void Utility::updateContingencyFundAndDebtService(
         double unrestricted_demand, double demand_multiplier,
         double demand_offset, double unfulfilled_demand, int week) {
     int week_of_year = Utils::weekOfTheYear(week);
-    double unrestricted_price = weekly_average_volumetric_price[week_of_year];
+    double unrestricted_price = weekly_average_volumetric_price[week_of_year];  // in $/MGD
     double current_price;
 
     // Clear yearly updated data collecting variables.
@@ -690,33 +696,29 @@ void Utility::updateContingencyFundAndDebtService(
                            revenue_losses - transfer_costs +
                            recouped_loss_price_surcharge,
                            0.0);
+    fund_contribution =
+            projected_fund_contribution - revenue_losses - transfer_costs +
+            recouped_loss_price_surcharge;
     */
         
     double previous_fund_level = contingency_fund;
     double contingency_fund_cap = 100000000.0; // $100 million cap
     // ADDED A CONTINGENCY FUND CAP of $100 MILLION ON 2025-08-01
-    
     contingency_fund = max(
             min(contingency_fund + projected_fund_contribution - revenue_losses -
                     transfer_costs + recouped_loss_price_surcharge,
                 contingency_fund_cap), 0.0);
-    
     // Update variables for data collection and next iteration.
     drought_mitigation_cost = max(revenue_losses + transfer_costs -
                                   insurance_payout -
                                   recouped_loss_price_surcharge,
                                   0.0);
-    /**
-    fund_contribution =
-            projected_fund_contribution - revenue_losses - transfer_costs +
-            recouped_loss_price_surcharge;
-    */
+
     // ADDED ON 2025-08-01 by Lillian Lau
     // reduce actual contribution based on revenue losses and transfer costs or cap on fund
     fund_contribution =
             min(projected_fund_contribution - revenue_losses - transfer_costs + recouped_loss_price_surcharge,
                     contingency_fund_cap - previous_fund_level);
-
     resetDroughtMitigationVariables();
 
     // Calculate current debt payment to be made on that week (if first

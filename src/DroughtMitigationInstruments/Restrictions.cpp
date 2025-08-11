@@ -162,9 +162,7 @@ void Restrictions::setRealization(unsigned long realization_id,
     for (double &sm : stage_multipliers) {
         // CHANGED ON 2025-04-28 BY LILLIAN LAU
         // Adding in implementation uncertainty
-        //sm = min(1., sm * policy_rdm.at((unsigned long) id));
-        sm = min(1., (sm * policy_rdm.at((unsigned long) id)) + actions_rdm.at(action_multiplier_id));
-        //cout << "Stage multiplier: " << sm << endl;
+        sm = max(0.0, min(1., (sm * policy_rdm.at((unsigned long) id)) + actions_rdm.at(action_multiplier_id)));
     }
 }
 

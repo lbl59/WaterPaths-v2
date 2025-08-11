@@ -70,10 +70,7 @@ InfrastructureManager &InfrastructureManager::operator=(const InfrastructureMana
 void InfrastructureManager::setShift(double new_shift) {
     shift = new_shift;
     for (unsigned long i = 0; i < infra_construction_triggers.size(); ++i) {
-        //cout << "Value of shift: " << shift << endl;
-        //cout << "Value of trigger before: " << infra_construction_triggers.at(i) << endl;
-        infra_construction_triggers.at(i) = min(1.0, infra_construction_triggers.at(i) + shift);
-        //cout << "Value of trigger after: " << infra_construction_triggers.at(i) << endl;
+        infra_construction_triggers.at(i) = max(0.0, min(1.0, infra_construction_triggers.at(i) + shift));
     }
 }
 

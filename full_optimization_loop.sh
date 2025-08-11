@@ -3,9 +3,9 @@
 # CPUs per task x ntasks-per-node = 256
 # omp_num_threads = ntasks-per-node / 2
 
-export OMP_NUM_THREADS=2 
+export OMP_NUM_THREADS=10
 #for JOB in 2 3 4 5; do
-for JOB in 1; do
+for JOB in 99; do
   cat <<EOF | sbatch
 #!/bin/bash
 #SBATCH -A m2702 -C cpu
@@ -16,14 +16,14 @@ for JOB in 1; do
 #SBATCH --job-name=opt_mm4_n2048_base_r1000_seed${JOB}
 #SBATCH --output=logs/opt_mm4_n2048_base_r1000_seed${JOB}.out
 #SBATCH --error=logs/opt_mm4_n2048_base_r1000_seed${JOB}.err
-#SBATCH --time=01:00:00
+#SBATCH --time=02:00:00
 #SBATCH --mail-user=lbl59@cornell.edu
 #SBATCH --mail-type=ALL 
 
 srun -n 2048 ./SedentoValleySimulation \
-    -T ${OMP_NUM_THREADS} -t 2344 -r 1000 \
+    -T ${OMP_NUM_THREADS} -t 2344 -r 200 \
     -d /pscratch/sd/l/lbl59/WaterPaths-IU/ \
-    -v output_raw_base_new/ \
+    -v output_raw_base_fullsim/ \
     -C -1 -O rof_tables_opt_parquet_full/ \
     -U TestFiles/rdm_utilities_test_problem_opt.csv \
     -P TestFiles/rdm_dmp_test_problem_opt.csv \

@@ -11,6 +11,8 @@
 #SBATCH --mail-type=ALL
 
 # Define the directory name
-DIR_NAME="/pscratch/sd/l/lbl59/WaterPaths-IU/output_sim_base_refset_IU_reeval/objectives"
-ZIP_FILE="/pscratch/sd/l/lbl59/WaterPaths-IU/output_sim_base_refset_IU_reeval/objectives.tar.bz2"
-tar -cvjf "$ZIP_FILE" "$DIR_NAME"
+#DIR_NAME="/pscratch/sd/l/lbl59/WaterPaths-IU/output_sim_base_refset_IU_reeval/objectives"
+#ZIP_FILE="/pscratch/sd/l/lbl59/WaterPaths-IU/output_sim_base_refset_IU_reeval/objectives.tar.bz2"
+#tar -cvjf "$ZIP_FILE" "$DIR_NAME"
+
+cp /pscratch/sd/l/lbl59/WaterPaths-IU/rof_tables_opt/pscratch/sd/l/lbl59/WaterPaths-IU/rof_tables_opt/*csv rof_tables_opt/

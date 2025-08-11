@@ -366,17 +366,11 @@ void Transfers::setRealization(unsigned long realization_id,
     const vector<double> &policy_rdm,
     const vector<double> &actions_rdm) { // ADDED ON 2025-04-28 by Lillian Lau.
     // ADDED ON 2025-04-28 by Lillian Lau.
-    // Scaling buyers_transfer_triggers by the realization actions_rdm.
-    //cout << "Setting realization for transfers" << endl;
-    
+    // Scaling buyers_transfer_triggers by the realization actions_rdm
     for (unsigned long i = 0; i < buyers_transfer_triggers.size(); ++i) {
         int action_multiplier_idx = action_multiplier_ids.at(i);
-        buyers_transfer_triggers[i] = min(1.0, buyers_transfer_triggers[i] + actions_rdm.at(action_multiplier_idx));
+        buyers_transfer_triggers[i] = max(0.0, min(1.0, buyers_transfer_triggers[i] + actions_rdm.at(action_multiplier_idx)));
     }
-
-    //cout << "Buyers transfer triggers 1: " << buyers_transfer_triggers[0] << endl;
-    //cout << "Buyers transfer triggers 2: " << buyers_transfer_triggers[1] << endl;
-        
 }
 
 const double Transfers::getSourceTreatmentBuffer() const {

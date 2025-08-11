@@ -121,8 +121,7 @@ int main(int argc, char *argv[]) {
                         "\t-W: Water sources RDM file\n"
                         "\t-A: Actions RDM file\n"
                         "\t-I: Inflows, demand, and evaporation folder suffix to"
-                        " be added to folder names (e.g., _high for "
-                        "inflows_bs)\n"  // CHANGED ON 2025-04-17 by Lillian Lau.
+                        " be added to folder names (e.g., _high or _inflows_bs)\n"  // CHANGED ON 2025-04-17 by Lillian Lau.
                         "\t-O: Directory containing the pre-computed "
                         "ROF table CSV files\n"
                         "\t-C: Import/export rof tables (1: export, 0:"
@@ -144,7 +143,7 @@ int main(int argc, char *argv[]) {
                 n_realizations = (unsigned long) atoi(optarg);
                 break;
             case 't':
-                n_weeks = atoi(optarg);
+                n_weeks = (unsigned long) atoi(optarg);
                 break;
             case 'd':
                 system_io = optarg;

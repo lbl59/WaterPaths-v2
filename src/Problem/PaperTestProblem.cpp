@@ -58,18 +58,12 @@ void PaperTestProblem::setProblemDefinition(BORG_Problem &problem)
     BORG_Problem_set_bounds(problem, 29, 0.0, 1.0);     // watertown reuse II rank
 
     // Set epsilons for objectives
-    /**
+
     BORG_Problem_set_epsilon(problem, 0, 0.001);
     BORG_Problem_set_epsilon(problem, 1, 0.02);
     BORG_Problem_set_epsilon(problem, 2, 10.0);
     BORG_Problem_set_epsilon(problem, 3, 0.025);
     BORG_Problem_set_epsilon(problem, 4, 0.01);
-    */
-    BORG_Problem_set_epsilon(problem, 0, 0.001);
-    BORG_Problem_set_epsilon(problem, 1, 0.001);
-    BORG_Problem_set_epsilon(problem, 2, 1.0);
-    BORG_Problem_set_epsilon(problem, 3, 0.001);
-    BORG_Problem_set_epsilon(problem, 4, 0.001);
     
 }
 #endif
@@ -878,8 +872,9 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                 vector<double>(),
                 vector<int>());
     drought_mitigation_policies.push_back(&t);
-    /**
+    
     // Set up insurance
+    /**
     vector<double> insurance_triggers = {watertown_insurance_use,
                                          dryville_insurance_use,
                                          fallsland_insurance_use};
@@ -897,7 +892,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                              insurance_triggers, 1.2, fixed_payouts, n_weeks);
 
     drought_mitigation_policies.push_back(&in);
-    */
+     */
     // Creates simulation object depending on use (or lack thereof) ROF tables
     //double start_time = omp_get_wtime();
     if (import_export_rof_tables == EXPORT_ROF_TABLES) {
