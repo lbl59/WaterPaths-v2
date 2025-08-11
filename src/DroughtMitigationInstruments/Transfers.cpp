@@ -63,8 +63,7 @@ Transfers::Transfers(
     continuity_matrix[source_utility_id][
             continuity_matrix.size() + source_utility_id] = 1;
 
-    int max_buyer_id = *std::max_element(buyers_ids.begin(),
-                                                  buyers_ids.end());
+    int max_buyer_id = *std::max_element(buyers_ids.begin(), buyers_ids.end());
     util_id_to_vertex_id = vector<int>(max_buyer_id + 1, NON_INITIALIZED);
     // Map buyer's IDs to vertexes ID starting from 0 for the sake of
     // determining payments.
@@ -366,7 +365,7 @@ void Transfers::setRealization(unsigned long realization_id,
     const vector<double> &policy_rdm,
     const vector<double> &actions_rdm) { // ADDED ON 2025-04-28 by Lillian Lau.
     // ADDED ON 2025-04-28 by Lillian Lau.
-    // Scaling buyers_transfer_triggers by the realization actions_rdm
+    // Shifting buyers_transfer_triggers by the realization actions_rdm
     for (unsigned long i = 0; i < buyers_transfer_triggers.size(); ++i) {
         int action_multiplier_idx = action_multiplier_ids.at(i);
         // Capping the trigger between 0 and 1

@@ -2,6 +2,35 @@
 // Created by bernardoct on 5/1/17.
 //
 
+/*
+ * CLASS INTENDED USAGE ANALYSIS:
+ * 
+ * The InsuranceStorageToROF class implements a drought insurance mechanism that:
+ * 1. Inherits from both DroughtMitigationPolicy and ContinuityModelROF
+ * 2. Provides insurance payouts to utilities when their Risk-of-Failure (ROF) exceeds trigger thresholds
+ * 3. Prices insurance annually by running ROF simulations to estimate payout probability
+ * 4. Uses storage-to-ROF lookup tables to quickly calculate risk levels
+ * 
+ * WORKFLOW:
+ * - Constructor: Sets up internal copies of water system components for ROF calculations
+ * - addSystemComponents(): Links to the main simulation's utilities and water sources
+ * - setRealization(): Should configure the class for different uncertainty scenarios (CURRENTLY BROKEN)
+ * - applyPolicy(): Called weekly during simulation to:
+ *   a) Update utility revenue tracking
+ *   b) Price insurance annually (first week of year)
+ *   c) Make payouts when ROF > trigger threshold
+ * - priceInsurance(): Runs multiple short-term ROF simulations to estimate expected payouts
+ * 
+ * MAJOR ISSUES IDENTIFIED:
+ * 1. [RESOLVED] setRealization() functionality is completely commented out, breaking uncertainty analysis
+ * 2. Potential memory leaks from drought_mitigation_policies filtering
+ * 3. Index mismatches between different utility vectors (utilities_ids, continuity_utilities, realization_utilities)
+ * 4. ROF trigger values accumulate without reset mechanism
+ * 5. Unused pricing_utilities copies created for each pricing cycle
+ * 6. No bounds checking on ROF table tier calculations
+ * 7. Inconsistent week parameter usage in pricing loops
+ */
+
 #include <iostream>
 #include "InsuranceStorageToROF.h"
 #include "../Utils/Utils.h"
@@ -46,6 +75,10 @@ InsuranceStorageToROF::InsuranceStorageToROF(const int id, const vector<int>&act
         u->resetTotal_storage_capacity();
     }
     */
+    
+    // POTENTIAL ISSUE: The utilities_ids vector is being populated from the input utilities parameter,
+    // but the class will later use both continuity_utilities (copied utilities) and realization_utilities
+    // (references to original utilities). This creates potential for index mismatches.
 
     // Remove financial instruments, if any.
     auto it = this->drought_mitigation_policies.begin();
@@ -55,6 +88,10 @@ InsuranceStorageToROF::InsuranceStorageToROF(const int id, const vector<int>&act
         }
         else ++it;
     }
+    
+    // POTENTIAL ISSUE: This modifies the drought_mitigation_policies vector by removing certain types
+    // but doesn't handle the memory management of the removed policies. They may leak memory or 
+    // cause double-deletion issues depending on who owns these pointers.
 
     insurance_price = vector<double>((unsigned long) n_utilities, 0.);
     payout_multiplier = vector<double>((unsigned long) n_utilities, 1.);
@@ -85,6 +122,9 @@ InsuranceStorageToROF::InsuranceStorageToROF(
         drought_mitigation_policies(Utils::copyDroughtMitigationPolicyVector(insurance.drought_mitigation_policies)) {
 
     utilities_ids = insurance.utilities_ids;
+    
+    // POTENTIAL ISSUE: Copy constructor creates deep copies of most components but resets revenue vectors.
+    // This may not be the intended behavior - should revenue state be preserved in copies?
 }
 
 InsuranceStorageToROF::~InsuranceStorageToROF() {
@@ -177,6 +217,10 @@ void InsuranceStorageToROF::priceInsurance(int week) {
         for (int u = 0; u < continuity_utilities.size(); ++u) {
             pricing_utilities[u] = new Utility(*continuity_utilities[u]); // invokes copy constructor
         }
+        
+        // POTENTIAL ISSUE: The pricing_utilities are created but not used for ROF calculations.
+        // The calculateShortTermROFTable still uses continuity_utilities, making this copy operation wasteful.
+        // Also, the ROF values are saved to pricing_utilities but never read from them.
 
         int start_week = std::max(0, week - (int) WEEKS_IN_YEAR + 1);
         for (int w = start_week; w <= week; ++w) {
@@ -193,7 +237,7 @@ void InsuranceStorageToROF::priceInsurance(int week) {
 
             // apply supply drought mitigation instruments.
             for (DroughtMitigationPolicy* dmp : drought_mitigation_policies) {
-                dmp->applyPolicy(week);
+                dmp->applyPolicy(w);
             }
 
             // Increase the price of the insurance if payout is triggered 
@@ -231,23 +275,11 @@ void InsuranceStorageToROF::setRealization(unsigned long realization_id, const v
                                            const vector<double> &actions_rdm) { // ADDED ON 2025-04-28 by Lillian Lau.
     
     for (unsigned long u = 0; u < utilities_ids.size(); ++u) {
-        rof_triggers[u] += min(1.0, actions_rdm.at(action_multiplier_ids.at(u)));
-    }
-    /**
-    ContinuityModel::setRealization(realization_id, utilities_rdm, water_sources_rdm, actions_rdm);
+        int action_multiplier_idx = action_multiplier_ids.at(u);
 
-    // Pass corresponding utilities to drought mitigation instruments.
-    for (DroughtMitigationPolicy *dmp : this->drought_mitigation_policies) {
-        dmp->addSystemComponents(continuity_utilities, continuity_water_sources, min_env_flow_controls);
-        dmp->setRealization(realization_id, 
-            utilities_rdm, 
-            water_sources_rdm, 
-            policy_rdm,
-            actions_rdm);
+        // Capping the trigger between 0 and 1
+        rof_triggers[u] = max(0.0, min(1.0, rof_triggers[u] + actions_rdm.at(action_multiplier_idx)));
     }
-    */
-    // For each rof trigger, shift by the multiplier.
-    
 }
 
 /**

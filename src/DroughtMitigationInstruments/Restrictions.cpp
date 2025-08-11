@@ -160,11 +160,18 @@ void Restrictions::setRealization(unsigned long realization_id,
                                   const vector<double> &actions_rdm) { // ADDED ON 2025-04-28 by Lillian Lau.
 
     for (double &sm : stage_multipliers) {
-        // CHANGED ON 2025-04-28 BY LILLIAN LAU
-        // Adding in implementation uncertainty
-        // Capping the trigger between 0 and 1
-        sm = max(0.0, min(1., (sm * policy_rdm.at((unsigned long) id)) + actions_rdm.at(action_multiplier_id)));
+        sm = min(1., sm * policy_rdm.at((unsigned long) id));
     }
+
+    // ADDED ON 2025-08-11 by Lillian Lau.
+    // Shift the stage_triggers by the action multiplier.
+    double action_multiplier = actions_rdm.at((unsigned long) action_multiplier_id);
+    for (double &st : stage_triggers) {
+        cout << "Before adjustment, stage trigger: " << st << endl;
+        st = max(0.0, min(1.0, st + action_multiplier));
+        cout << "After adjustment, stage trigger: " << st << endl;
+    }
+
 }
 
 const vector<double> &Restrictions::getStageMultipliers() const {
