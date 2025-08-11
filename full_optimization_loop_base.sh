@@ -5,7 +5,7 @@
 
 export OMP_NUM_THREADS=2 
 #for JOB in 2 3 4 5; do
-for JOB in 1; do
+for JOB in 99; do
   cat <<EOF | sbatch
 #!/bin/bash
 #SBATCH -A m2702 -C cpu
@@ -24,7 +24,7 @@ srun -n 2048 ./SedentoValleySimulation \
     -T ${OMP_NUM_THREADS} -t 2344 -r 200 \
     -d /pscratch/sd/l/lbl59/WaterPaths-IU/ \
     -v output_raw_base_new/ -I _bs200 \
-    -C -1 -O rof_tables_opt_parquet/ \
+    -C -1 -O rof_tables_opt_base_pq/ \
     -U TestFiles/rdm_utilities_test_problem_opt_bs200.csv \
     -P TestFiles/rdm_dmp_test_problem_opt_bs200.csv \
     -W TestFiles/rdm_water_sources_test_problem_opt_bs200.csv \

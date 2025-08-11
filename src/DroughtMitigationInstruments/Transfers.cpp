@@ -369,6 +369,7 @@ void Transfers::setRealization(unsigned long realization_id,
     // Scaling buyers_transfer_triggers by the realization actions_rdm
     for (unsigned long i = 0; i < buyers_transfer_triggers.size(); ++i) {
         int action_multiplier_idx = action_multiplier_ids.at(i);
+        // Capping the trigger between 0 and 1
         buyers_transfer_triggers[i] = max(0.0, min(1.0, buyers_transfer_triggers[i] + actions_rdm.at(action_multiplier_idx)));
     }
 }
