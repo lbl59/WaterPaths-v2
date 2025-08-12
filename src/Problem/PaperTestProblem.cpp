@@ -879,14 +879,14 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                                          dryville_insurance_trigger,
                                          fallsland_insurance_trigger};
 
-    vector<double> insurance_payout_percentage = {watertown_insurance_payment,
-                                                  dryville_insurance_payment,
-                                                  fallsland_insurance_payment};
+    vector<double> insurance_payout_percentage = {watertown_insurance_payout,
+                                                  dryville_insurance_payout,
+                                                  fallsland_insurance_payout};
     
-    InsuranceStorageToROF in(4, {5, 6, 7}, utilities,
+    InsuranceStorageToROF in(4, 1.2, {5, 6, 7}, utilities,
                              drought_mitigation_policies, min_env_flow_controls,
                              utilities_rdm, water_sources_rdm, policies_rdm, actions_rdm,
-                             insurance_triggers, 1.2, insurance_payout_percentage);
+                             insurance_triggers, insurance_payout_percentage);
 
     drought_mitigation_policies.push_back(&in);
     
