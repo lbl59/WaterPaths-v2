@@ -115,6 +115,10 @@ void InsuranceStorageToROF::priceInsurance(int week) {
         if (utility_rof > rof_triggers[u]) {
             // Increase total cost spent on insurance if insurance payout has been triggered
             insurance_cost[u] += (payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]) * insurance_premium;
+
+            // Increase the premium multiplier for the utility
+            // Scale the increase based on the difference between current ROF and trigger
+            insurance_premium *= 1. + max(utility_rof - rof_triggers[u], 0.0);
         } 
     }
 }
