@@ -13,6 +13,7 @@ class InsuranceStorageToROF : public DroughtMitigationPolicy {
 private:
     vector<double> rof_triggers;// = vector<double>(40, 0.);
     //const double insurance_premium;
+    double insurance_premium;
     vector<int> action_multiplier_ids;  // ADDED ON 2025-04-28 by Lillian Lau.
     vector<double> payout_multiplier;
     vector<double> insurance_cost;
