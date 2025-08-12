@@ -59,8 +59,8 @@ void LevelDebtServiceBond::issueBond(int week, int construction_time,
     Bond::issueBond(week, construction_time, bond_term_multiplier,
                     bond_interest_rate_multiplier);
     // Calculate the capital recovery factor for the bond.
-    capital_recovery_factor_num = interest_rate * pow(1. + interest_rate, n_payments);
-    capital_recovery_factor_den = pow(1. + interest_rate, n_payments) - 1.;
+    double capital_recovery_factor_num = interest_rate * pow(1. + interest_rate, n_payments);
+    double capital_recovery_factor_den = pow(1. + interest_rate, n_payments) - 1.;
 
     // Calculate the level debt service payment value
     level_debt_service_payment = cost_of_capital * (capital_recovery_factor_num / capital_recovery_factor_den);
