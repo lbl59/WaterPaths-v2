@@ -209,7 +209,7 @@ public:
 
     double getInsurance_payout() const;
 
-    double getInsurance_purchase() const;
+    double getInsurance_purchased() const;
 
     const vector<int> &getRof_infrastructure_construction_order() const;
 
