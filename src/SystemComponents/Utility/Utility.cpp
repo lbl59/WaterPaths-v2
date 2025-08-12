@@ -1038,7 +1038,7 @@ double Utility::getInsurance_payout() const {
     return insurance_payout;
 }
 
-double Utility::insurance_purchased() const {
+double Utility::getInsurance_purchased() const {
     return insurance_purchased;
 }
 
