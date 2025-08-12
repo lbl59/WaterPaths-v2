@@ -12,12 +12,12 @@
  * @param id
  * @param cost_of_capital
  * @param n_payments
- * @param coupon_rate
+ * @param interest_rate
  * @param pay_on_weeks
  */
 BalloonPaymentBond::BalloonPaymentBond(const int id, const double cost_of_capital, const int n_payments,
-                                       const double coupon_rate, vector<int> pay_on_weeks) :
-    Bond(id, cost_of_capital, n_payments, pay_on_weeks, coupon_rate, BALLOON_PAYMENT),
+                                       const double interest_rate, vector<int> pay_on_weeks) :
+    Bond(id, cost_of_capital, n_payments, pay_on_weeks, interest_rate, BALLOON_PAYMENT),
     begin_repayment_after_n_years(NONE) {}
 
 /**
@@ -25,14 +25,14 @@ BalloonPaymentBond::BalloonPaymentBond(const int id, const double cost_of_capita
  * @param id
  * @param cost_of_capital
  * @param n_payments
- * @param coupon_rate
+ * @param interest_rate
  * @param pay_on_weeks
  * @param begin_repayment_after_n_years
  */
 BalloonPaymentBond::BalloonPaymentBond(const int id, const double cost_of_capital, const int n_payments,
-                                       const double coupon_rate, vector<int> pay_on_weeks,
+                                       const double interest_rate, vector<int> pay_on_weeks,
                                        const int begin_repayment_after_n_years) :
-        Bond(id, cost_of_capital, n_payments, pay_on_weeks, coupon_rate, BALLOON_PAYMENT),
+        Bond(id, cost_of_capital, n_payments, pay_on_weeks, interest_rate, BALLOON_PAYMENT),
         begin_repayment_after_n_years(begin_repayment_after_n_years) {}
 
 
@@ -71,7 +71,7 @@ void BalloonPaymentBond::issueBond(int week, int construction_time, double bond_
     Bond::issueBond(week, 0, bond_term_multiplier, bond_interest_rate_multiplier);
 
     /// Interest to be paid every pay period.
-    interest_payments = coupon_rate * cost_of_capital;
+    interest_payments = interest_rate * cost_of_capital;
 }
 
 double BalloonPaymentBond::getPresentValueDebtService(int week, double discount_rate) {

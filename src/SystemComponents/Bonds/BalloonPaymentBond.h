@@ -18,9 +18,9 @@ private:
 
 public:
     BalloonPaymentBond(const int id, const double cost_of_capital, const int n_payments,
-                         const double coupon_rate, vector<int> pay_on_weeks);
+                         const double interest_rate, vector<int> pay_on_weeks);
 
-    BalloonPaymentBond(const int id, const double cost_of_capital, const int n_payments, const double coupon_rate,
+    BalloonPaymentBond(const int id, const double cost_of_capital, const int n_payments, const double interest_rate,
                        vector<int> pay_on_weeks, const int begin_repayment_after_n_years);
 
     double getDebtService(int week) override;
