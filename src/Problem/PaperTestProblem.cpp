@@ -249,12 +249,12 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
     double watertown_annual_payment = vars[8];
     double dryville_annual_payment = vars[9];
     double fallsland_annual_payment = vars[10];
-    double watertown_insurance_use = vars[11];
-    double dryville_insurance_use = vars[12];
-    double fallsland_insurance_use = vars[13];
-    double watertown_insurance_payment = vars[14];
-    double dryville_insurance_payment = vars[15];
-    double fallsland_insurance_payment = vars[16];
+    double watertown_insurance_trigger = vars[11];
+    double dryville_insurance_trigger = vars[12];
+    double fallsland_insurance_trigger = vars[13];
+    double watertown_insurance_payout = vars[14];
+    double dryville_insurance_payout = vars[15];
+    double fallsland_insurance_payout = vars[16];
     double watertown_inftrigger = vars[17];
     double dryville_inftrigger = vars[18];
     double fallsland_inftrigger = vars[19];
@@ -875,21 +875,18 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
     
     // Set up insurance
     /**
-    vector<double> insurance_triggers = {watertown_insurance_use,
-                                         dryville_insurance_use,
-                                         fallsland_insurance_use};
+    vector<double> insurance_triggers = {watertown_insurance_trigger,
+                                         dryville_insurance_trigger,
+                                         fallsland_insurance_trigger};
 
-    vector<double> fixed_payouts = {watertown_insurance_payment,
-                                    dryville_insurance_payment,
-                                    fallsland_insurance_payment};
-
-    vector<int> insured_utilities = {0, 1, 2};
+    vector<double> insurance_payout_percentage = {watertown_insurance_payment,
+                                                  dryville_insurance_payment,
+                                                  fallsland_insurance_payment};
     
-    InsuranceStorageToROF in(4, {5, 6, 7}, water_sources, g,
-                             reservoir_utility_connectivity_matrix, utilities,
+    InsuranceStorageToROF in(4, {5, 6, 7}, utilities,
                              drought_mitigation_policies, min_env_flow_controls,
                              utilities_rdm, water_sources_rdm, policies_rdm, actions_rdm,
-                             insurance_triggers, 1.2, fixed_payouts, n_weeks);
+                             insurance_triggers, 1.2, insurance_payout_percentage);
 
     drought_mitigation_policies.push_back(&in);
      */

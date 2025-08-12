@@ -15,14 +15,15 @@ private:
     const double insurance_premium;
     vector<int> action_multiplier_ids;  // ADDED ON 2025-04-28 by Lillian Lau.
     vector<double> payout_multiplier;
-    vector<double> insurance_price;
-    const vector<double> &fixed_payouts;
+    vector<double> insurance_cost;
+    const vector<double> &payout_percentage_of_revenue;   // Percentage of the utility's revenue last year.
     vector<double> utilities_revenue_update;
     vector<double> utilities_revenue_last_year;
     vector<DroughtMitigationPolicy *> drought_mitigation_policies;
 
 public:
-    InsuranceStorageToROF(const int id, const vector<int> &action_multiplier_ids, // ADDED ON 2025-04-28 BY LILLIAN LAU
+    InsuranceStorageToROF(const int id, const double insurance_premium,
+                              const vector<int> &action_multiplier_ids, // ADDED ON 2025-04-28 BY LILLIAN LAU
                               vector<Utility *> &utilities,
                               vector<DroughtMitigationPolicy *> &drought_mitigation_policies,
                               vector<MinEnvFlowControl *> min_env_flow_controls,
@@ -31,8 +32,7 @@ public:
                               vector<vector<double>>& policy_rdm, 
                               vector<vector<double>>& actions_rdm, 
                               vector<double> &rof_triggers,
-                              const double insurance_premium, 
-                              const vector<double> &fixed_payouts);
+                              const vector<double> &payout_percentage_of_revenue);
 
     InsuranceStorageToROF(InsuranceStorageToROF &insurance);
 

@@ -253,7 +253,7 @@ void UtilitiesDataCollector::collect_data() {
     debt_service_payments.push_back(utility->getCurrent_debt_payment());
     contingency_fund_contribution.push_back(utility->getCurrent_contingency_fund_contribution());
     drought_mitigation_cost.push_back(utility->getDrought_mitigation_cost());
-    insurance_contract_cost.push_back(utility->getInsurance_purchase());
+    insurance_contract_cost.push_back(utility->getInsurance_purchased());
     insurance_payout.push_back(utility->getInsurance_payout());
     capacity.push_back(utility->getTotal_storage_capacity());
     waste_water_discharge.push_back(utility->getWaste_water_discharge());

@@ -25,11 +25,11 @@ Bond::Bond(const int id, const double cost_of_capital, const int n_payments,
 }
 
 Bond::Bond(const int id, const double cost_of_capital, const int n_payments,
-           vector<int> pay_on_weeks, const double coupon_rate, const int type,
+           vector<int> pay_on_weeks, const double interest_rate, const int type,
            bool begin_repayment_at_issuance) :
         id(id), cost_of_capital(cost_of_capital), n_payments(n_payments),
         pay_on_weeks(pay_on_weeks),
-        coupon_rate(coupon_rate), type(type) {
+        interest_rate(interest_rate), type(type) {
 
     // If bond is to start being paid for at issuance, set repayment delay
     // to 0. Otherwise it will be set at issuance.
@@ -74,7 +74,7 @@ void Bond::issueBond(int week, int construction_time,
 
     week_issued = week;
     n_payments *= bond_term_multiplier;
-    coupon_rate *= bond_interest_rate_multiplier;
+    interest_rate *= bond_interest_rate_multiplier;
     setIssued();
 }
 
@@ -86,8 +86,8 @@ void Bond::setIssued() {
     Bond::issued = true;
 }
 
-double Bond::getCouponRate() const {
-    return coupon_rate;
+double Bond::getInterestRate() const {
+    return interest_rate;
 }
 
 double Bond::getCostOfCapital() const {

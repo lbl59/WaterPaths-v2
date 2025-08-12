@@ -315,13 +315,13 @@ void Utility::calculateWeeklyAverageWaterPrices(
         // CORRECTION ON 2025-04-17
         // monthly_average_price is already a per-unit average 
         // prices are in $/MGD --> need to convert to $/gal (Zeff et al 2014)
-         
-        weekly_average_volumetric_price[w] = \
-            monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;
         /**
         weekly_average_volumetric_price[w] = \
-            monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
+            monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;
         */
+        weekly_average_volumetric_price[w] = \
+            monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
+        
     }
 }
 
@@ -656,7 +656,7 @@ void Utility::updateContingencyFundAndDebtService(
 
     // Clear yearly updated data collecting variables.
     if (week_of_year == 0) {
-        insurance_purchase = 0.;
+        insurance_purchased = 0.;
     } else if (week_of_year == 1) {
         infra_net_present_cost = 0.;
         current_debt_payment = 0.;
@@ -691,7 +691,7 @@ void Utility::updateContingencyFundAndDebtService(
             restricted_demand * (current_price - unrestricted_price);
 
     // contingency fund cannot get negative.
-    /**
+    
     contingency_fund = max(contingency_fund + projected_fund_contribution -
                            revenue_losses - transfer_costs +
                            recouped_loss_price_surcharge,
@@ -699,8 +699,8 @@ void Utility::updateContingencyFundAndDebtService(
     fund_contribution =
             projected_fund_contribution - revenue_losses - transfer_costs +
             recouped_loss_price_surcharge;
-    */
-        
+    
+    /**    
     double previous_fund_level = contingency_fund;
     double contingency_fund_cap = 100000000.0; // $100 million cap
     // ADDED A CONTINGENCY FUND CAP of $100 MILLION ON 2025-08-01
@@ -719,6 +719,7 @@ void Utility::updateContingencyFundAndDebtService(
     fund_contribution =
             min(projected_fund_contribution - revenue_losses - transfer_costs + recouped_loss_price_surcharge,
                     contingency_fund_cap - previous_fund_level);
+    */
     resetDroughtMitigationVariables();
 
     // Calculate current debt payment to be made on that week (if first
@@ -865,9 +866,9 @@ void Utility::addInsurancePayout(double payout_value) {
     insurance_payout = payout_value;
 }
 
-void Utility::purchaseInsurance(double insurance_price) {
-    contingency_fund -= insurance_price;
-    insurance_purchase = insurance_price;
+void Utility::purchaseInsurance(double insurance_cost) {
+    contingency_fund -= insurance_cost;
+    insurance_purchased = insurance_cost;
 }
 
 void
@@ -1037,8 +1038,8 @@ double Utility::getInsurance_payout() const {
     return insurance_payout;
 }
 
-double Utility::getInsurance_purchase() const {
-    return insurance_purchase;
+double Utility::insurance_purchased() const {
+    return insurance_purchased;
 }
 
 const vector<int> &Utility::getRof_infrastructure_construction_order()

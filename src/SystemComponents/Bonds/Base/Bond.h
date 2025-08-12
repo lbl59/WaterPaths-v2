@@ -17,7 +17,7 @@ private:
 protected:
     int week_issued;
     int begin_repayment_after_n_years = NON_INITIALIZED;
-    double coupon_rate;
+    double interest_rate;
     double cost_of_capital;
     int n_payments;
 public:
@@ -29,7 +29,7 @@ public:
                   const int type, bool begin_repayment_at_issuance = false);
 
     Bond(const int id, const double cost_of_capital, const int n_payments, vector<int> pay_on_weeks,
-         const double coupon_rate, const int type, bool begin_repayment_at_issuance = false);
+         const double interest_rate, const int type, bool begin_repayment_at_issuance = false);
 
     Bond();
 
@@ -39,9 +39,9 @@ public:
 
     virtual double getDebtService(int week) = 0;
 
-    virtual double getPresentValueDebtService(int week, double discount_rate) = 0;
+    virtual double getPresentValueDebtService(int week, double infra_discount_rate) = 0;
 
-    virtual double getNetPresentValueAtIssuance(double discount_rate, int week) const = 0;
+    virtual double getNetPresentValueAtIssuance(double infra_discount_rate, int week) const = 0;
 
     virtual void
     issueBond(int week, int construction_time, double bond_term_multiplier, double bond_interest_rate_multiplier);
@@ -52,7 +52,7 @@ public:
 
     void setIssued();
 
-    double getCouponRate() const;
+    double getInterestRate() const;
 
     double getCostOfCapital() const;
 

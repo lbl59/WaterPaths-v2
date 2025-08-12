@@ -1,65 +1,40 @@
 //
 // Created by bernardoct on 5/1/17.
+// Simplified by Lillian Lau on 8/12/2025.
 //
-
-/*
- * CLASS INTENDED USAGE ANALYSIS:
- * 
- * The InsuranceStorageToROF class implements a simplified drought insurance mechanism that:
- * 1. Inherits from DroughtMitigationPolicy only (ContinuityModelROF inheritance removed)
- * 2. Provides insurance payouts to utilities when their Risk-of-Failure (ROF) exceeds trigger thresholds
- * 3. Prices insurance based on current storage levels relative to capacity (no ROF table recalculation)
- * 4. Uses storage-based ROF scaling for real-time risk assessment
- * 
- * WORKFLOW:
- * - Constructor: Takes utilities, ROF triggers, premium, and payout info (simplified interface)
- * - addSystemComponents(): Links to the main simulation's utilities (water sources no longer needed)
- * - setRealization(): Adjusts ROF triggers based on uncertainty parameters
- * - applyPolicy(): Called weekly during simulation to:
- *   a) Update utility revenue tracking
- *   b) Price insurance annually based on current storage levels
- *   c) Make payouts when storage-based ROF > trigger threshold
- * - priceInsurance(): Uses current storage ratios to estimate insurance costs (no simulation needed)
- * 
- * IMPROVEMENTS MADE:
- * 1. Removed complex ContinuityModelROF inheritance and ROF table recalculation
- * 2. Simplified constructor interface - only requires utilities and basic parameters
- * 3. Storage-based ROF calculation eliminates need for expensive simulations
- * 4. Faster, more predictable insurance pricing based on current system state
- * 5. Eliminated memory management issues from copied utilities and drought policies
- * 6. Cleaner, more focused class design with single responsibility
- */
 
 #include <iostream>
 #include <cmath>
 #include "InsuranceStorageToROF.h"
 #include "../Utils/Utils.h"
 
-InsuranceStorageToROF::InsuranceStorageToROF(const int id, const vector<int>&action_multiplier_ids, // ADDED ON 2025-04-28 by Lillian Lau.
-                                             vector<Utility *> &utilities,
-                                             vector<DroughtMitigationPolicy *> &drought_mitigation_policies,
-                                             vector<MinEnvFlowControl *> min_env_flow_controls,
-                                             vector<vector<double>>& utilities_rdm,
-                                             vector<vector<double>>& water_sources_rdm,
-                                             vector<vector<double>>& policy_rdm, vector<vector<double>>& actions_rdm, 
-                                             vector<double> &rof_triggers,
-                                             const double insurance_premium, const vector<double> &fixed_payouts)
+InsuranceStorageToROF::InsuranceStorageToROF(
+    const int id, const double insurance_premium, 
+    const vector<int>&action_multiplier_ids, // ADDED ON 2025-04-28 by Lillian Lau.
+    vector<Utility *> &utilities,
+    vector<DroughtMitigationPolicy *> &drought_mitigation_policies,
+    vector<MinEnvFlowControl *> min_env_flow_controls,
+    vector<vector<double>>& utilities_rdm,
+    vector<vector<double>>& water_sources_rdm,
+    vector<vector<double>>& policy_rdm, 
+    vector<vector<double>>& actions_rdm, 
+    vector<double> &rof_triggers,
+    const vector<double> &payout_percentage_of_revenue)
         : DroughtMitigationPolicy(id, INSURANCE_STORAGE_ROF),
           rof_triggers(rof_triggers),
           insurance_premium(insurance_premium),
-          insurance_price(NONE),
-          fixed_payouts(fixed_payouts),
+          insurance_cost(NONE),
+          payout_percentage_of_revenue(payout_percentage_of_revenue),
           action_multiplier_ids(action_multiplier_ids),  // ADDED ON 2025-04-28 by Lillian Lau.
           utilities_revenue_update(vector<double>((unsigned long) utilities.size(), 0.)),
           utilities_revenue_last_year(vector<double>((unsigned long) utilities.size(), 0.)),
           drought_mitigation_policies(vector<DroughtMitigationPolicy *>())
 {
-
     for (Utility *u : utilities) {
         utilities_ids.push_back(u->id);
     }
     
-    insurance_price = vector<double>((unsigned long) utilities.size(), 0.);
+    insurance_cost = vector<double>((unsigned long) utilities.size(), 0.);
     payout_multiplier = vector<double>((unsigned long) utilities.size(), 1.);
 }
 
@@ -68,9 +43,9 @@ InsuranceStorageToROF::InsuranceStorageToROF(
         DroughtMitigationPolicy(insurance.id, insurance.type),
         rof_triggers(insurance.rof_triggers),
         insurance_premium(insurance.insurance_premium),
-        insurance_price(insurance.insurance_price),
+        insurance_cost(insurance.insurance_cost),
         payout_multiplier(insurance.payout_multiplier),
-        fixed_payouts(insurance.fixed_payouts),
+        payout_percentage_of_revenue(insurance.payout_percentage_of_revenue),
         action_multiplier_ids(insurance.action_multiplier_ids),  // ADDED ON 2025-04-28 by Lillian Lau.
         utilities_revenue_update(vector<double>((unsigned long) insurance.utilities_ids.size(), 0.)),
         utilities_revenue_last_year(vector<double>((unsigned long) insurance.utilities_ids.size(), 0.)),
@@ -79,17 +54,7 @@ InsuranceStorageToROF::InsuranceStorageToROF(
     utilities_ids = insurance.utilities_ids;
 }
 
-InsuranceStorageToROF::~InsuranceStorageToROF() {
-    /**
-    // CORRECTION MADE ON 04-23-2025 BY LILLIAN LAU
-    // Removing manual deletion of data collectors.
-    // Delete drought mitigation policies.
-    for (auto dmp : drought_mitigation_policies) {
-        delete dmp;
-    }
-    */
-}
-
+InsuranceStorageToROF::~InsuranceStorageToROF() {}
 
 void InsuranceStorageToROF::applyPolicy(int week) {
     // Update utilities year revenue.
@@ -116,7 +81,7 @@ void InsuranceStorageToROF::applyPolicy(int week) {
             if (utility_rof > rof_triggers[u]) {
                 // payout multiplier adjusts for partially paid insurance price due to insufficient contingency fund.
                 DroughtMitigationPolicy::realization_utilities[u]->addInsurancePayout(
-                        fixed_payouts[u] * utilities_revenue_last_year[u] * payout_multiplier[u]);
+                        payout_percentage_of_revenue[u] * utilities_revenue_last_year[u] * payout_multiplier[u]);
             } else {
                 DroughtMitigationPolicy::realization_utilities[u]->addInsurancePayout(NONE);
             }
@@ -140,18 +105,16 @@ void InsuranceStorageToROF::addSystemComponents(vector<Utility *> utilities,
  * @param week
  */
 void InsuranceStorageToROF::priceInsurance(int week) {
-
     // Reset prices.
-    for (int u : utilities_ids) insurance_price[u] = 0;
+    for (int u : utilities_ids) insurance_cost[u] = 0;
 
     // Price insurance based on current storage-based ROF levels
     for (int u : utilities_ids) {
         double utility_rof = realization_utilities[u]->getRisk_of_failure();
         // If current ROF exceeds trigger, expect higher payout probability
         if (utility_rof > rof_triggers[u]) {
-            // Increase price based on if insurance payout has been triggered before in this realization 
-            insurance_price[u] += fixed_payouts[u] * utilities_revenue_last_year[u] * insurance_premium;
-            // Else, insurance price stays the same
+            // Increase total cost spent on insurance if insurance payout has been triggered
+            insurance_cost[u] += (payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]) * insurance_premium;
         } 
     }
 }

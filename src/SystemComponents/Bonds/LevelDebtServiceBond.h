@@ -10,22 +10,22 @@
 
 class LevelDebtServiceBond : public Bond {
 private:
-    double level_debt_service_payment;
+    double level_debt_service_payment = 0.;
     int n_payments_made = 0;
 
 public:
     LevelDebtServiceBond(const int id, const double cost_of_capital, const int n_payments,
-                             const double coupon_rate, vector<int> pay_on_weeks, bool begin_repayment_at_issuance = false);
+                             const double interest_rate, vector<int> pay_on_weeks, bool begin_repayment_at_issuance = false);
 
     ~LevelDebtServiceBond() override;
 
     double getDebtService(int week) override;
 
-    double getNetPresentValueAtIssuance(double yearly_discount_rate, int week) const override;
+    double getNetPresentValueAtIssuance(double infra_discount_rate, int week) const override;
 
     void issueBond(int week, int construction_time, double bond_term_multiplier, double bond_interest_rate_multiplier) override;
 
-    double getPresentValueDebtService(int week, double discount_rate);
+    double getPresentValueDebtService(int week, double infra_discount_rate);
 };
 
 
