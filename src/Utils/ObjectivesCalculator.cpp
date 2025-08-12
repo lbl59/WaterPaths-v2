@@ -157,28 +157,31 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
     unsigned long n_years = (unsigned long) round(n_weeks / WEEKS_IN_YEAR);
     double discount_rate = utility_data[0]->getUtility()->getInfraDiscountRate();
 
-    double realizations_year_debt_payment = 0;
-    double realizations_year_cont_fund_contribution = 0;
-    double realizations_year_gross_revenue = 1e-6;
-    double realizations_year_insurance_contract_cost = 0;
-    double realizations_year_drought_mitigation_cost = 0;
-
-    vector<double> year_financial_costs;
     vector<double> realization_financial_costs(utility_data.size(), 0);
 
     // Creates a table with years that failed in each realization.
-    int y;
+    
     for (const unsigned long &r : realizations) {
+        int y = 0;
+        vector<double> year_financial_costs;
         year_financial_costs.assign(n_years, 0.0);
-        y = 0;
+        
+        double realizations_year_debt_payment = 0;
+        double realizations_year_cont_fund_contribution = 0;
+        double realizations_year_gross_revenue = 1e-6;
+        //double realizations_year_insurance_contract_cost = 0;
+        double realizations_year_drought_mitigation_cost = 0;
+
         for (unsigned long w = 0; w < n_weeks; ++w) {
             // accumulate year's info by summing weekly amounts.
             realizations_year_debt_payment +=
                     utility_data[r]->getDebt_service_payments()[w];
             realizations_year_cont_fund_contribution +=
                     utility_data[r]->getContingency_fund_contribution()[w];
+            /**
             realizations_year_insurance_contract_cost +=
                     utility_data[r]->getInsurance_contract_cost()[w];
+             */
             // UPDATED ON 2025-08-11 BY LILLIAN LAU
             // Adding drought mitigation cost to the year's total.
             realizations_year_drought_mitigation_cost +=
@@ -189,11 +192,10 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
             // if last week of the year, close the books and calculate
             // financial cost for the year.
             if (Utils::isFirstWeekOfTheYear(w + 1)) {
-
                 year_financial_costs[y] +=
                         (realizations_year_debt_payment +
                          realizations_year_cont_fund_contribution +
-                         realizations_year_insurance_contract_cost +  // REMOVED INSURANCE CONTRACT COST ON 2025-08-11 BY LILLIAN LAU
+                         //realizations_year_insurance_contract_cost +  // REMOVED INSURANCE CONTRACT COST ON 2025-08-11 BY LILLIAN LAU
                          realizations_year_drought_mitigation_cost) /  // ADDED DROUGHT MITIGATION COST on 2025-08-11 BY LILLIAN LAU
                         realizations_year_gross_revenue;
                 
@@ -203,7 +205,7 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
                 // reset accounts.
                 realizations_year_debt_payment = 0;
                 realizations_year_cont_fund_contribution = 0;
-                realizations_year_insurance_contract_cost = 0;
+                //realizations_year_insurance_contract_cost = 0;
                 realizations_year_drought_mitigation_cost = 0; // ADDED DROUGHT MITIGATION COST on 2025-08-11 BY LILLIAN LAU
                 realizations_year_gross_revenue = 1e-6;
             }
@@ -247,15 +249,13 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
     vector<double> worse_year_financial_costs;
 
     // Creates a table with years that failed in each realization.
-    int y;
     for (const unsigned long &r : realizations) {
-        y = 0;
+        int y = 0;
         vector<double> year_financial_costs;
         year_financial_costs.assign(n_years, 0);
 
         double year_drought_mitigation_cost = 0;
         double year_gross_revenue = 1e-6;
-
         for (unsigned long w = 0; w < n_weeks; ++w) {
             // accumulate year's info by summing weekly amounts.
             year_drought_mitigation_cost += utility_data[r]->getDrought_mitigation_cost()[w];

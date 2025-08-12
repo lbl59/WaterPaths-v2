@@ -37,9 +37,9 @@ void PaperTestProblem::setProblemDefinition(BORG_Problem &problem)
     BORG_Problem_set_bounds(problem, 8, 0.0, 0.1);      // watertown annual payment
     BORG_Problem_set_bounds(problem, 9, 0.0, 0.1);      // dryville annual payment
     BORG_Problem_set_bounds(problem, 10, 0.0, 0.1);     // fallsland annual payment
-    BORG_Problem_set_bounds(problem, 11, 0.001, 1.0);   // watertown insurance use
-    BORG_Problem_set_bounds(problem, 12, 0.001, 1.0);   // dryville insurance use
-    BORG_Problem_set_bounds(problem, 13, 0.001, 1.0);   // fallsland insurance use
+    BORG_Problem_set_bounds(problem, 11, 0.0, 1.0);   // watertown insurance use
+    BORG_Problem_set_bounds(problem, 12, 0.0, 1.0);   // dryville insurance use
+    BORG_Problem_set_bounds(problem, 13, 0.0, 1.0);   // fallsland insurance use
     BORG_Problem_set_bounds(problem, 14, 0.0, 0.02);    // watertown insurance payment
     BORG_Problem_set_bounds(problem, 15, 0.0, 0.02);    // dryville insurance payment
     BORG_Problem_set_bounds(problem, 16, 0.0, 0.02);    // fallsland insurance payment
@@ -872,7 +872,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                 vector<double>(),
                 vector<int>());
     drought_mitigation_policies.push_back(&t);
-    
+    /**
     // Set up insurance
     
     vector<double> insurance_triggers = {watertown_insurance_trigger,
@@ -889,7 +889,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                              insurance_triggers, insurance_payout_percentage);
 
     drought_mitigation_policies.push_back(&in);
-    
+     */
     // Creates simulation object depending on use (or lack thereof) ROF tables
     //double start_time = omp_get_wtime();
     if (import_export_rof_tables == EXPORT_ROF_TABLES) {

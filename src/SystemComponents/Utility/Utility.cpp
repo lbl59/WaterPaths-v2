@@ -315,13 +315,14 @@ void Utility::calculateWeeklyAverageWaterPrices(
         // CORRECTION ON 2025-04-17
         // monthly_average_price is already a per-unit average 
         // prices are in $/MGD --> need to convert to $/gal (Zeff et al 2014)
-        /**
+        
         weekly_average_volumetric_price[w] = \
             monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;
-        */
+        
+       /**
         weekly_average_volumetric_price[w] = \
             monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
-        
+        */
     }
 }
 
