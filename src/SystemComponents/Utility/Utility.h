@@ -55,7 +55,7 @@ private:
     double contingency_fund = 0;
     double drought_mitigation_cost = 0;
     double insurance_payout = 0;
-    double insurance_purchase = 0;
+    double insurance_purchased = 0;
     double restricted_demand = 0;
     double unrestricted_demand = 0;
     int n_sources = 0;
