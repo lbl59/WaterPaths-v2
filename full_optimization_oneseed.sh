@@ -3,9 +3,9 @@
 #SBATCH --nodes=4
 #SBATCH --ntasks-per-node=128
 #SBATCH --qos=debug
-#SBATCH --job-name=opt_mm2_n512_wIns_base_seed1
-#SBATCH --output=logs/opt_mm2_n512_wIns_base_seed1.out
-#SBATCH --error=logs/opt_mm2_n512_wIns_base_seed1.err
+#SBATCH --job-name=opt_mm2_n512_noIns_base_seed1
+#SBATCH --output=logs/opt_mm2_n512_noIns_base_seed1.out
+#SBATCH --error=logs/opt_mm2_n512_noIns_base_seed1.err
 #SBATCH --time=00:30:00
 #SBATCH --mail-user=lbl59@cornell.edu
 #SBATCH --mail-type=ALL
@@ -21,4 +21,4 @@ srun -n 512 ./SedentoValleySimulation \
     -U TestFiles/rdm_utilities_test_problem_opt_bs200.csv \
     -P TestFiles/rdm_dmp_test_problem_opt_bs200.csv \
     -W TestFiles/rdm_water_sources_test_problem_opt_bs200.csv \
-    -b true -n 15000 -o 1500 -e 99 -i 2
+    -b true -n 15000 -o 1500 -e 1 -i 2

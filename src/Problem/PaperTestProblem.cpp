@@ -872,9 +872,9 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                 vector<double>(),
                 vector<int>());
     drought_mitigation_policies.push_back(&t);
-    /**
+
     // Set up insurance
-    
+    /**
     vector<double> insurance_triggers = {watertown_insurance_trigger,
                                          dryville_insurance_trigger,
                                          fallsland_insurance_trigger};

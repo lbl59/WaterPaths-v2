@@ -16,9 +16,9 @@ LevelDebtServiceBond::LevelDebtServiceBond(const int id, const double cost_of_ca
 LevelDebtServiceBond::~LevelDebtServiceBond() = default;
 
 /**
- * Calculates debt service payment for a give week.
+ * Calculates debt service payment for a given week.
  * @param week
- * @return
+ * @return debt service payment for that week, or 0 if no payment is due.
  */
 double LevelDebtServiceBond::getDebtService(int week) {
     /// If there are still payments to be made, repayment has begun,
@@ -36,7 +36,6 @@ double LevelDebtServiceBond::getDebtService(int week) {
         return 0.;
     }
 }
-
 
 double LevelDebtServiceBond::getNetPresentValueAtIssuance(
         double infra_discount_rate, int week) const {
