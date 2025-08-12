@@ -58,12 +58,12 @@ double BalloonPaymentBond::getDebtService(int week) {
     }
 }
 
-double BalloonPaymentBond::getNetPresentValueAtIssuance(double yearly_discount_rate, int week) const {
+double BalloonPaymentBond::getNetPresentValueAtIssuance(double infra_discount_rate, int week) const {
     double npv_at_first_payment_date = interest_payments *
-                                       (1. - pow(1. + (yearly_discount_rate / pay_on_weeks.size()), -n_payments)) /
-                                       (yearly_discount_rate / pay_on_weeks.size());
+                                       (1. - pow(1. + (infra_discount_rate / pay_on_weeks.size()), -n_payments)) /
+                                       (infra_discount_rate / pay_on_weeks.size());
 
-    return npv_at_first_payment_date / pow(1. + yearly_discount_rate, begin_repayment_after_n_years);
+    return npv_at_first_payment_date / pow(1. + infra_discount_rate, begin_repayment_after_n_years);
 }
 
 void BalloonPaymentBond::issueBond(int week, int construction_time, double bond_term_multiplier,

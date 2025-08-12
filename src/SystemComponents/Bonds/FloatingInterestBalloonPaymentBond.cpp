@@ -59,8 +59,8 @@ double FloatingInterestBalloonPaymentBond::getDebtService(int week) {
     }
 }
 
-double FloatingInterestBalloonPaymentBond::getNetPresentValueAtIssuance(double yearly_discount_rate, int week) const {
-    return cost_of_capital * (1. + interest_rate_series[week]) / (1. + yearly_discount_rate);
+double FloatingInterestBalloonPaymentBond::getNetPresentValueAtIssuance(double infra_discount_rate, int week) const {
+    return cost_of_capital * (1. + interest_rate_series[week]) / (1. + infra_discount_rate);
 }
 
 void FloatingInterestBalloonPaymentBond::issueBond(int week, int construction_time, double bond_term_multiplier,
