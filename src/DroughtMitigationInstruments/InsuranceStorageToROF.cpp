@@ -81,10 +81,8 @@ void InsuranceStorageToROF::applyPolicy(int week) {
             if (utility_rof > rof_triggers[u]) {
                 // If ROF exceeds trigger, claim a payout
                 // if insurance was purchased then claim a payout
-                if (realization_utilities[u]->getInsurance_purchased() > 0) {
-                    realization_utilities[u]->addInsurancePayout(
-                            payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]);
-                }
+                realization_utilities[u]->addInsurancePayout(
+                        payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]);
             } else {
                 realization_utilities[u]->addInsurancePayout(NONE);
             }
@@ -117,7 +115,7 @@ void InsuranceStorageToROF::priceInsurance(int week) {
             // Increase total cost spent on insurance if insurance payout has been triggered
             //insurance_cost[u] += (payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]) * insurance_premium;
             realization_utilities[u]->purchaseInsurance(
-                (payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]) * insurance_premium);
+                payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]);
         } 
     }
 }
