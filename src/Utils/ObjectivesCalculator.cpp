@@ -281,7 +281,7 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
             // if last week of the year, close the books and calculate financial cost for the year.
             if (Utils::isFirstWeekOfTheYear(w + 1)) {
                 double available_contingency_fund = utility_data[r]->getContingency_fund_size()[w];
-                /**
+                
                 if (year_drought_mitigation_cost > 0) {
                     cout << "Realization: " << r << endl;
                     cout << "Year: " << y << endl;
@@ -289,8 +289,7 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
                     cout << "Drought mitigation cost ($): " << year_drought_mitigation_cost << endl;
                     cout << "Available contingency fund ($): " << available_contingency_fund << endl;
                 }
-                     */
-                
+                     
                 year_financial_costs[y] =   
                         max(year_drought_mitigation_cost - available_contingency_fund, 0.0) / year_gross_revenue;
                 
