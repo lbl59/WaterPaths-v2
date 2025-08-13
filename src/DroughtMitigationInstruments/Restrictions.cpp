@@ -141,17 +141,18 @@ void Restrictions::calculateWeeklyAverageWaterPrices(
             }
 
             for (int w = 0; w < (int) (WEEKS_IN_YEAR + 1); ++w) {
-                restricted_weekly_average_volumetric_price[s][w] =
-                        monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
                 /**
                 restricted_weekly_average_volumetric_price[s][w] =
-                        monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 4.0;
+                        monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
                 
+                restricted_weekly_average_volumetric_price[s][w] =
+                        monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 4.0;
+                */
                 // CORRECTION ON 2025-04-17
                 // Convert from $/MG to $mil/MG
                 restricted_weekly_average_volumetric_price[s][w] =
                         monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;
-                */
+                
             }
         }
     }
