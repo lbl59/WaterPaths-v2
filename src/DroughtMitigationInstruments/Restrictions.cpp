@@ -43,9 +43,10 @@ Restrictions::Restrictions(
                                       priceMultipliers);
     utilities_ids = vector<int>(1, id);
 
-    setupTriggers(stage_multipliers, stage_triggers);
+    //setupTriggers(stage_multipliers, stage_triggers);
 }
 
+/**
 void Restrictions::setupTriggers(const vector<double> &stage_multipliers,
                                  const vector<double> &stage_triggers) {
     if (stage_triggers.size() == 1 && stage_multipliers.size() > 1) {
@@ -58,6 +59,7 @@ void Restrictions::setupTriggers(const vector<double> &stage_multipliers,
         sort(Restrictions::stage_triggers.begin(), Restrictions::stage_triggers.end());
     }
 }
+ */
 
 Restrictions::Restrictions(const Restrictions &restrictions) :
         DroughtMitigationPolicy(restrictions),
@@ -165,7 +167,7 @@ void Restrictions::setRealization(unsigned long realization_id,
                                   const vector<double> &actions_rdm) { // ADDED ON 2025-04-28 by Lillian Lau.
 
     for (double &sm : stage_multipliers) {
-        sm = min(1., sm * policy_rdm.at((unsigned long) id));
+        sm = sm * policy_rdm.at((unsigned long) id);
     }
 
     // ADDED ON 2025-08-11 by Lillian Lau.

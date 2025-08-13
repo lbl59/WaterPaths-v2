@@ -53,10 +53,10 @@ public:
                         const vector<double> &water_sources_rdm, 
                         const vector<double> &policy_rdm,
                         const vector<double> &actions_rdm) override; // ADDED ON 2025-04-28 by Lillian Lau.
-
+    /**
     void setupTriggers(const vector<double> &stage_multipliers,
                        const vector<double> &stage_triggers);
-
+     */
     const vector<double> &getStageMultipliers() const;
 
     const vector<double> &getStageTriggers() const;
