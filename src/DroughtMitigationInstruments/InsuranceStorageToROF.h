@@ -39,7 +39,7 @@ public:
 
     ~InsuranceStorageToROF() override;
 
-    void priceInsurance(int week);
+    //void priceInsurance(int week);
 
     void applyPolicy(int week) override;
 

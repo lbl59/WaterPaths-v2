@@ -704,9 +704,9 @@ void Utility::updateContingencyFundAndDebtService(
     double previous_fund_level = contingency_fund;
     double contingency_fund_cap = 100000000.0; // $100 million cap
     // ADDED A CONTINGENCY FUND CAP of $100 MILLION ON 2025-08-01
-    contingency_fund = max(
-        min(contingency_fund + projected_fund_contribution - revenue_losses - transfer_costs + recouped_loss_price_surcharge, contingency_fund_cap), 
-        0.0);
+    contingency_fund = min(
+            max(contingency_fund + projected_fund_contribution - revenue_losses - transfer_costs + recouped_loss_price_surcharge, 0.0),
+            contingency_fund_cap);
     // Update variables for data collection and next iteration.
     drought_mitigation_cost = max(revenue_losses + transfer_costs -
                                   insurance_payout -
@@ -717,7 +717,7 @@ void Utility::updateContingencyFundAndDebtService(
     // reduce actual contribution based on revenue losses and transfer costs or cap on fund
     fund_contribution =
             min(projected_fund_contribution - revenue_losses - transfer_costs + recouped_loss_price_surcharge,
-                contingency_fund_cap - previous_fund_level);
+                max(contingency_fund_cap - previous_fund_level, 0.));
     
     resetDroughtMitigationVariables();
 
@@ -863,6 +863,8 @@ void Utility::calculateWastewater_releases(int week, double *discharges) {
 void Utility::addInsurancePayout(double payout_value) {
     contingency_fund += payout_value;
     insurance_payout = payout_value;
+    cout << "Insurance payout of $" << payout_value
+         << " added to contingency fund for utility " << name << endl;
 }
 
 void Utility::purchaseInsurance(double insurance_cost) {
@@ -872,9 +874,7 @@ void Utility::purchaseInsurance(double insurance_cost) {
 
 void
 Utility::setDemand_offset(double demand_offset, double offset_rate_per_volume) {
-    // if a utility has >1 transfer agreement, make this additive
-    // UPDATED BY LILLIAN LAU ON 2025-08-01
-    this->demand_offset += demand_offset; 
+    this->demand_offset = demand_offset; 
     this->offset_rate_per_volume = offset_rate_per_volume;
 }
 

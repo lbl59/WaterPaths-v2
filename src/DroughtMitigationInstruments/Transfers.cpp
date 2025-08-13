@@ -264,10 +264,9 @@ void Transfers::applyPolicy(int week) {
                                                        allocations[id]);
                 }
             }
-
-            source_utility->setDemand_offset(allocations[source_utility_id],
-                                             2. * source_utility->waterPrice
-                                                     (price_week));
+            // cost of transfers is 2x the water price of the source utility at a given week.
+            double transfer_cost = 2 * source_utility->waterPrice(price_week);
+            source_utility->setDemand_offset(allocations[source_utility_id], transfer_cost);
         }
     }
 }

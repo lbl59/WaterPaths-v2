@@ -59,8 +59,7 @@ InsuranceStorageToROF::~InsuranceStorageToROF() {}
 void InsuranceStorageToROF::applyPolicy(int week) {
     // Update utilities year revenue.
     for (unsigned long u = 0; u < DroughtMitigationPolicy::realization_utilities.size(); ++u) {
-        utilities_revenue_update[u] +=
-                DroughtMitigationPolicy::realization_utilities[u]->getGrossRevenue();
+        utilities_revenue_update[u] += realization_utilities[u]->getGrossRevenue();
     }
 
     // If first week of the year, price insurance for coming year and update
@@ -68,7 +67,7 @@ void InsuranceStorageToROF::applyPolicy(int week) {
     if (Utils::isFirstWeekOfTheYear(week + 1)) {
         utilities_revenue_last_year = utilities_revenue_update;
         std::fill(utilities_revenue_update.begin(), utilities_revenue_update.end(), NONE);
-        priceInsurance(week);
+        //priceInsurance(week);
     }
 
     // Only make payouts AFTER the first year
@@ -79,11 +78,14 @@ void InsuranceStorageToROF::applyPolicy(int week) {
             // Get storage-based ROFs for the utility
             double utility_rof = realization_utilities[u]->getRisk_of_failure();
             if (utility_rof > rof_triggers[u]) {
-                // payout multiplier adjusts for partially paid insurance price due to insufficient contingency fund.
-                DroughtMitigationPolicy::realization_utilities[u]->addInsurancePayout(
-                        payout_percentage_of_revenue[u] * utilities_revenue_last_year[u] * payout_multiplier[u]);
+                cout << "Payout percentage: " << payout_percentage_of_revenue[u] << endl;
+                cout << "Utility revenue last year ($): " << utilities_revenue_last_year[u] << endl;
+                cout << "Total payout ($): " << payout_percentage_of_revenue[u] * utilities_revenue_last_year[u] << endl;
+                realization_utilities[u]->addInsurancePayout(
+                        //payout_percentage_of_revenue[u] * utilities_revenue_last_year[u] * payout_multiplier[u]);
+                        payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]);
             } else {
-                DroughtMitigationPolicy::realization_utilities[u]->addInsurancePayout(NONE);
+                realization_utilities[u]->addInsurancePayout(NONE);
             }
         }
     }
@@ -92,10 +94,8 @@ void InsuranceStorageToROF::applyPolicy(int week) {
 void InsuranceStorageToROF::addSystemComponents(vector<Utility *> utilities,
                                                 vector<WaterSource *> water_sources,
                                                 vector<MinEnvFlowControl *> min_env_flow_controls) {
-
-    DroughtMitigationPolicy::realization_utilities = vector<Utility *>(utilities.size());
-    for (int i : utilities_ids) {
-        DroughtMitigationPolicy::realization_utilities[i] = utilities[i];
+    for (Utility *u : utilities) {
+        this->realization_utilities.push_back(u);
     }
 }
 
@@ -104,6 +104,7 @@ void InsuranceStorageToROF::addSystemComponents(vector<Utility *> utilities,
  * Uses storage-to-ROF scaling instead of recalculating ROF tables.
  * @param week
  */
+/**
 void InsuranceStorageToROF::priceInsurance(int week) {
     // Reset prices.
     for (int u : utilities_ids) insurance_cost[u] = 0;
@@ -118,6 +119,7 @@ void InsuranceStorageToROF::priceInsurance(int week) {
         } 
     }
 }
+*/
 
 void InsuranceStorageToROF::setRealization(unsigned long realization_id, const vector<double> &utilities_rdm,
                                            const vector<double> &water_sources_rdm, const vector<double> &policy_rdm,

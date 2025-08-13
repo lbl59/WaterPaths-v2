@@ -874,7 +874,6 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
     drought_mitigation_policies.push_back(&t);
 
     // Set up insurance
-    /**
     vector<double> insurance_triggers = {watertown_insurance_trigger,
                                          dryville_insurance_trigger,
                                          fallsland_insurance_trigger};
@@ -889,7 +888,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                              insurance_triggers, insurance_payout_percentage);
 
     drought_mitigation_policies.push_back(&in);
-     */
+
     // Creates simulation object depending on use (or lack thereof) ROF tables
     //double start_time = omp_get_wtime();
     if (import_export_rof_tables == EXPORT_ROF_TABLES) {
@@ -997,7 +996,7 @@ void PaperTestProblem::readInputData() {
     //double start_time = omp_get_wtime();
 #pragma omp parallel num_threads(omp_get_thread_num())
     {
-        /**
+        
 #pragma omp single
         streamflows_durham = Utils::parse2DCsvFile(
                 io_directory + data_dir + 
@@ -1125,8 +1124,8 @@ void PaperTestProblem::readInputData() {
                 io_directory + data_dir + "demands" +
                 inflow_demand_evap_suffix + 
                 BAR + "raleigh_demands.csv", n_realizations);
-        */
         
+        /**
 #pragma omp single
         streamflows_durham = Utils::parse2DParquetFile(
                 io_directory + data_dir +
@@ -1242,7 +1241,7 @@ void PaperTestProblem::readInputData() {
                 io_directory + data_dir + "demands" +
                 inflow_demand_evap_suffix +
                 BAR + "raleigh_demands.parquet", n_realizations);
-        
+        */
 #pragma omp single
         {
             demand_to_wastewater_fraction_fallsland = Utils::parse2DCsvFile(
