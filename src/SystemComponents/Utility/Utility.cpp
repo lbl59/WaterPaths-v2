@@ -307,22 +307,22 @@ void Utility::calculateWeeklyAverageWaterPrices(
     }
     // Create weekly price table from monthly prices.
     for (int w = 0; w < (int) (WEEKS_IN_YEAR + 1); ++w) {
-        /**
+        // prices are in $/MG per month --> need to convert to $/MG per week
         weekly_average_volumetric_price[w] =
                 monthly_average_price[(int) (w / WEEKS_IN_MONTH)] /
                 WEEKS_IN_MONTH;
-        */
+        
         // CORRECTION ON 2025-04-17
         // monthly_average_price is already a per-unit average 
         // prices are in $/MGD --> need to convert to $/gal (Zeff et al 2014)
         /**
         weekly_average_volumetric_price[w] = \
             monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;
-        */
+        
        
         weekly_average_volumetric_price[w] = \
             monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
-        
+        */
     }
 }
 
@@ -718,7 +718,7 @@ void Utility::updateContingencyFundAndDebtService(
     // reduce actual contribution based on revenue losses and transfer costs or cap on fund
     fund_contribution =
             max(min(projected_fund_contribution - revenue_losses - transfer_costs + recouped_loss_price_surcharge,
-                contingency_fund_cap - previous_fund_level),0.);
+                contingency_fund_cap - previous_fund_level), 0.);
     
     resetDroughtMitigationVariables();
 
