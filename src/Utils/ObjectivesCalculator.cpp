@@ -265,7 +265,7 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
                 double diff_financial_costs = max(year_drought_mitigation_cost - available_contingency_fund, 0.0);
                 year_financial_costs[y] =   
                         diff_financial_costs / year_gross_revenue;
-                if (year_financial_costs >= 1.0) {
+                if (year_financial_costs[y] >= 1.0) {
                     cout << "Year " << y << " realization " << r << " drought mitigation cost: " << year_drought_mitigation_cost << endl;
                     cout << "Year " << y << " realization " << r << " available CF: " << available_contingency_fund << endl;
                     cout << "Year " << y << " realization " << r << " gross revenue: " << year_gross_revenue << endl;
