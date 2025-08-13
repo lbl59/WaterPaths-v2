@@ -694,21 +694,12 @@ void Utility::updateContingencyFundAndDebtService(
                            revenue_losses - transfer_costs +
                            recouped_loss_price_surcharge,
                            0.0);
+
+    // Update variables for data collection and next iteration.
     drought_mitigation_cost = max(revenue_losses + transfer_costs -
                                   //insurance_payout -
                                   recouped_loss_price_surcharge,
                                   0.0);
-    #pragma omp single 
-    {
-    cout << "Components of drought mitigation cost for utility "
-         << name << " in week " << week << endl;
-    cout << "  Revenue losses: " << revenue_losses << endl;
-    cout << "  Transfer costs: " << transfer_costs << endl;
-    cout << "  Recouped loss from surcharge: "
-         << recouped_loss_price_surcharge << endl;
-    cout << "  Total drought mitigation cost: "
-         << drought_mitigation_cost << endl;
-    }
     fund_contribution =
             projected_fund_contribution - revenue_losses - transfer_costs +
             recouped_loss_price_surcharge;
