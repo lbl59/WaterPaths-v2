@@ -283,11 +283,13 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
                 double available_contingency_fund = utility_data[r]->getContingency_fund_size()[w];
                 
                 if (year_drought_mitigation_cost > 0) {
+                    /**
                     cout << "Realization: " << r << endl;
                     cout << "Year: " << y << endl;
                     cout << "Gross revenue ($): " << year_gross_revenue << endl;
                     cout << "Drought mitigation cost ($): " << year_drought_mitigation_cost << endl;
                     cout << "Available contingency fund ($): " << available_contingency_fund << endl;
+                     */
                 }
                      
                 year_financial_costs[y] =   
