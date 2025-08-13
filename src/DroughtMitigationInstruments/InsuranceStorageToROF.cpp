@@ -78,9 +78,9 @@ void InsuranceStorageToROF::applyPolicy(int week) {
             // Get storage-based ROFs for the utility
             double utility_rof = realization_utilities[u]->getRisk_of_failure();
             if (utility_rof > rof_triggers[u]) {
-                cout << "Payout percentage: " << payout_percentage_of_revenue[u] << endl;
-                cout << "Utility revenue last year ($): " << utilities_revenue_last_year[u] << endl;
-                cout << "Total payout ($): " << payout_percentage_of_revenue[u] * utilities_revenue_last_year[u] << endl;
+                //cout << "Payout percentage: " << payout_percentage_of_revenue[u] << endl;
+                //cout << "Utility revenue last year ($): " << utilities_revenue_last_year[u] << endl;
+                //cout << "Total payout ($): " << payout_percentage_of_revenue[u] * utilities_revenue_last_year[u] << endl;
                 realization_utilities[u]->addInsurancePayout(
                         //payout_percentage_of_revenue[u] * utilities_revenue_last_year[u] * payout_multiplier[u]);
                         payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]);

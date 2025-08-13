@@ -863,8 +863,6 @@ void Utility::calculateWastewater_releases(int week, double *discharges) {
 void Utility::addInsurancePayout(double payout_value) {
     contingency_fund += payout_value;
     insurance_payout = payout_value;
-    cout << "Insurance payout of $" << payout_value
-         << " added to contingency fund for utility " << name << endl;
 }
 
 void Utility::purchaseInsurance(double insurance_cost) {
