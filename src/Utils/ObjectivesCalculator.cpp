@@ -294,7 +294,6 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
         worse_year_financial_costs.push_back(*max_element(
                 year_financial_costs.begin(),
                 year_financial_costs.end()));
-        cout << "Realization " << r << " worse year cost: " << worse_year_financial_costs.back() << endl;
     }
 
     // sort costs to get the worse 1 percentile.
