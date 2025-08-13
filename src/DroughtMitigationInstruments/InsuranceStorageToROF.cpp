@@ -74,7 +74,7 @@ void InsuranceStorageToROF::applyPolicy(int week) {
     // Only make payouts AFTER the first year
     // No insurance was purchased during the first year
     if (week > WEEKS_IN_YEAR) {
-        // Make payouts, if needed.
+        // Claim payouts, if needed.
         for (unsigned long u = 0; u < utilities_ids.size(); ++u) {
             // Get storage-based ROFs for the utility
             double utility_rof = realization_utilities[u]->getRisk_of_failure();

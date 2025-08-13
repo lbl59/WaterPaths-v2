@@ -696,7 +696,8 @@ void Utility::updateContingencyFundAndDebtService(
                            recouped_loss_price_surcharge,
                            0.0);
     drought_mitigation_cost = max(revenue_losses + transfer_costs -
-                                  insurance_payout -
+                                  //insurance_payout -
+                                  insurance_cost -
                                   recouped_loss_price_surcharge,
                                   0.0);
     fund_contribution =
