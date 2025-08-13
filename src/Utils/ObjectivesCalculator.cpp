@@ -182,35 +182,17 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
                     utility_data[r]->getContingency_fund_contribution()[w];
             realizations_year_insurance_contract_cost +=
                     utility_data[r]->getInsurance_contract_cost()[w];
-            /**
-            // UPDATED ON 2025-08-11 BY LILLIAN LAU
-            // Adding drought mitigation cost to the year's total.
-            realizations_year_drought_mitigation_cost +=
-                    utility_data[r]->getDrought_mitigation_cost()[w];
-             */
             realizations_year_gross_revenue +=
                     utility_data[r]->getGross_revenues()[w];
 
             // if last week of the year, close the books and calculate
             // financial cost for the year.
             if (Utils::isFirstWeekOfTheYear(w + 1)) {
-                if (realizations_year_insurance_contract_cost > 0) {
-                    /**
-                    cout << "Realization: " << r << endl;
-                    cout << "Year: " << y << endl;
-                    cout << "Gross revenue ($): " << realizations_year_gross_revenue << endl;
-                    cout << "Debt payment ($): " << realizations_year_debt_payment * 1e6 << endl;
-                    cout << "Contingency fund contribution ($): " << realizations_year_cont_fund_contribution << endl;
-                    cout << "Insurance contract cost ($): " << realizations_year_insurance_contract_cost << endl;
-                     */
-                }
-                
                 year_financial_costs[y] +=
-                        ((realizations_year_debt_payment*1e6) +
-                         realizations_year_cont_fund_contribution +
-                         //realizations_year_drought_mitigation_cost +  // REMOVED INSURANCE CONTRACT COST ON 2025-08-11 BY LILLIAN LAU
-                         realizations_year_insurance_contract_cost) /  // ADDED DROUGHT MITIGATION COST on 2025-08-11 BY LILLIAN LAU
-                        realizations_year_gross_revenue;
+                        (realizations_year_debt_payment +   // in $mil
+                         realizations_year_cont_fund_contribution +  // in $mil
+                         realizations_year_insurance_contract_cost) /  // in $mil
+                        realizations_year_gross_revenue;   // in $mil
                 
                 // update year count.
                 y++;
@@ -219,7 +201,6 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
                 realizations_year_debt_payment = 0;
                 realizations_year_cont_fund_contribution = 0;
                 realizations_year_insurance_contract_cost = 0;
-                //realizations_year_drought_mitigation_cost = 0; // ADDED DROUGHT MITIGATION COST on 2025-08-11 BY LILLIAN LAU
                 realizations_year_gross_revenue = 1e-6;
             }
         }
@@ -275,23 +256,12 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
         year_financial_costs.assign(n_years, 0);
         for (unsigned long w = 0; w < n_weeks; ++w) {
             // accumulate year's info by summing weekly amounts.
-            year_drought_mitigation_cost += utility_data[r]->getDrought_mitigation_cost()[w];
-            year_gross_revenue += utility_data[r]->getGross_revenues()[w];
+            year_drought_mitigation_cost += utility_data[r]->getDrought_mitigation_cost()[w];  // in $mil
+            year_gross_revenue += utility_data[r]->getGross_revenues()[w];  // in $mil
 
             // if last week of the year, close the books and calculate financial cost for the year.
             if (Utils::isFirstWeekOfTheYear(w + 1)) {
                 double available_contingency_fund = utility_data[r]->getContingency_fund_size()[w];
-                
-                if (year_drought_mitigation_cost > 0) {
-                    /**
-                    cout << "Realization: " << r << endl;
-                    cout << "Year: " << y << endl;
-                    cout << "Gross revenue ($): " << year_gross_revenue << endl;
-                    cout << "Drought mitigation cost ($): " << year_drought_mitigation_cost << endl;
-                    cout << "Available contingency fund ($): " << available_contingency_fund << endl;
-                     */
-                }
-                     
                 year_financial_costs[y] =   
                         max(year_drought_mitigation_cost - available_contingency_fund, 0.0) / year_gross_revenue;
                 

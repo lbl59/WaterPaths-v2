@@ -321,7 +321,6 @@ void Utility::calculateWeeklyAverageWaterPrices(
         // prices are in $/MGD --> need to convert to $mil/MG
         weekly_average_volumetric_price[w] = \
             monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;
-
     }
 }
 
@@ -651,7 +650,7 @@ void Utility::updateContingencyFundAndDebtService(
         double unrestricted_demand, double demand_multiplier,
         double demand_offset, double unfulfilled_demand, int week) {
     int week_of_year = Utils::weekOfTheYear(week);
-    double unrestricted_price = weekly_average_volumetric_price[week_of_year];  // in $/MGD
+    double unrestricted_price = weekly_average_volumetric_price[week_of_year];  // in $mil/MG
     double current_price;
 
     // Clear yearly updated data collecting variables.
