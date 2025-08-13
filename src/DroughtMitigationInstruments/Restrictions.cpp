@@ -174,7 +174,6 @@ void Restrictions::setRealization(unsigned long realization_id,
     for (double &st : stage_triggers) {
         st = max(0.0, min(1.0, st + action_multiplier));
     }
-
 }
 
 const vector<double> &Restrictions::getStageMultipliers() const {

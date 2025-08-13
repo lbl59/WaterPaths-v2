@@ -238,8 +238,6 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
         n_realizations = realizations.size();
     }
 
-    int y;
-    
     unsigned long n_weeks = utility_data[realizations[0]]->getGross_revenues().size();
     unsigned long n_years = (unsigned long) round(n_weeks / WEEKS_IN_YEAR);
     
@@ -249,6 +247,7 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
     double year_drought_mitigation_cost = 0;
     double year_gross_revenue = 1e-6;
 
+    int y;
     // Creates a table with years that failed in each realization.
     for (const unsigned long &r : realizations) {
         y = 0;

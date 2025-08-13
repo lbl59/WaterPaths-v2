@@ -77,12 +77,13 @@ void InsuranceStorageToROF::applyPolicy(int week) {
         for (unsigned long u = 0; u < utilities_ids.size(); ++u) {
             // Get storage-based ROFs for the utility
             double utility_rof = realization_utilities[u]->getRisk_of_failure();
-            if (utility_rof > rof_triggers[u]) {
-                //cout << "Payout percentage: " << payout_percentage_of_revenue[u] << endl;
-                //cout << "Utility revenue last year ($): " << utilities_revenue_last_year[u] << endl;
-                //cout << "Total payout ($): " << payout_percentage_of_revenue[u] * utilities_revenue_last_year[u] << endl;
+            if (utility_rof > rof_triggers[u]) {}
+                // Assume that insurance is purchased at the beginning of the year
+                // based on last year's revenue and current insurance premium
+                realization_utilities[u]->purchaseInsurance(
+                        (payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]) * insurance_premium);
+                // If ROF exceeds trigger, make payout
                 realization_utilities[u]->addInsurancePayout(
-                        //payout_percentage_of_revenue[u] * utilities_revenue_last_year[u] * payout_multiplier[u]);
                         payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]);
             } else {
                 realization_utilities[u]->addInsurancePayout(NONE);
