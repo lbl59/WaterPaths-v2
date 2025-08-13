@@ -693,16 +693,20 @@ void Utility::updateContingencyFundAndDebtService(
             restricted_demand * (current_price - unrestricted_price);
 
     // contingency fund cannot get negative.
-    /** 
+    
     contingency_fund = max(contingency_fund + projected_fund_contribution -
                            revenue_losses - transfer_costs +
                            recouped_loss_price_surcharge,
                            0.0);
+    drought_mitigation_cost = max(revenue_losses + transfer_costs -
+                                  insurance_payout -
+                                  recouped_loss_price_surcharge,
+                                  0.0);
     fund_contribution =
             projected_fund_contribution - revenue_losses - transfer_costs +
             recouped_loss_price_surcharge;
-    */
-       
+    
+    /**    
     double previous_fund_level = contingency_fund;
     double contingency_fund_cap = 100000000.0; // $100 million cap
     // ADDED A CONTINGENCY FUND CAP of $100 MILLION ON 2025-08-01
@@ -720,7 +724,7 @@ void Utility::updateContingencyFundAndDebtService(
     fund_contribution =
             max(min(projected_fund_contribution - revenue_losses - transfer_costs + recouped_loss_price_surcharge,
                 contingency_fund_cap - previous_fund_level), 0.);
-    
+    */
     resetDroughtMitigationVariables();
 
     // Calculate current debt payment to be made on that week (if first
