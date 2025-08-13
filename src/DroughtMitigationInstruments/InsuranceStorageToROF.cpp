@@ -67,7 +67,8 @@ void InsuranceStorageToROF::applyPolicy(int week) {
     if (Utils::isFirstWeekOfTheYear(week + 1)) {
         utilities_revenue_last_year = utilities_revenue_update;
         std::fill(utilities_revenue_update.begin(), utilities_revenue_update.end(), NONE);
-        //priceInsurance(week);
+        
+        priceInsurance(week);
     }
 
     // Only make payouts AFTER the first year
@@ -78,10 +79,6 @@ void InsuranceStorageToROF::applyPolicy(int week) {
             // Get storage-based ROFs for the utility
             double utility_rof = realization_utilities[u]->getRisk_of_failure();
             if (utility_rof > rof_triggers[u]) {
-                // Assume that insurance is purchased at the beginning of the year
-                // based on last year's revenue and current insurance premium
-                realization_utilities[u]->purchaseInsurance(
-                        (payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]) * insurance_premium);
                 // If ROF exceeds trigger, make payout
                 realization_utilities[u]->addInsurancePayout(
                         payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]);
@@ -105,7 +102,6 @@ void InsuranceStorageToROF::addSystemComponents(vector<Utility *> utilities,
  * Uses storage-to-ROF scaling instead of recalculating ROF tables.
  * @param week
  */
-/**
 void InsuranceStorageToROF::priceInsurance(int week) {
     // Reset prices.
     for (int u : utilities_ids) insurance_cost[u] = 0;
@@ -116,11 +112,12 @@ void InsuranceStorageToROF::priceInsurance(int week) {
         // If current ROF exceeds trigger, expect higher payout probability
         if (utility_rof > rof_triggers[u]) {
             // Increase total cost spent on insurance if insurance payout has been triggered
-            insurance_cost[u] += (payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]) * insurance_premium;
+            //insurance_cost[u] += (payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]) * insurance_premium;
+            realization_utilities[u]->puchaseInsurance(
+                (payout_percentage_of_revenue[u] * utilities_revenue_last_year[u]) * insurance_premium);
         } 
     }
 }
-*/
 
 void InsuranceStorageToROF::setRealization(unsigned long realization_id, const vector<double> &utilities_rdm,
                                            const vector<double> &water_sources_rdm, const vector<double> &policy_rdm,
