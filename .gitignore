@@ -20,6 +20,8 @@ objectives_dvs/
 
 # Ignore figures and plots
 figures/
+*.png 
+*.jpg
 
 # Ignore object files 
 *.o
