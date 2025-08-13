@@ -874,6 +874,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
     drought_mitigation_policies.push_back(&t);
 
     // Set up insurance
+    /**
     vector<double> insurance_triggers = {watertown_insurance_trigger,
                                          dryville_insurance_trigger,
                                          fallsland_insurance_trigger};
@@ -888,7 +889,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                              insurance_triggers, insurance_payout_percentage);
 
     drought_mitigation_policies.push_back(&in);
-
+    */
     // Creates simulation object depending on use (or lack thereof) ROF tables
     //double start_time = omp_get_wtime();
     if (import_export_rof_tables == EXPORT_ROF_TABLES) {

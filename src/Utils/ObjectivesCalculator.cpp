@@ -195,12 +195,14 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
             // financial cost for the year.
             if (Utils::isFirstWeekOfTheYear(w + 1)) {
                 if (realizations_year_insurance_contract_cost > 0) {
+                    /**
                     cout << "Realization: " << r << endl;
                     cout << "Year: " << y << endl;
                     cout << "Gross revenue ($): " << realizations_year_gross_revenue << endl;
                     cout << "Debt payment ($): " << realizations_year_debt_payment * 1e6 << endl;
                     cout << "Contingency fund contribution ($): " << realizations_year_cont_fund_contribution << endl;
                     cout << "Insurance contract cost ($): " << realizations_year_insurance_contract_cost << endl;
+                     */
                 }
                 
                 year_financial_costs[y] +=
@@ -279,6 +281,7 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
             // if last week of the year, close the books and calculate financial cost for the year.
             if (Utils::isFirstWeekOfTheYear(w + 1)) {
                 double available_contingency_fund = utility_data[r]->getContingency_fund_size()[w];
+                /**
                 if (year_drought_mitigation_cost > 0) {
                     cout << "Realization: " << r << endl;
                     cout << "Year: " << y << endl;
@@ -286,6 +289,7 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
                     cout << "Drought mitigation cost ($): " << year_drought_mitigation_cost << endl;
                     cout << "Available contingency fund ($): " << available_contingency_fund << endl;
                 }
+                     */
                 
                 year_financial_costs[y] =   
                         max(year_drought_mitigation_cost - available_contingency_fund, 0.0) / year_gross_revenue;
