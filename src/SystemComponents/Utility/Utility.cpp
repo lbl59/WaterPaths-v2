@@ -850,8 +850,15 @@ void Utility::addInsurancePayout(double payout_value) {
 }
 
 void Utility::purchaseInsurance(double insurance_cost) {
-    contingency_fund -= insurance_cost;
-    insurance_purchased = insurance_cost;
+    contingency_fund = max(0.0, contingency_fund - insurance_cost);
+    // if there is insufficient funds, do not purchase insurance
+    if (contingency_fund <= insurance_cost) {
+        insurance_purchased = 0.0;
+    } else {
+        contingency_fund -= insurance_cost;
+        insurance_purchased = insurance_cost;
+    }
+    
 }
 
 void
