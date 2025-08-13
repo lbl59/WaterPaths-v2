@@ -717,8 +717,8 @@ void Utility::updateContingencyFundAndDebtService(
     // ADDED ON 2025-08-01 by Lillian Lau
     // reduce actual contribution based on revenue losses and transfer costs or cap on fund
     fund_contribution =
-            min(projected_fund_contribution - revenue_losses - transfer_costs + recouped_loss_price_surcharge,
-                max(contingency_fund_cap - previous_fund_level, 0.));
+            max(min(projected_fund_contribution - revenue_losses - transfer_costs + recouped_loss_price_surcharge,
+                contingency_fund_cap - previous_fund_level),0.);
     
     resetDroughtMitigationVariables();
 
