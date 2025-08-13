@@ -1033,7 +1033,6 @@ double Utility::getDrought_mitigation_cost() const {
 }
 
 double Utility::getInsurance_payout() const {
-    cout << "Insurance payout: " << insurance_payout << endl;
     return insurance_payout;
 }
 
