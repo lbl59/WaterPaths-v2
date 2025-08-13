@@ -263,9 +263,9 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
                 
                 double available_contingency_fund = utility_data[r]->getContingency_fund_size()[w];
 
-                cout << "Year " << y << " realization " << r << " drought mitigation cost: " << year_drought_mitigation_cost << endl;
-                cout << "Year " << y << " realization " << r << " available CF: " << available_contingency_fund << endl;
-                cout << "Year " << y << " realization " << r << " gross revenue: " << year_gross_revenue << endl;
+                //cout << "Year " << y << " realization " << r << " drought mitigation cost: " << year_drought_mitigation_cost << endl;
+                //cout << "Year " << y << " realization " << r << " available CF: " << available_contingency_fund << endl;
+                //cout << "Year " << y << " realization " << r << " gross revenue: " << year_gross_revenue << endl;
                 
                 year_financial_costs[y] =   
                         max(year_drought_mitigation_cost - available_contingency_fund, 0.0) / year_gross_revenue;
@@ -281,6 +281,7 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
         worse_year_financial_costs.push_back(*max_element(
                 year_financial_costs.begin(),
                 year_financial_costs.end()));
+        cout << "Realization " << r << " worse year cost: " << worse_year_financial_costs.back() << endl;
     }
 
     // sort costs to get the worse 1 percentile.
