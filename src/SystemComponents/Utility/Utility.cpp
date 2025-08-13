@@ -850,8 +850,8 @@ void Utility::addInsurancePayout(double payout_value) {
 }
 
 void Utility::purchaseInsurance(double insurance_cost) {
-    contingency_fund -= insurance_price;
-    insurance_purchase = insurance_price;
+    contingency_fund -= insurance_cost;
+    insurance_purchased = insurance_cost;
 }
 
 void
