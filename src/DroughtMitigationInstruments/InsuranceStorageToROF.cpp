@@ -9,7 +9,7 @@
 #include "../Utils/Utils.h"
 
 InsuranceStorageToROF::InsuranceStorageToROF(
-    const int id, double insurance_premium, 
+    const int id, const double insurance_premium, 
     const vector<int>&action_multiplier_ids, // ADDED ON 2025-04-28 by Lillian Lau.
     vector<Utility *> &utilities,
     vector<DroughtMitigationPolicy *> &drought_mitigation_policies,
