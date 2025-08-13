@@ -690,7 +690,6 @@ void Utility::updateContingencyFundAndDebtService(
             restricted_demand * (current_price - unrestricted_price);
 
     // contingency fund cannot get negative.
-    
     contingency_fund = max(contingency_fund + projected_fund_contribution -
                            revenue_losses - transfer_costs +
                            recouped_loss_price_surcharge,
@@ -699,6 +698,8 @@ void Utility::updateContingencyFundAndDebtService(
                                   //insurance_payout -
                                   recouped_loss_price_surcharge,
                                   0.0);
+    #pragma omp single 
+    {
     cout << "Components of drought mitigation cost for utility "
          << name << " in week " << week << endl;
     cout << "  Revenue losses: " << revenue_losses << endl;
@@ -707,6 +708,7 @@ void Utility::updateContingencyFundAndDebtService(
          << recouped_loss_price_surcharge << endl;
     cout << "  Total drought mitigation cost: "
          << drought_mitigation_cost << endl;
+    }
     fund_contribution =
             projected_fund_contribution - revenue_losses - transfer_costs +
             recouped_loss_price_surcharge;
