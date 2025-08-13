@@ -141,6 +141,18 @@ double ObjectivesCalculator::calculateNetPresentCostInfrastructureObjective(
     return infrastructure_npc / n_realizations;
 }
 
+/**
+ * @brief Calculates average peapk financial cost across all realizations.
+ * Financial cost is defined as the total of annual debt service and 
+ * *expected* short term operational costs (quantified by contingency fund contributions)  
+ * 
+ * Peak financial cost is the max (annual financial cost/annual gross revenue) 
+ * across all years in a realization.
+ * 
+ * @param utility_data 
+ * @param realizations 
+ * @return double 
+ */
 double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
         const vector<UtilitiesDataCollector *> &utility_data,
         vector<unsigned long> realizations) {
@@ -164,8 +176,7 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
     double realizations_year_debt_payment = 0;
     double realizations_year_cont_fund_contribution = 0;
     double realizations_year_gross_revenue = 1e-6;
-    double realizations_year_insurance_contract_cost = 0;
-    //double realizations_year_drought_mitigation_cost = 0;
+    //double realizations_year_insurance_contract_cost = 0;
 
     // Creates a table with years that failed in each realization.
     for (const unsigned long &r : realizations) {
@@ -180,8 +191,10 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
                     utility_data[r]->getDebt_service_payments()[w]; 
             realizations_year_cont_fund_contribution +=
                     utility_data[r]->getContingency_fund_contribution()[w];
+            /**
             realizations_year_insurance_contract_cost +=
                     utility_data[r]->getInsurance_contract_cost()[w];
+            */
             realizations_year_gross_revenue +=
                     utility_data[r]->getGross_revenues()[w];
 
@@ -190,8 +203,8 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
             if (Utils::isFirstWeekOfTheYear(w + 1)) {
                 year_financial_costs[y] +=
                         (realizations_year_debt_payment +   // in $mil
-                         realizations_year_cont_fund_contribution +  // in $mil
-                         realizations_year_insurance_contract_cost) /  // in $mil
+                         realizations_year_cont_fund_contribution)/  // in $mil
+                         //realizations_year_insurance_contract_cost) /  // in $mil
                         realizations_year_gross_revenue;   // in $mil
                 
                 // update year count.
@@ -200,7 +213,7 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
                 // reset accounts.
                 realizations_year_debt_payment = 0;
                 realizations_year_cont_fund_contribution = 0;
-                realizations_year_insurance_contract_cost = 0;
+                //realizations_year_insurance_contract_cost = 0;
                 realizations_year_gross_revenue = 1e-6;
             }
         }
@@ -260,7 +273,6 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
 
             // if last week of the year, close the books and calculate financial cost for the year.
             if (Utils::isFirstWeekOfTheYear(w + 1)) {
-                
                 double available_contingency_fund = utility_data[r]->getContingency_fund_size()[w];
                 double diff_financial_costs = max(year_drought_mitigation_cost - available_contingency_fund, 0.0);
                 year_financial_costs[y] =   
