@@ -310,7 +310,7 @@ void Utility::calculateWeeklyAverageWaterPrices(
         // prices are in $/MG per month --> need to convert to $/MG per week
         weekly_average_volumetric_price[w] =
                 monthly_average_price[(int) (w / WEEKS_IN_MONTH)] /
-                WEEKS_IN_MONTH;
+                4.0;
         
         // CORRECTION ON 2025-04-17
         // monthly_average_price is already a per-unit average 
