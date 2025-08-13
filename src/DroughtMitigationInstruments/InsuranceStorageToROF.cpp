@@ -77,7 +77,7 @@ void InsuranceStorageToROF::applyPolicy(int week) {
         for (unsigned long u = 0; u < utilities_ids.size(); ++u) {
             // Get storage-based ROFs for the utility
             double utility_rof = realization_utilities[u]->getRisk_of_failure();
-            if (utility_rof > rof_triggers[u]) {}
+            if (utility_rof > rof_triggers[u]) {
                 // Assume that insurance is purchased at the beginning of the year
                 // based on last year's revenue and current insurance premium
                 realization_utilities[u]->purchaseInsurance(
