@@ -252,7 +252,7 @@ void Transfers::applyPolicy(int week) {
             // Mitigate demands.
             double sum_allocations = 0;
             int price_week = Utils::weekOfTheYear(week);
-
+                
             for (unsigned long id = 0; id < util_id_to_vertex_id.size(); ++id) {
                 int bid = util_id_to_vertex_id[id];
                 if (bid != NON_INITIALIZED) {
