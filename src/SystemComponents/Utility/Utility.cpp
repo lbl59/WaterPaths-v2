@@ -858,7 +858,6 @@ void Utility::purchaseInsurance(double insurance_cost) {
         contingency_fund -= insurance_cost;
         insurance_purchased = insurance_cost;
     }
-    
 }
 
 void
