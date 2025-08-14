@@ -718,8 +718,8 @@ void Utility::updateContingencyFundAndDebtService(
                                   recouped_loss_price_surcharge,
                                   0.0);
     fund_contribution =
-            projected_fund_contribution - revenue_losses - transfer_costs +
-            recouped_loss_price_surcharge;
+            max(projected_fund_contribution - revenue_losses - transfer_costs +
+                recouped_loss_price_surcharge, 0.);
     
     resetDroughtMitigationVariables();
 

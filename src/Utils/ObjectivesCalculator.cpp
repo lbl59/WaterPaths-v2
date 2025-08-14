@@ -275,6 +275,7 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
             if (Utils::isFirstWeekOfTheYear(w + 1)) {
                 double available_contingency_fund = utility_data[r]->getContingency_fund_size()[w];
                 double diff_financial_costs = max(year_drought_mitigation_cost - available_contingency_fund, 0.0);
+                
                 year_financial_costs[y] =   
                         diff_financial_costs / year_gross_revenue;
                 if (year_financial_costs[y] >= 1.0) {

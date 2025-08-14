@@ -42,24 +42,7 @@ Restrictions::Restrictions(
                                       typesMonthlyWaterPrice,
                                       priceMultipliers);
     utilities_ids = vector<int>(1, id);
-
-    //setupTriggers(stage_multipliers, stage_triggers);
 }
-
-/**
-void Restrictions::setupTriggers(const vector<double> &stage_multipliers,
-                                 const vector<double> &stage_triggers) {
-    if (stage_triggers.size() == 1 && stage_multipliers.size() > 1) {
-        this->stage_triggers.resize(stage_multipliers.size(),
-                                            stage_triggers[0]);
-        for (unsigned long i = 1; i < stage_multipliers.size(); ++i) {
-            this->stage_triggers[i] = stage_triggers[0] + 0.2;
-        }
-    } else {
-        sort(Restrictions::stage_triggers.begin(), Restrictions::stage_triggers.end());
-    }
-}
- */
 
 Restrictions::Restrictions(const Restrictions &restrictions) :
         DroughtMitigationPolicy(restrictions),
@@ -89,7 +72,8 @@ void Restrictions::applyPolicy(int week) {
     if (!restricted_weekly_average_volumetric_price.empty() && stage > 0) {
         int week_of_year = Utils::weekOfTheYear(week);
         realization_utilities[0]->setRestricted_price(
-                restricted_weekly_average_volumetric_price[stage - 1][week_of_year]);
+                // changed [stage-1] to [stage] on 2025-08-13 by Lillian Lau.
+                restricted_weekly_average_volumetric_price[stage][week_of_year]);
     }
 }
 
