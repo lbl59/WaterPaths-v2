@@ -707,6 +707,7 @@ void Utility::updateContingencyFundAndDebtService(
             restricted_demand * (current_price - unrestricted_price);
 
     // contingency fund cannot get negative.
+    double previous_fund_level = contingency_fund;
     contingency_fund = max(contingency_fund + projected_fund_contribution -
                            revenue_losses - transfer_costs +
                            recouped_loss_price_surcharge,
@@ -718,8 +719,8 @@ void Utility::updateContingencyFundAndDebtService(
                                   recouped_loss_price_surcharge,
                                   0.0);
     fund_contribution =
-            max(projected_fund_contribution - revenue_losses - transfer_costs +
-                recouped_loss_price_surcharge, 0.);
+            projected_fund_contribution - revenue_losses - transfer_costs +
+                recouped_loss_price_surcharge;
     
     resetDroughtMitigationVariables();
 
@@ -891,11 +892,11 @@ Utility::setRealization(unsigned long r, const vector<double> &utilities_rdm,
 
     // Apply demand multiplier and copy demands pertaining to current realization.
     double delta_demand =
-            demands_all_realizations.at(r)[0] * (1. - utilities_rdm.at(0));
+            demands_all_realizations.at(r)[0] * (1. - utilities_rdm.at(0)); // Change MGD to total MG per week
     for (unsigned long w = 0; w < n_weeks; ++w) {
-        demand_series_realization[w] = demands_all_realizations.at(r)[w] *
+        demand_series_realization[w] = (demands_all_realizations.at(r)[w] *
                                        utilities_rdm.at(0)
-                                       + delta_demand;
+                                       + delta_demand);  // Change MGD to total MG per week
     }
 
     // ADDED BY LILLIAN LAU ON 2025-05-01

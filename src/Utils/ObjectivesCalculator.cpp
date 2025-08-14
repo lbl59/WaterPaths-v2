@@ -278,11 +278,13 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
                 
                 year_financial_costs[y] =   
                         diff_financial_costs / year_gross_revenue;
+                /**
                 if (year_financial_costs[y] >= 1.0) {
                     cout << "Year " << y << " realization " << r << " drought mitigation cost: " << year_drought_mitigation_cost << endl;
                     cout << "Year " << y << " realization " << r << " available CF: " << available_contingency_fund << endl;
                     cout << "Year " << y << " realization " << r << " gross revenue: " << year_gross_revenue << endl;
                 }
+                */
 
                 // Reset accounts.
                 year_gross_revenue = 1e-6;

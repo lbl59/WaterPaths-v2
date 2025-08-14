@@ -326,12 +326,12 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
     double added_storage_college_rock_expansion_high =
             2500 * calibrate_volume_multiplier;
 
-//    checkAndFixInfraExpansionHighLowOrder(
-//            rof_triggered_infra_order_watertown, rofs_infra_watertown,
-//            7,
-//            8,
-//            added_storage_college_rock_expansion_low,
-//            added_storage_college_rock_expansion_high);
+    checkAndFixInfraExpansionHighLowOrder(
+            rof_triggered_infra_order_watertown, rofs_infra_watertown,
+            7,
+            8,
+            added_storage_college_rock_expansion_low,
+            added_storage_college_rock_expansion_high);
 
     double watertown_demand_buffer = 1.0;
     double dryville_demand_buffer = 1.0;
@@ -373,7 +373,8 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
     EvaporationSeries evaporation_durham(evap_durham, streamflow_n_weeks); //Evaporation
     EvaporationSeries evaporation_falls_lake(evap_falls_lake, streamflow_n_weeks); //Evaporation
     EvaporationSeries evaporation_jordan_lake(evap_jordan_lake, streamflow_n_weeks); // Lake Michael
-
+    EvaporationSeries evaporation_owasa(evap_owasa, streamflow_n_weeks); // OWASA
+    
     // Create catchments and corresponding vectors
     
     // Autumn Lake (abstracted Neuse River Basin)
@@ -448,42 +449,36 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
     vector<double> autumn_lake_area = {0.32 * 5734, 0.32 * 29000, 0.28 * 40434};
     DataSeries autumn_lake_storage_area(autumn_lake_storage, autumn_lake_area);
 
-    vector<double> new_river_res_storage = {0,
-                                            7300 * calibrate_volume_multiplier};
+    vector<double> new_river_res_storage = {0, 7300 * calibrate_volume_multiplier};
     vector<double> new_river_res_area = {0, 0.3675 * new_river_res_storage[1]};
     DataSeries new_river_storage_area(new_river_res_storage,
                                       new_river_res_area);
 
     vector<double> sugar_creek_res_storage = {0, 4500};//2909};
-    vector<double> sugar_creek_res_area = {0,
-                                           0.3675 * sugar_creek_res_storage[1]};
+    vector<double> sugar_creek_res_area = {0, 0.3675 * sugar_creek_res_storage[1]};
     DataSeries sugar_creek_storage_area(sugar_creek_res_storage,
                                         sugar_creek_res_area);
 
     vector<double> granite_quarry_storage = {0, 1500};
-    vector<double> granite_quarry_area = {0,
-                                          0.3675 * granite_quarry_storage[1]};
+    vector<double> granite_quarry_area = {0, 0.3675 * granite_quarry_storage[1]};
     DataSeries granite_quarry_storage_area(granite_quarry_storage,
                                            granite_quarry_area);
+    
+    // Create minimum environmental flow rules (controls)
 
     // Create minimum environmental flow rules (controls)
+    // Autumn is combining Falls+Durham+WB
+    vector<int> autumn_controls_weeks = {0, 13, 43, 53};
+    vector<double> autumn_releases = {(39 + 10 + 2) * 7, (65 + 4 + 1) * 7,
+                                      (39 + 10 + 2) * 7};
+    SeasonalMinEnvFlowControl autumn_min_env_control(2, autumn_controls_weeks, autumn_releases);
+    
+    //  Lake Michael is based off the Jordan Lake and uses its class
     double lake_michael_supply_capacity =
             9100.0 * table_gen_storage_multiplier *
             calibrate_volume_multiplier; // reduced to .69 of JL cap
     double lake_michael_wq_capacity = 10825.0 * table_gen_storage_multiplier *
                                       calibrate_volume_multiplier;
-    vector<int> autumn_controls_weeks = {0, 13, 43, 53};
-    vector<double> autumn_releases = {(39 + 10 + 2) * 7, (65 + 4 + 1) * 7,
-                                      (39 + 10 + 2) * 7};
-    vector<double> sugar_creek_inflows = {0.1422 * 7, 0.5 * 7, 1 * 7, 1.5 * 7,
-                                          1.797 * 7};
-    vector<double> sugar_creek_releases = {0.1422 * 7, 0.5 * 7, 1 * 7, 1.5 * 7,
-                                           1.797 * 7};
-    vector<int> new_river_controls_weeks = {0, 13, 43, 53};
-    vector<double> new_river_releases = {3 * 7, 8 * 7, 3 * 7};
-
-    // College Rock and Granite Quarry have no min flow
-    FixedMinEnvFlowControl college_rock_min_env_control(0, 0);
     JordanLakeMinEnvFlowControl lake_michael_min_env_control(1,
                                                              cape_fear_river_at_lillington,
                                                              64.63, 129.26,
@@ -491,13 +486,24 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
                                                              190.84, 287.79,
                                                              lake_michael_supply_capacity,
                                                              lake_michael_wq_capacity);
-    SeasonalMinEnvFlowControl autumn_min_env_control(2, autumn_controls_weeks,
-                                                     autumn_releases);
+
+
+    vector<double> sugar_creek_inflows = {0.1422 * 7, 0.5 * 7, 1 * 7, 1.5 * 7,
+                                          1.797 * 7};
+    vector<double> sugar_creek_releases = {0.1422 * 7, 0.5 * 7, 1 * 7, 1.5 * 7,
+                                           1.797 * 7};
     InflowMinEnvFlowControl sugar_creek_min_env_control(3,
                                                         sugar_creek_inflows,
                                                         sugar_creek_releases);
-    FixedMinEnvFlowControl new_river_min_env_control(4, 0);
-    FixedMinEnvFlowControl granite_quarry_min_env_control(6, 0);
+    
+    // College Rock and Granite Quarry have no min flow
+    FixedMinEnvFlowControl college_rock_min_env_control(0, 0);
+    FixedMinEnvFlowControl granite_quarry_min_env_control(0, 0);
+
+    vector<int> new_river_controls_weeks = {0, 13, 43, 53};
+    vector<double> new_river_releases = {3 * 7, 8 * 7, 3 * 7};
+    //FixedMinEnvFlowControl new_river_min_env_control(4, 0);
+    SeasonalMinEnvFlowControl new_river_min_env_control(4, new_river_controls_weeks, new_river_releases);
 
     vector<MinEnvFlowControl *> min_env_flow_controls;
     min_env_flow_controls.push_back(&autumn_min_env_control);
@@ -580,6 +586,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
     vector<double> nrr_treatment_allocation_fractions = {0.5, 0.5};
 
     LevelDebtServiceBond new_river_bond(4, 263.0, 25, 0.05, vector<int>(1, 0));
+    
     AllocatedReservoir new_river_reservoir("New River Reservoir",
                                            4,
                                            catchment_new_river,
@@ -735,7 +742,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
 
     // CHANGED BY LILLIAN LAU ON 2025-04-28 to include actions_rdm_multiplier ID numbers
     //FIXME: bond etc need to be updated, should chat about demand buffer
-    vector<int> watertown_res_expansion_order = {7, 8};
+    //vector<int> watertown_res_expansion_order = {7, 8};
     Utility watertown("Watertown", 0, 8, demand_watertown, demand_n_weeks,
                       watertown_annual_payment,
                       watertownDemandClassesFractions,
@@ -1220,6 +1227,12 @@ void PaperTestProblem::readInputData() {
                 io_directory + data_dir +
                 "evaporation" + inflow_demand_evap_suffix +
                 BAR + "lake_wb_evap.parquet", n_realizations);
+
+#pragma omp single
+        evap_owasa = Utils::parse2DParquetFile(
+                io_directory + data_dir +
+                "evaporation" + inflow_demand_evap_suffix +
+                BAR + "jordan_lake_evap.parquet", n_realizations);
 
 #pragma omp single
         // Watertown is Cary
