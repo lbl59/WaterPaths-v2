@@ -43,7 +43,7 @@ Restrictions::Restrictions(
                                       priceMultipliers);
     utilities_ids = vector<int>(1, id);
 
-    setupTriggers(stage_multipliers, stage_triggers);
+    //setupTriggers(stage_multipliers, stage_triggers);
 }
 
 void Restrictions::setupTriggers(const vector<double> &stage_multipliers,
@@ -52,10 +52,15 @@ void Restrictions::setupTriggers(const vector<double> &stage_multipliers,
         this->stage_triggers.resize(stage_multipliers.size(),
                                             stage_triggers[0]);
         for (unsigned long i = 1; i < stage_multipliers.size(); ++i) {
-            this->stage_triggers[i] = stage_triggers[0] + 0.2;
+            //this->stage_triggers[i] = stage_triggers[0] + 0.2;
+            //FIX:
+            this->stage_triggers[i] = stage_triggers[0] + (i * 0.2);
         }
     } else {
-        sort(Restrictions::stage_triggers.begin(), Restrictions::stage_triggers.end());
+        //sort(Restrictions::stage_triggers.begin(), Restrictions::stage_triggers.end());
+        //FIX:
+        this->stage_triggers = stage_triggers;
+        sort(this->stage_triggers.begin(), this->stage_triggers.end());
     }
 }
 
@@ -174,7 +179,7 @@ void Restrictions::setRealization(unsigned long realization_id,
     // Shift the stage_triggers by the action multiplier.
     double action_multiplier = actions_rdm.at((unsigned long) action_multiplier_id);
     for (double &st : stage_triggers) {
-        st = max(0.0, min(1., st + action_multiplier));
+        st = min(1.0, max(0., st + action_multiplier));
     }
 
 }
