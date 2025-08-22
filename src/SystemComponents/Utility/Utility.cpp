@@ -310,11 +310,10 @@ void Utility::calculateWeeklyAverageWaterPrices(
         // prices are in $/MG per month --> need to convert to $/MG per week
         
         weekly_average_volumetric_price[w] =
-                monthly_average_price[(int) (w / WEEKS_IN_MONTH)] /
-                WEEKS_IN_MONTH;
+                monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
         /**
         weekly_average_volumetric_price[w] = \
-            monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
+            monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / WEEKS_IN_MONTH;
         
         
         // CORRECTION ON 2025-04-17
@@ -698,11 +697,17 @@ void Utility::updateContingencyFundAndDebtService(
     contingency_fund = max(contingency_fund + projected_fund_contribution -
                            revenue_losses - transfer_costs +
                            recouped_loss_price_surcharge,
-                           0.0);
+                           0.0 );
+    //ADDED BY LILLIAN LAU ON 2025-08-22
+    // contingency fund also accumulates 5% interest per year on its balance. 
+    // this operation is done at the end of the year (week 51)
+    if (Utils::weekOfTheYear(week) == WEEKS_IN_YEAR) {
+        contingency_fund *= 1.05;
+    }
 
     // Update variables for data collection and next iteration.
     drought_mitigation_cost = max(revenue_losses + transfer_costs -
-                                  //insurance_payout -
+                                  insurance_payout -
                                   recouped_loss_price_surcharge,
                                   0.0);
     fund_contribution =

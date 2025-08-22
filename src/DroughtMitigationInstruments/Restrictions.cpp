@@ -43,7 +43,7 @@ Restrictions::Restrictions(
                                       priceMultipliers);
     utilities_ids = vector<int>(1, id);
 
-    setupTriggers(stage_multipliers, stage_triggers);
+    //setupTriggers(stage_multipliers, stage_triggers);
 }
 
 void Restrictions::setupTriggers(const vector<double> &stage_multipliers,
@@ -152,7 +152,7 @@ void Restrictions::calculateWeeklyAverageWaterPrices(
             for (int w = 0; w < (int) (WEEKS_IN_YEAR + 1); ++w) {
                 
                 restricted_weekly_average_volumetric_price[s][w] =
-                        monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / WEEKS_IN_MONTH;
+                        monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
                 
                 // CORRECTION ON 2025-04-17
                 // Convert from $/MG to $mil/MG
