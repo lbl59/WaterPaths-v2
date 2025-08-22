@@ -172,11 +172,10 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
 
     vector<double> realization_financial_costs(utility_data.size(), 0);
     vector<double> year_financial_costs;
-
-    double realizations_year_debt_payment = 0;
-    double realizations_year_cont_fund_contribution = 0;
+    double realizations_year_debt_payment = 0.0;
+    double realizations_year_cont_fund_contribution = 0.0;
     double realizations_year_gross_revenue = 1e-6;
-    //double realizations_year_insurance_contract_cost = 0;
+    double realizations_year_insurance_contract_cost = 0.0;
 
     // Creates a table with years that failed in each realization.
     for (const unsigned long &r : realizations) {
@@ -191,29 +190,28 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
                     utility_data[r]->getDebt_service_payments()[w]; 
             realizations_year_cont_fund_contribution +=
                     utility_data[r]->getContingency_fund_contribution()[w];
-            /**
             realizations_year_insurance_contract_cost +=
                     utility_data[r]->getInsurance_contract_cost()[w];
-            */
             realizations_year_gross_revenue +=
                     utility_data[r]->getGross_revenues()[w];
 
             // if last week of the year, close the books and calculate
             // financial cost for the year.
             if (Utils::isFirstWeekOfTheYear(w + 1)) {
+                // Accumulate year's financial cost and calculate cost-to-revenue ratio.
                 year_financial_costs[y] +=
                         (realizations_year_debt_payment +   // in $mil
-                         realizations_year_cont_fund_contribution)/  // in $mil
-                         //realizations_year_insurance_contract_cost) /  // in $mil
+                         realizations_year_cont_fund_contribution + // in $mil
+                         realizations_year_insurance_contract_cost) /  // in $mil
                         realizations_year_gross_revenue;   // in $mil
                 
                 // update year count.
                 y++;
 
                 // reset accounts.
-                realizations_year_debt_payment = 0;
-                realizations_year_cont_fund_contribution = 0;
-                //realizations_year_insurance_contract_cost = 0;
+                realizations_year_debt_payment = 0.0;
+                realizations_year_cont_fund_contribution = 0.0;
+                realizations_year_insurance_contract_cost = 0.0;
                 realizations_year_gross_revenue = 1e-6;
             }
         }
@@ -253,11 +251,11 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
 
     unsigned long n_weeks = utility_data[realizations[0]]->getGross_revenues().size();
     unsigned long n_years = (unsigned long) round(n_weeks / WEEKS_IN_YEAR);
+    double discount_rate = utility_data[0]->getUtility()->getInfraDiscountRate();
     
     vector<double> worse_year_financial_costs;
     vector<double> year_financial_costs;
-
-    double year_drought_mitigation_cost = 0;
+    double year_drought_mitigation_cost = 0.0;
     double year_gross_revenue = 1e-6;
 
     int y;
@@ -265,26 +263,20 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
     for (const unsigned long &r : realizations) {
         y = 0;
         
-        year_financial_costs.assign(n_years, 0);
+        year_financial_costs.assign(n_years, 0.0);
         for (unsigned long w = 0; w < n_weeks; ++w) {
             // accumulate year's info by summing weekly amounts.
             year_drought_mitigation_cost += utility_data[r]->getDrought_mitigation_cost()[w];  // in $mil
             year_gross_revenue += utility_data[r]->getGross_revenues()[w];  // in $mil
 
-            // if last week of the year, close the books and calculate financial cost for the year.
-            if (Utils::isFirstWeekOfTheYear(w + 1)) {
-                double available_contingency_fund = utility_data[r]->getContingency_fund_size()[w];
-                double diff_financial_costs = max(year_drought_mitigation_cost - available_contingency_fund, 0.0);
-                
+            // if last week of the year, close the books and calculate financial cost ratio for the year.
+            if (Utils::isFirstWeekOfTheYear(w + 1)) {         
+                // find the first week of the current year 
+                // Accumulate year's financial cost and calculate cost-to-revenue ratio.
+
                 year_financial_costs[y] =   
-                        diff_financial_costs / year_gross_revenue;
-                /**
-                if (year_financial_costs[y] >= 1.0) {
-                    cout << "Year " << y << " realization " << r << " drought mitigation cost: " << year_drought_mitigation_cost << endl;
-                    cout << "Year " << y << " realization " << r << " available CF: " << available_contingency_fund << endl;
-                    cout << "Year " << y << " realization " << r << " gross revenue: " << year_gross_revenue << endl;
-                }
-                */
+                        max(year_drought_mitigation_cost - utility_data[r]->getContingency_fund_size()[w], 0.0) / 
+                        year_gross_revenue; // in $mil
 
                 // Reset accounts.
                 year_gross_revenue = 1e-6;

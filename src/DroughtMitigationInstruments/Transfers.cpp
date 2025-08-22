@@ -265,7 +265,7 @@ void Transfers::applyPolicy(int week) {
                 }
             }
             // cost of transfers is 2x the water price of the source utility at a given week.
-            double transfer_cost = 2 * source_utility->waterPrice(price_week);
+            double transfer_cost = 2. * source_utility->waterPrice(price_week);
             source_utility->setDemand_offset(allocations[source_utility_id], transfer_cost);
         }
     }
@@ -368,7 +368,9 @@ void Transfers::setRealization(unsigned long realization_id,
     for (unsigned long i = 0; i < buyers_transfer_triggers.size(); ++i) {
         int action_multiplier_idx = action_multiplier_ids.at(i);
         // Capping the trigger between 0 and 1
-        buyers_transfer_triggers[i] = max(0.0, min(1.0, buyers_transfer_triggers[i] + actions_rdm.at(action_multiplier_idx)));
+        buyers_transfer_triggers[i] = max(0.0, 
+            min(1.0, 
+                buyers_transfer_triggers[i] + actions_rdm.at(action_multiplier_idx)));
     }
 }
 

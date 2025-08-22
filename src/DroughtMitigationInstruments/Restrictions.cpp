@@ -42,6 +42,21 @@ Restrictions::Restrictions(
                                       typesMonthlyWaterPrice,
                                       priceMultipliers);
     utilities_ids = vector<int>(1, id);
+
+    setupTriggers(stage_multipliers, stage_triggers);
+}
+
+void Restrictions::setupTriggers(const vector<double> &stage_multipliers,
+                                 const vector<double> &stage_triggers) {
+    if (stage_triggers.size() == 1 && stage_multipliers.size() > 1) {
+        this->stage_triggers.resize(stage_multipliers.size(),
+                                            stage_triggers[0]);
+        for (unsigned long i = 1; i < stage_multipliers.size(); ++i) {
+            this->stage_triggers[i] = stage_triggers[0] + 0.2;
+        }
+    } else {
+        sort(Restrictions::stage_triggers.begin(), Restrictions::stage_triggers.end());
+    }
 }
 
 Restrictions::Restrictions(const Restrictions &restrictions) :
@@ -71,8 +86,11 @@ void Restrictions::applyPolicy(int week) {
     realization_utilities[0]->setDemand_multiplier(current_multiplier);
     if (!restricted_weekly_average_volumetric_price.empty() && stage > 0) {
         int week_of_year = Utils::weekOfTheYear(week);
+        /**
         realization_utilities[0]->setRestricted_price(
-                // changed [stage-1] to [stage] on 2025-08-13 by Lillian Lau.
+                restricted_weekly_average_volumetric_price[stage - 1][week_of_year]);
+        */
+       realization_utilities[0]->setRestricted_price(
                 restricted_weekly_average_volumetric_price[stage][week_of_year]);
     }
 }
@@ -129,16 +147,12 @@ void Restrictions::calculateWeeklyAverageWaterPrices(
             for (int w = 0; w < (int) (WEEKS_IN_YEAR + 1); ++w) {
                 /**
                 restricted_weekly_average_volumetric_price[s][w] =
-                        monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
-                
-                restricted_weekly_average_volumetric_price[s][w] =
-                        monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 4.0;
+                        monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / WEEKS_IN_MONTH;
                 */
                 // CORRECTION ON 2025-04-17
                 // Convert from $/MG to $mil/MG
                 restricted_weekly_average_volumetric_price[s][w] =
-                        monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;
-                
+                        monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;  
             }
         }
     }

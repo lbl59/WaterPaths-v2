@@ -311,16 +311,18 @@ void Utility::calculateWeeklyAverageWaterPrices(
         /**
         weekly_average_volumetric_price[w] =
                 monthly_average_price[(int) (w / WEEKS_IN_MONTH)] /
-                4.0;
+                WEEKS_IN_MONTH;
+        
         weekly_average_volumetric_price[w] = \
             monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
-        
         */
+        
         // CORRECTION ON 2025-04-17
         // monthly_average_price is already a per-unit average 
         // prices are in $/MGD --> need to convert to $mil/MG
         weekly_average_volumetric_price[w] = \
             monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;
+        
     }
 }
 
@@ -675,25 +677,10 @@ void Utility::updateContingencyFundAndDebtService(
     double projected_fund_contribution = percent_contingency_fund_contribution *
                                          unrestricted_demand *
                                          unrestricted_price;
-    if (unrestricted_demand < 1e-9) {
-        cout << "Warning: Utility " << name << " has zero demand "
-             << "in week " << week << ". No contribution to contingency "
-             << "fund will be made." << endl;
-    }
-
-    if (percent_contingency_fund_contribution < 1e-9) {
-        cout << "Warning: Utility " << name << " has zero contingency "
-             << "fund contribution percentage. No contribution to "
-             << "contingency fund will be made." << endl;
-    }
-
-    if (unrestricted_price < 1e-9) {
-        cout << "Warning: Utility " << name << " has zero water price "
-             << "in week " << week << ". No contribution to contingency "
-             << "fund will be made." << endl;
-    }
 
     // Calculate actual gross revenue.
+    //gross_revenue = restricted_demand * current_price;
+    // Convert gross revenue to $mil 
     gross_revenue = restricted_demand * current_price;
 
     // Calculate losses due to restrictions and transfers.
@@ -876,6 +863,7 @@ void Utility::purchaseInsurance(double insurance_cost) {
 void
 Utility::setDemand_offset(double demand_offset, double offset_rate_per_volume) {
     this->demand_offset = demand_offset; 
+    //this->demand_offset += demand_offset; 
     this->offset_rate_per_volume = offset_rate_per_volume;
 }
 
