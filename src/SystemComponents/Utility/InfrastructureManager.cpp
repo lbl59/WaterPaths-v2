@@ -68,10 +68,9 @@ InfrastructureManager &InfrastructureManager::operator=(const InfrastructureMana
 
 // ADDED BY LILLIAN LAU ON 2025-05-01
 void InfrastructureManager::setShift(double new_shift) {
-    shift = new_shift;
     for (unsigned long i = 0; i < infra_construction_triggers.size(); ++i) {
         // Capping the trigger between 0 and 1
-        infra_construction_triggers.at(i) = min(1.0, max(0.0, infra_construction_triggers.at(i) + shift));
+        infra_construction_triggers.at(i) = min(1.0, max(0.0, infra_construction_triggers.at(i) + new_shift));
     }
 }
 
