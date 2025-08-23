@@ -262,8 +262,8 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
     // Creates a table with years that failed in each realization.
     for (const unsigned long &r : realizations) {
         y = 0;
-        
         year_financial_costs.assign(n_years, 0.0);
+        
         for (unsigned long w = 0; w < n_weeks; ++w) {
             // accumulate year's info by summing weekly amounts.
             year_drought_mitigation_cost += utility_data[r]->getDrought_mitigation_cost()[w];  // in $mil

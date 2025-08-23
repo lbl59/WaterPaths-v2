@@ -308,20 +308,19 @@ void Utility::calculateWeeklyAverageWaterPrices(
     // Create weekly price table from monthly prices.
     for (int w = 0; w < (int) (WEEKS_IN_YEAR + 1); ++w) {
         // prices are in $/MG per month --> need to convert to $/MG per week
-        
+        /**
         weekly_average_volumetric_price[w] =
                 monthly_average_price[(int) (w / WEEKS_IN_MONTH)];
-        /**
+        
         weekly_average_volumetric_price[w] = \
             monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / WEEKS_IN_MONTH;
-        
+        */
         
         // CORRECTION ON 2025-04-17
         // monthly_average_price is already a per-unit average 
         // prices are in $/MGD --> need to convert to $mil/MG
         weekly_average_volumetric_price[w] = \
             monthly_average_price[(int) (w / WEEKS_IN_MONTH)] / 1e6;
-        */
     }
 }
 
@@ -523,6 +522,70 @@ void Utility::splitDemands(int week, vector<vector<double>> &demands,
                                  restricted_demand - total_treatment_capacity), 0.);
     restricted_demand -= unfulfilled_demand;
 
+    // ADDED BY LILLIAN LAU ON 2025-08-23
+    // Older implementation of splitting demands
+    // Allocates demand to intakes and reuse based on allocated volume to this utility.
+    for (int &ws : priority_draw_water_source) {
+        double source_demand =
+                min(restricted_demand,
+                    water_sources[ws]->getAvailableAllocatedVolume(id));
+        demands[ws][this->id] = source_demand;
+    }
+
+    // Allocates remaining demand to reservoirs based on allocated available
+    // volume to this utility.
+    unsigned short over_allocated_sources = 0;
+    double over_allocated_volume = 0;
+    double demand_fraction[water_sources.size()];
+    int not_over_allocated_ids[water_sources.size()];
+    double sum_not_alloc_demand_fraction = 0;
+    unsigned short not_over_allocated_sources = 0;
+    for (int &ws : non_priority_draw_water_source) {
+        auto source = water_sources[ws];
+        // Calculate allocation based on sources' available volumes.
+        demand_fraction[ws] = max(1.0e-6,
+                    source->getAvailableAllocatedVolume(id) /
+                    total_available_volume);
+        // Calculate demand allocated to a given source.
+        double source_demand = restricted_demand * demand_fraction[ws];
+        demands[ws][id] = source_demand;
+        // Check if allocated demand was greater than treatment capacity.
+        double over_allocated_demand_ws =
+                source_demand - source->getAllocatedTreatmentCapacity(id);
+
+        // Set reallocation variables for the sake of reallocating demand.
+        if (over_allocated_demand_ws > 0.) {
+            over_allocated_sources++;
+            over_allocated_volume += over_allocated_demand_ws;
+            demands[ws][id] = source_demand - over_allocated_demand_ws;
+        } else {
+            not_over_allocated_ids[not_over_allocated_sources] = ws;
+            sum_not_alloc_demand_fraction += demand_fraction[ws];
+            not_over_allocated_sources++;
+        }
+    }
+
+    // Do one iteration of demand reallocation among sources whose treatment
+    // capacities have not yet been exceeded if there is an instance of
+    // overallocation.
+    if (over_allocated_sources > 0) {		            
+        for (int i = 0; i < not_over_allocated_sources; ++i) {
+            int ws = not_over_allocated_ids[i];
+            demands[ws][id] += over_allocated_volume *
+                               demand_fraction[ws] / sum_not_alloc_demand_fraction;
+        }
+    }
+
+    // Update contingency fund
+    if (used_for_realization) {
+        updateContingencyFundAndDebtService(unrestricted_demand,
+                                            demand_multiplier,
+                                            demand_offset,
+                                            unfulfilled_demand,
+                                            week);
+    }
+
+    /**
     double demand_non_priority_sources = restricted_demand;
     double total_serviced_demand = 0;
 
@@ -633,6 +696,7 @@ void Utility::splitDemands(int week, vector<vector<double>> &demands,
                                             unfulfilled_demand,
                                             week);
     }
+    */
 }
 
 /**
@@ -751,6 +815,15 @@ double Utility::updateCurrent_debt_payment(int week) {
     // payments should be made.
     for (Bond *bond : issued_bonds) {
         current_debt_payment += bond->getDebtService(week);
+    }
+    if (isnan(current_debt_payment)) {
+            cout << "DEBT SERVICE FOR UTILITY " << name << " IN WEEK " << week << "IS NAN" << endl;
+            cout << name << ": " << water_sources.at(bond->getWaterSourceID())->name
+                 << " allocated treatment fraction is "
+                 << water_sources.at(bond->getWaterSourceID())->getAllocatedTreatmentFraction(id) << endl;
+    
+    } else {
+        cout << "DEBT SERVICE FOR UTILITY " << name << " IN WEEK " << week << "IS " << current_debt_payment << endl;
     }
 
     return current_debt_payment;
