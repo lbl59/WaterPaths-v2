@@ -122,6 +122,7 @@ void Restrictions::addSystemComponents(vector<Utility *> systems_utilities,
 
 /**
  * Calculates average water price from consumer types and respective prices.
+ * NOTE: This function isn't called if no prices are provided in the constructor.
  * @param typesMonthlyDemandFraction
  * @param typesMonthlyWaterPrice
  */
