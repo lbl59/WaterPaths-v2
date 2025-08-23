@@ -906,8 +906,10 @@ int Utility::infrastructureConstructionHandler(double long_term_rof, int week) {
     // Issue and add bond of triggered water source to list of outstanding bonds, and update total new
     // infrastructure NPV.
     issueBond(new_infra_triggered, week);
-    cout << "Utility " << name << " has triggered infrastructure " << new_infra_triggered << " in week " << week << endl;
-
+    if (new_infra_triggered > 0) {
+        cout << "Utility " << name << " has triggered infrastructure " << new_infra_triggered << " in week " << week << endl;
+    }
+    
     updateTreatmentAndNumberOfStorageSources();
 
     return new_infra_triggered;
