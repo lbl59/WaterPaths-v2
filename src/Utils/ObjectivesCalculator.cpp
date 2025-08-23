@@ -205,6 +205,19 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
                          realizations_year_insurance_contract_cost) /  // in $mil
                         realizations_year_gross_revenue;   // in $mil
                 
+                if (realizations_year_cont_fund_contribution > 0) {
+                    cout << "Contingency fund contribution of " 
+                         << realizations_year_cont_fund_contribution 
+                         << " made in year " << y << " of realization " << r << endl;
+                }
+                if (realizations_year_debt_payment > 0) {
+                    cout << "Debt payment of "  
+                         << realizations_year_debt_payment 
+                         << " made in year " << y << " of realization " << r << endl;
+                }
+                cout << "Gross revenue of " 
+                     << realizations_year_gross_revenue 
+                     << " made in year " << y << " of realization " << r << endl;
                 // update year count.
                 y++;
 
@@ -263,7 +276,7 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
     for (const unsigned long &r : realizations) {
         y = 0;
         year_financial_costs.assign(n_years, 0.0);
-        
+
         for (unsigned long w = 0; w < n_weeks; ++w) {
             // accumulate year's info by summing weekly amounts.
             year_drought_mitigation_cost += utility_data[r]->getDrought_mitigation_cost()[w];  // in $mil
