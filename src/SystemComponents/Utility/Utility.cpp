@@ -816,15 +816,7 @@ double Utility::updateCurrent_debt_payment(int week) {
     for (Bond *bond : issued_bonds) {
         current_debt_payment += bond->getDebtService(week);
     }
-    if (isnan(current_debt_payment)) {
-            cout << "DEBT SERVICE FOR UTILITY " << name << " IN WEEK " << week << "IS NAN" << endl;
-            cout << name << ": " << water_sources.at(bond->getWaterSourceID())->name
-                 << " allocated treatment fraction is "
-                 << water_sources.at(bond->getWaterSourceID())->getAllocatedTreatmentFraction(id) << endl;
-    
-    } else {
-        cout << "DEBT SERVICE FOR UTILITY " << name << " IN WEEK " << week << "IS " << current_debt_payment << endl;
-    }
+    cout << "DEBT SERVICE FOR UTILITY " << name << " IN WEEK " << week << "IS " << current_debt_payment << endl;
 
     return current_debt_payment;
 }
