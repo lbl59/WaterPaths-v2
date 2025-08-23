@@ -816,7 +816,7 @@ double Utility::updateCurrent_debt_payment(int week) {
     for (Bond *bond : issued_bonds) {
         current_debt_payment += bond->getDebtService(week);
     }
-    if (week > 1500) && (current_debt_payment > 0) {
+    if ((week > 1500) && (current_debt_payment > 0)){
         cout << "DEBT SERVICE FOR UTILITY " << name << " IN WEEK " << week << " IS " << current_debt_payment << endl;
     }
     return current_debt_payment;
