@@ -205,19 +205,6 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
                          realizations_year_insurance_contract_cost) /  // in $mil
                         realizations_year_gross_revenue;   // in $mil
                 
-                if (realizations_year_cont_fund_contribution > 0) {
-                    cout << "Contingency fund contribution of " 
-                         << realizations_year_cont_fund_contribution 
-                         << " made in year " << y << " of realization " << r << endl;
-                }
-                if (realizations_year_debt_payment > 0) {
-                    cout << "Debt payment of "  
-                         << realizations_year_debt_payment 
-                         << " made in year " << y << " of realization " << r << endl;
-                }
-                cout << "Gross revenue of " 
-                     << realizations_year_gross_revenue 
-                     << " made in year " << y << " of realization " << r << endl;
                 // update year count.
                 y++;
 

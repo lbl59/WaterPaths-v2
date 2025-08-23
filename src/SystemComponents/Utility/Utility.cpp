@@ -816,9 +816,6 @@ double Utility::updateCurrent_debt_payment(int week) {
     for (Bond *bond : issued_bonds) {
         current_debt_payment += bond->getDebtService(week);
     }
-    if ((week > 1500) && (current_debt_payment > 0)){
-        cout << "DEBT SERVICE FOR UTILITY " << name << " IN WEEK " << week << " IS " << current_debt_payment << endl;
-    }
     return current_debt_payment;
 }
 
@@ -906,10 +903,7 @@ int Utility::infrastructureConstructionHandler(double long_term_rof, int week) {
     // Issue and add bond of triggered water source to list of outstanding bonds, and update total new
     // infrastructure NPV.
     issueBond(new_infra_triggered, week);
-    if (new_infra_triggered > 0) {
-        cout << "Utility " << name << " has triggered infrastructure " << new_infra_triggered << " in week " << week << endl;
-    }
-    
+
     updateTreatmentAndNumberOfStorageSources();
 
     return new_infra_triggered;
