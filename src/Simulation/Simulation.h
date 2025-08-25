@@ -57,7 +57,7 @@ public:
             vector<vector<double>>& utilities_rdm,
             vector<vector<double>>& water_sources_rdm,
             vector<vector<double>>& policies_rdm,
-            vector<vector<double>> &actions_rdm,  // ADDED ON 2025-04-28 by Lillian Lau.
+            vector<vector<double>>& actions_rdm,  // ADDED ON 2025-04-28 by Lillian Lau.
             const unsigned long total_simulation_time,
             vector<unsigned long> &realizations_to_run);
 
