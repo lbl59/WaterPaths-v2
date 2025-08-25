@@ -118,7 +118,8 @@ Simulation::Simulation(
         min_env_flow_controls(min_env_flow_controls),
         utilities_rdm(utilities_rdm),
         water_sources_rdm(water_sources_rdm),
-        policies_rdm(policies_rdm) {
+        policies_rdm(policies_rdm),
+        actions_rdm(actions_rdm) { // ADDED ON 2025-04-28 by Lillian Lau.
     setRof_tables_folder(rof_tables_folder);
 
     setupSimulation(
@@ -313,7 +314,7 @@ MasterDataCollector * Simulation::runFullSimulation(unsigned long n_threads, dou
         }
     }
 
-    set<unsigned long> s( realizations_to_run.begin(), realizations_to_run.end() );
+    set<unsigned long> s(realizations_to_run.begin(), realizations_to_run.end());
     vector<unsigned long> realizations_to_run_unique;
     realizations_to_run_unique.assign( s.begin(), s.end() );
 
