@@ -325,8 +325,7 @@ MasterDataCollector * Simulation::runFullSimulation(unsigned long n_threads, dou
     string error_file_content = "#";
 
     // Run realizations.
-    #pragma omp parallel for ordered num_threads(n_threads) shared(had_catch) 
-    {
+    #pragma omp parallel for ordered num_threads(n_threads) shared(had_catch)
     for (unsigned long r = 0; r < realizations_to_run_unique.size(); ++r) {
         unsigned long realization = realizations_to_run_unique[r];
 
@@ -357,7 +356,7 @@ MasterDataCollector * Simulation::runFullSimulation(unsigned long n_threads, dou
                 // Apply drought mitigation policies
                 if (import_export_rof_tables != EXPORT_ROF_TABLES) {
                     realization_model->applyDroughtMitigationPolicies(w);
-		        }
+                }
                 // Continuity calculations for current week
                 realization_model->continuityStep(w);
                 // Collect system data for output printing and objective calculations.
@@ -369,26 +368,31 @@ MasterDataCollector * Simulation::runFullSimulation(unsigned long n_threads, dou
                 }
             }
             // Export ROF tables for future simulations of the same problem with the same states-of-the-world.
-            if (import_export_rof_tables == EXPORT_ROF_TABLES) {
-                //rof_model->printROFTable(rof_tables_folder);
-                rof_model->printROFTableParquet(rof_tables_folder);
-            }
+            #pragma omp critical(master_data_collector_exportROFTables)
+            {
+                if (import_export_rof_tables == EXPORT_ROF_TABLES) {
+                    //rof_model->printROFTable(rof_tables_folder);
+                    rof_model->printROFTableParquet(rof_tables_folder);
+                }
+            }   
         } catch (...) {
             #pragma omp atomic
             ++had_catch;
-            error_m += to_string(realization) + " ";
-            error_file_name += "_" + to_string(realization);
-            error_file_content += to_string(realization) + ",";
-            master_data_collector->removeRealization(realization);
+            #pragma omp critical
+            {
+                error_m += to_string(realization) + " ";
+                error_file_name += "_" + to_string(realization);
+                error_file_content += to_string(realization) + ",";
+                master_data_collector->removeRealization(realization);
+            }
         }
-
         delete realization_model;
         delete rof_model;
     }
-    }
+    
     // Handle exception from the OpenMP region and pass it up to the
     // problem class.
-    if (had_catch) {
+    if (had_catch) { 
         int world_rank;
     #ifdef  PARALLEL
         int mpi_initialized;
