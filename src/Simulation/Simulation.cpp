@@ -324,7 +324,8 @@ MasterDataCollector * Simulation::runFullSimulation(unsigned long n_threads, dou
     string error_file_content = "#";
 
     // Run realizations.
-#pragma omp parallel for ordered num_threads(n_threads) shared(had_catch) {
+    #pragma omp parallel for ordered num_threads(n_threads) shared(had_catch) 
+    {
     for (unsigned long r = 0; r < realizations_to_run_unique.size(); ++r) {
         unsigned long realization = realizations_to_run_unique[r];
 
@@ -355,7 +356,7 @@ MasterDataCollector * Simulation::runFullSimulation(unsigned long n_threads, dou
                 // Apply drought mitigation policies
                 if (import_export_rof_tables != EXPORT_ROF_TABLES) {
                     realization_model->applyDroughtMitigationPolicies(w);
-		}
+		        }
                 // Continuity calculations for current week
                 realization_model->continuityStep(w);
                 // Collect system data for output printing and objective calculations.
@@ -372,7 +373,7 @@ MasterDataCollector * Simulation::runFullSimulation(unsigned long n_threads, dou
                 rof_model->printROFTableParquet(rof_tables_folder);
             }
         } catch (...) {
-#pragma omp atomic
+            #pragma omp atomic
             ++had_catch;
             error_m += to_string(realization) + " ";
             error_file_name += "_" + to_string(realization);
@@ -383,39 +384,40 @@ MasterDataCollector * Simulation::runFullSimulation(unsigned long n_threads, dou
         delete realization_model;
         delete rof_model;
     }
+    }
     // Handle exception from the OpenMP region and pass it up to the
     // problem class.
     if (had_catch) {
-	int world_rank;
-#ifdef  PARALLEL
-	int mpi_initialized;
-	MPI_Initialized(&mpi_initialized);
-	if (mpi_initialized)
-             MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-	else
-	    world_rank = 0;
-#else
-        world_rank = 0;
-#endif
+        int world_rank;
+    #ifdef  PARALLEL
+        int mpi_initialized;
+        MPI_Initialized(&mpi_initialized);
+        if (mpi_initialized)
+                MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+        else
+            world_rank = 0;
+    #else
+            world_rank = 0;
+    #endif
 
-    // Create error file
-	error_file_name += ".csv";
-	error_m += ". Error data in " + error_file_name;
-	ofstream error_file;
-	error_file.open(error_file_name);
+        // Create error file
+        error_file_name += ".csv";
+        error_m += ". Error data in " + error_file_name;
+        ofstream error_file;
+        error_file.open(error_file_name);
 
-	// Write error rile
-	error_file << error_file_content << endl;
-    for (int i = 0; i < NUM_DEC_VAR - 1; ++i) {
-        error_file << vars[i] << ",";
-    }
-    error_file << vars[NUM_DEC_VAR - 1];
+        // Write error rile
+        error_file << error_file_content << endl;
+        for (int i = 0; i < NUM_DEC_VAR - 1; ++i) {
+            error_file << vars[i] << ",";
+        }
+        error_file << vars[NUM_DEC_VAR - 1];
 
-    // Finalize error reporting
-    error_file.close();
-	printf("%s", error_m.c_str());
+        // Finalize error reporting
+        error_file.close();
+        printf("%s", error_m.c_str());
 
-	master_data_collector->cleanCollectorsOfDeletedRealizations();
+        master_data_collector->cleanCollectorsOfDeletedRealizations();
     }
     return master_data_collector;
 }
@@ -423,3 +425,4 @@ MasterDataCollector * Simulation::runFullSimulation(unsigned long n_threads, dou
 void Simulation::setRof_tables_folder(const string &rof_tables_folder) {
     Simulation::rof_tables_folder = rof_tables_folder;
 }
+ 
