@@ -39,7 +39,7 @@ protected:
     string output_dir;  // ADDED ON 2025-07-16 by Lillian Lau.
     string rdm_directory;  // ADDED ON 2025-05-27 by Lillian Lau.
     string fname_sufix;
-    string evap_inflows_suffix;
+    string rof_tables_directory;  // ADDED ON 2025-05-27 by Lillian Lau.
     string inflow_demand_evap_suffix; // CHANGED ON 2025-05-27 by Lillian Lau.
 
     vector<unsigned long > realizations_to_run;

@@ -346,7 +346,7 @@ int main(int argc, char *argv[]) {
     } else {
         problem.setN_realizations(n_realizations);
     }
-    problem.setImport_export_rof_tables(import_export_rof_table, (int) n_weeks,
+    problem.setImport_export_rof_tables(import_export_rof_table, (int) n_weeks, mode,
             system_io + rof_tables_directory);
     problem.readInputData();
 
