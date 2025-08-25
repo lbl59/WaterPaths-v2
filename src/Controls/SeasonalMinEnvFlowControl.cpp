@@ -4,6 +4,7 @@
 
 #include "SeasonalMinEnvFlowControl.h"
 #include "../Utils/Utils.h"
+#include <stdexcept>
 
 SeasonalMinEnvFlowControl::SeasonalMinEnvFlowControl(
         int water_source_id, const vector<int>& week_thresholds,

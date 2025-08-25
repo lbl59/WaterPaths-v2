@@ -3,6 +3,7 @@
 //
 
 #include <algorithm>
+#include <stdexcept>
 #include "WwtpDischargeRule.h"
 #include "../Utils/Constants.h"
 
