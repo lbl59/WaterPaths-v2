@@ -27,7 +27,7 @@ ContinuityModelRealization::ContinuityModelRealization(
     for (DroughtMitigationPolicy *dmp : this->drought_mitigation_policies) {
         dmp->addSystemComponents(utilities, water_sources, min_env_flow_control);
         dmp->setRealization(realization_id, utilities_rdm, water_sources_rdm,
-                            policy_rdm);
+                            policy_rdm, actions_rdm); // ADDED ON 2025-04-28 by Lillian Lau.
     }
 }
 
