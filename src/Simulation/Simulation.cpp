@@ -23,7 +23,7 @@ Simulation::Simulation(
         vector<vector<double>>& utilities_rdm,
         vector<vector<double>>& water_sources_rdm,
         vector<vector<double>>& policies_rdm,
-        vector<vector<double>> &actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
+        vector<vector<double>>& actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
         const unsigned long total_simulation_time,
         vector<unsigned long> &realizations_to_run) :
         total_simulation_time(total_simulation_time),
@@ -59,7 +59,7 @@ Simulation::Simulation(
         vector<vector<double>>& utilities_rdm,
         vector<vector<double>>& water_sources_rdm,
         vector<vector<double>>& policies_rdm,
-        vector<vector<double>> &actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
+        vector<vector<double>>& actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
         const unsigned long total_simulation_time,
         vector<unsigned long> &realizations_to_run,
         vector<vector<Matrix2D<double>>> &precomputed_rof_tables,
@@ -102,7 +102,7 @@ Simulation::Simulation(
         vector<vector<double>>& utilities_rdm,
         vector<vector<double>>& water_sources_rdm,
         vector<vector<double>>& policies_rdm,
-        vector<vector<double>> &actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
+        vector<vector<double>>& actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
         const unsigned long total_simulation_time,
         vector<unsigned long> &realizations_to_run,
         string &rof_tables_folder) :
