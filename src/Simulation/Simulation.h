@@ -34,7 +34,7 @@ private:
     vector<vector<double>>& utilities_rdm;
     vector<vector<double>>& water_sources_rdm;
     vector<vector<double>>& policies_rdm;
-    vector<vector<double>> &actions_rdm;  // ADDED ON 2025-04-28 by Lillian Lau.
+    vector<vector<double>>& actions_rdm;  // ADDED ON 2025-04-28 by Lillian Lau.
 
     vector<vector<Matrix2D<double>>>* precomputed_rof_tables;
     vector<vector<double>>* table_storage_shift;

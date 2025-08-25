@@ -38,7 +38,7 @@ Simulation::Simulation(
         min_env_flow_controls(min_env_flow_controls),
         utilities_rdm(utilities_rdm),
         water_sources_rdm(water_sources_rdm),
-        policies_rdm(policies_rdm) 
+        policies_rdm(policies_rdm), 
         actions_rdm(actions_rdm) { // ADDED ON 2025-04-28 by Lillian Lau.
 
     setupSimulation(
