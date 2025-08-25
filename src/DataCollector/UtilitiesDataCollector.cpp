@@ -156,6 +156,80 @@ string UtilitiesDataCollector::printCompactStringHeader() {
     return outStream.str();
 }
 
+/**
+ * @brief Prints the subset of the data collected by the utility data collector.
+ * This is used for calculating time-varying performance metrics.
+ * 
+ * ADDED on 06-19-2025 by Lillian Lau
+ * 
+ * @param week 
+ * @return string 
+ */
+string UtilitiesDataCollector::printSubsetCompactString(int week) {
+
+    stringstream outStream;
+
+    outStream << combined_storage[week]
+              << ","
+              << capacity[week]
+              << ","
+	          << net_stream_inflow[week]
+              << ","
+              << st_rof[week]
+              << ","
+              << lt_rof[week]
+              << ","
+              << restricted_demand[week]
+              << ","
+              << unrestricted_demand[week]
+              << ","
+              << total_treatment_capacity[week]
+              << ","
+              << contingency_fund_size[week]
+              << ","
+              << insurance_contract_cost[week]
+              << ","
+              << net_present_infrastructure_cost[week]
+              << ","
+              << debt_service_payments[week]
+              << ","
+              << gross_revenues[week]
+              << ","
+              << drought_mitigation_cost[week]
+              << ",";
+
+    return outStream.str();
+}
+
+/**
+ * @brief Prints out a subset of the data collected by the utility data collector.
+ * This is used for calculating time-varying performance metrics.
+ * 
+ * ADDED on 06-19-2025 by Lillian Lau
+ * 
+ * @return string 
+ */
+string UtilitiesDataCollector::printSubsetCompactStringHeader() {
+    stringstream outStream;
+
+    outStream << id << "st_vol" << ","  // Stored Volume - Y
+              << id << "capacity" << ","   // Total Storage Capacity - Y
+              << id << "net_inf" << ","   // Net Inflow - Y
+              << id << "st_rof" << ","   // Short Term Risk of Failure - Y
+              << id << "lt_rof" << ","   // Long Term Risk of Failure - Y
+              << id << "rest_demand" << ","   // Restricted Demand - Y
+              << id << "unrest_demand" << ","   // Unrestricted Demand - Y
+              << id << "treat_capacity" << ","   // Total Treatment Capacity - Y
+              << id << "cont_fund_size" << ","   // Cumul. Contingency Fund Size - Y
+              << id << "ins_price" << ","   // Insurance Contract Cost (Premium) - Y
+              << id << "infra_npv" << ","   // Infrastructure Net Present Value - Y
+              << id << "debt_serv" << ","   // Debt Service Payments - Y
+              << id << "gross_rev" << ","  // Gross Revenues - Y
+              << id << "dm_cost" << ",";   // Drought Mitigation Cost - Y
+
+    return outStream.str();
+}
+
 void UtilitiesDataCollector::collect_data() {
     vector<int> infra_built;
 

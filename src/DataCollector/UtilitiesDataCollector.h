@@ -42,6 +42,8 @@ public:
 
     string printCompactString(int week) override;
 
+    string printSubsetCompactString(int week);  // ADDED on 06-19-2025 by Lillian Lau
+
     void collect_data() override;
 
     string printTabularStringHeaderLine1() override;
@@ -49,6 +51,8 @@ public:
     string printTabularStringHeaderLine2() override;
 
     string printCompactStringHeader() override;
+
+    string printSubsetCompactStringHeader();   // ADDED on 06-19-2025 by Lillian Lau
 
     const vector<double> &getCombined_storage() const;
 

@@ -8,6 +8,7 @@
 #include <set>
 #include "Problem.h"
 #include "../../Utils/Utils.h"
+#include <omp.h>
 
 #include <arrow/io/api.h>
 #include <parquet/arrow/reader.h>
@@ -48,17 +49,6 @@ void Problem::printTimeSeriesAndPathways(bool print_timeseries, bool parquet_for
                 fpw + "_s" + std::to_string(solution_no) + fname_sufix);
         if (print_timeseries) {
             cout << "Printing time series" << endl;
-            /**
-            this->master_data_collector->printUtilitiesOutputCompact(
-                    0, (int) n_weeks, fu + "_s" + std::to_string(solution_no) +
-                                    fname_sufix);
-            this->master_data_collector->printWaterSourcesOutputCompact(
-                    0, (int) n_weeks, fws + "_s" + std::to_string(solution_no) +
-                                    fname_sufix);
-            this->master_data_collector->printPoliciesOutputCompact(
-                    0, (int) n_weeks, fp + "_s" + std::to_string(solution_no) +
-                                    fname_sufix);
-            */
             // ADDED ON 2025-06-19 by Lillian Lau.
             if (parquet_format) {
                 this->master_data_collector->printSubsetOutputParquet(
@@ -68,6 +58,15 @@ void Problem::printTimeSeriesAndPathways(bool print_timeseries, bool parquet_for
                 this->master_data_collector->printSubsetOutputCSV(
                         0, (int) n_weeks, "subset_s" + std::to_string(solution_no) +
                                             fname_sufix);
+                this->master_data_collector->printUtilitiesOutputCompact(
+                    0, (int) n_weeks, fu + "_s" + std::to_string(solution_no) +
+                                    fname_sufix);
+                this->master_data_collector->printWaterSourcesOutputCompact(
+                    0, (int) n_weeks, fws + "_s" + std::to_string(solution_no) +
+                                    fname_sufix);
+                this->master_data_collector->printPoliciesOutputCompact(
+                    0, (int) n_weeks, fp + "_s" + std::to_string(solution_no) +
+                                    fname_sufix);
             }
     } else {
         printf("Trying to print pathways but data collector is empty. Either your simulation crashed or you deleted the data collector too early.\n");
@@ -80,7 +79,6 @@ vector<int> Problem::vecInfraRankToVecInt(vector<infraRank> v) {
     for (infraRank ir : v) {
         sorted.push_back(ir.id);
     }
-
     return sorted;
 }
 
@@ -200,12 +198,11 @@ Problem::Problem(unsigned long n_weeks) : n_weeks(n_weeks) {
  * @param n_realizations number of realizations.
  */
 void Problem::setRofTables(unsigned long n_realizations, string rof_tables_directory) {
-
     double start_time = omp_get_wtime();
     printf("Reading ROF tables.\n");
     string file_name = rof_tables_directory + "tables_r0_u0.csv";
     auto data_r0_u0 = Utils::parse2DCsvFile(file_name);
-    auto n_weeks_in_table = (int) data_r0_u0.size();
+    auto n_weeks_in_table = (int) data_r0_u0.size(); 
     auto n_tiers = (int) data_r0_u0.at(0).size();
 
     if (n_tiers != NO_OF_INSURANCE_STORAGE_TIERS) {

@@ -63,6 +63,22 @@
         "xtr1common": "cpp",
         "xtree": "cpp",
         "xutility": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "array": "cpp",
+        "bitset": "cpp",
+        "cinttypes": "cpp",
+        "csignal": "cpp",
+        "deque": "cpp",
+        "functional": "cpp",
+        "mutex": "cpp",
+        "numeric": "cpp",
+        "queue": "cpp",
+        "random": "cpp",
+        "regex": "cpp",
+        "stop_token": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "variant": "cpp",
+        "xhash": "cpp"
     }
 }

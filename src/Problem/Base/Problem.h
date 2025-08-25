@@ -111,6 +111,8 @@ public:
 
     void setRofTables(unsigned long n_realizations, string rof_tables_directory);
 
+    void setRofTablesParquet(unsigned long n_realizations, string rof_tables_directory); // ADDED ON 2025-05-27 by Lillian Lau.
+
     void setImport_export_rof_tables(int import_export_rof_tables, int n_weeks, int mode, string rof_tables_directory);
 
     void runBootstrapRealizationThinning(int standard_solution, int n_sets, int n_bs_samples,
