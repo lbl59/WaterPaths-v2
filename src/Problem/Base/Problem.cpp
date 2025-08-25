@@ -304,10 +304,10 @@ void Problem::setImport_export_rof_tables(int import_export_rof_tables, int n_we
     this->rof_tables_directory = rof_tables_directory;
 
     if (import_export_rof_tables == IMPORT_ROF_TABLES) {
-        if (mode == "0") {
+        if (mode == 0) {
             setRofTables(n_realizations, rof_tables_directory);
-        } else if (mode == "1") {
-            setRofTablesParquet(n_realizations, rof_tables_directory)
+        } else if (mode == 1) {
+            setRofTablesParquet(n_realizations, rof_tables_directory);
         }
     } else {
         Utils::createDir(rof_tables_directory);
