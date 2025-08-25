@@ -10,6 +10,7 @@
 #include "../../Utils/Utils.h"
 #include <omp.h>
 
+// Import Parquet libraries
 #include <arrow/io/api.h>
 #include <parquet/arrow/reader.h>
 
@@ -55,9 +56,11 @@ void Problem::printTimeSeriesAndPathways(bool print_timeseries, bool parquet_for
                         0, (int) n_weeks, "subset_s" + std::to_string(solution_no) +
                                             fname_sufix);
             } else {
+                /**
                 this->master_data_collector->printSubsetOutputCSV(
                         0, (int) n_weeks, "subset_s" + std::to_string(solution_no) +
                                             fname_sufix);
+                */
                 this->master_data_collector->printUtilitiesOutputCompact(
                     0, (int) n_weeks, fu + "_s" + std::to_string(solution_no) +
                                     fname_sufix);
