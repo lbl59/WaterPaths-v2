@@ -30,7 +30,7 @@ vector<double> Problem::calculateAndPrintObjectives(bool print_files) {
 }
 
 void Problem::printTimeSeriesAndPathways(bool print_timeseries, bool parquet_format) {
-    /// Calculate objective values.
+    // Calculate objective values.
     if (this->master_data_collector != nullptr) {
 
         // Print output files.
@@ -71,10 +71,10 @@ void Problem::printTimeSeriesAndPathways(bool print_timeseries, bool parquet_for
                     0, (int) n_weeks, fp + "_s" + std::to_string(solution_no) +
                                     fname_sufix);
             }
+        }
     } else {
         printf("Trying to print pathways but data collector is empty. Either your simulation crashed or you deleted the data collector too early.\n");
     }
-
 }
 
 vector<int> Problem::vecInfraRankToVecInt(vector<infraRank> v) {
