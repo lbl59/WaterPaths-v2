@@ -99,7 +99,7 @@ public:
 
     void setRealizationsToRun(vector<unsigned long>& realizations_to_run);
 
-    void setEvap_inflows_suffix(const string &evap_inflows_suffix);
+    void set_inflow_evap_demand_suffix(const string &inflow_demand_evap_suffix);  // MODIFIED ON 2025-05-27 by Lillian Lau.
 
     void setFname_sufix(const string &fname_sufix);
 

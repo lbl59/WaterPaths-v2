@@ -147,8 +147,8 @@ void Problem::setFname_sufix(const string &fname_sufix) {
     Problem::fname_sufix = fname_sufix;
 }
 
-void Problem::setEvap_inflows_suffix(const string &evap_inflows_suffix) {
-    Problem::evap_inflows_suffix = evap_inflows_suffix;
+void Problem::set_inflow_evap_demand_suffix(const string &inflow_demand_evap_suffix) {
+    Problem::inflow_demand_evap_suffix = inflow_demand_evap_suffix;
 }
 
 void Problem::setN_threads(unsigned long n_threads) {
