@@ -13,10 +13,10 @@ ContinuityModelRealization::ContinuityModelRealization(
         vector<Utility *> &utilities,
         const vector<DroughtMitigationPolicy *> &drought_mitigation_policies,
         vector<MinEnvFlowControl *> &min_env_flow_control,
-        const vector<double>& utilities_rdm,
-        const vector<double>& water_sources_rdm,
-        const vector<double>& policy_rdm,
-        const vector<double>& actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
+        vector<double>& utilities_rdm,
+        vector<double>& water_sources_rdm,
+        vector<double>& policy_rdm,
+        vector<double>& actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
         const unsigned int realization_id)
         : ContinuityModel(water_sources, utilities, min_env_flow_control, water_sources_graph,
                           water_sources_to_utilities, utilities_rdm, water_sources_rdm, actions_rdm,
@@ -24,17 +24,15 @@ ContinuityModelRealization::ContinuityModelRealization(
           drought_mitigation_policies(drought_mitigation_policies) {
 
     // Pass corresponding utilities to drought mitigation instruments.
-    //cout << "Adding system components and setting realization to drought mitigation policies." << endl;
     for (DroughtMitigationPolicy *dmp : this->drought_mitigation_policies) {
         dmp->addSystemComponents(utilities, water_sources, min_env_flow_control);
         dmp->setRealization(realization_id, utilities_rdm, water_sources_rdm,
-                            policy_rdm, actions_rdm); // ADDED ON 2025-04-28 by Lillian Lau.
+                            policy_rdm);
     }
 }
 
 ContinuityModelRealization::~ContinuityModelRealization() {
     // Delete drought mitigation policies.
-    //cout << "Deleting drought mitigation policies." << endl;
     for (auto dmp : drought_mitigation_policies) {
         delete dmp;
     }
@@ -65,8 +63,10 @@ void ContinuityModelRealization::setLongTermROFs(const vector<double> &risks_of_
     // Look for and remove duplicates, in the unlikely case two utilities
     // build the same source at the same time. This will prevent the source
     // from being erased from a utility which will later try to build it.
-    sort(new_infra_triggered.begin(), new_infra_triggered.end());
-    new_infra_triggered.erase(unique(new_infra_triggered.begin(), new_infra_triggered.end()),
+    sort(new_infra_triggered.begin(),
+         new_infra_triggered.end());
+    new_infra_triggered.erase(unique(new_infra_triggered.begin(),
+                                     new_infra_triggered.end()),
                               new_infra_triggered.end());
 
     // If infrastructure was built, force utilities to build their share of

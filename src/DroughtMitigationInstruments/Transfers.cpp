@@ -50,7 +50,8 @@ Transfers::Transfers(
 
     for (int i : buyers_ids)
         if (i == source_utility_id)
-            throw std::invalid_argument("Source utility cannot be a buyer utility as well.");
+            throw std::invalid_argument("Source utility cannot be a buyer "
+                                                "utility as well.");
 
     utilities_ids = buyers_ids;
     utilities_ids.push_back(source_utility_id);
@@ -63,22 +64,24 @@ Transfers::Transfers(
     continuity_matrix[source_utility_id][
             continuity_matrix.size() + source_utility_id] = 1;
 
-    int max_buyer_id = *std::max_element(buyers_ids.begin(), buyers_ids.end());
+    int max_buyer_id = *std::max_element(buyers_ids.begin(),
+                                                  buyers_ids.end());
     util_id_to_vertex_id = vector<int>(max_buyer_id + 1, NON_INITIALIZED);
-    // Map buyer's IDs to vertexes ID starting from 0 for the sake of
-    // determining payments.
+    /// Map buyer's IDs to vertexes ID starting from 0 for the sake of
+    /// determining payments.
     for (int i = 0; i < (int) buyers_ids.size(); ++i) {
         util_id_to_vertex_id[buyers_ids.at((unsigned long) i)] = i;
     }
 
-    // Create QP matrices and vectors.
-    // min f(x) = 1/2 x G x' + g0 x'
-    // s.t.
-    // CE.x = ce0
-    // CI.x >= ci0
-    // lb <= x <= ub
-    unsigned long n_flow_rates_Q_source =
-             pipe_transfer_capacities.size() + 1;
+    /** Create QP matrices and vectors.
+     * min f(x) = 1/2 x G x' + g0 x'
+     * s.t.
+     * CE.x = ce0
+     * CI.x >= ci0y
+     * lb <= x <= ub
+    */
+    unsigned long n_flow_rates_Q_source = 
+    pipe_transfer_capacities.size() + 1;
     unsigned long n_allocations = buyers_ids.size();
     unsigned long n_vars = n_flow_rates_Q_source + n_allocations;
 
@@ -123,12 +126,13 @@ Transfers::Transfers(
  * @param transfers
  */
 Transfers::Transfers(const Transfers &transfers) :
-        DroughtMitigationPolicy(transfers.id, TRANSFERS),
+        DroughtMitigationPolicy(transfers.id,
+                                TRANSFERS),
         source_utility_id(transfers.source_utility_id),
         source_treatment_buffer(transfers.source_treatment_buffer) {
-    
-    action_multiplier_ids = transfers.action_multiplier_ids; // ADDED ON 2025-04-28 by Lillian Lau.    
+
     buyers_ids = transfers.buyers_ids;
+    action_multiplier_ids = transfers.action_multiplier_ids; // ADDED ON 2025-04-28 by Lillian Lau.    
     buyers_transfer_triggers = transfers.buyers_transfer_triggers;
     flow_rates_and_allocations = transfers.flow_rates_and_allocations;
     transfer_water_source_id = transfers.transfer_water_source_id;
@@ -163,6 +167,7 @@ Transfers::~Transfers() {
 void Transfers::addSystemComponents(vector<Utility *> system_utilities,
                                     vector<WaterSource *> water_sources,
                                     vector<MinEnvFlowControl *> min_env_flow_controls) {
+
     if (!realization_utilities.empty())
         throw std::invalid_argument("Utility were already assigned to "
                                             "transfer policy.");
@@ -208,18 +213,15 @@ void Transfers::applyPolicy(int week) {
         }
     }
 
-    // Check if transfers will be needed and, if so, perform the transfers.
+    /// Check if transfers will be needed and, if so, perform the transfers.
     if (sum_rofs > 0) {
         vector<double> transfer_requests((unsigned long) n_allocations, 0);
 
-        // Total volume available for transfers in source utility.
-        double available_transfer_volume = 0;
-        if (source_utility->getRisk_of_failure() == 0) {
-            available_transfer_volume =
-                    (source_utility->getTotal_treatment_capacity()
-                     - source_treatment_buffer) * PEAKING_FACTOR
-                    - source_utility->getUnrestrictedDemand();
-        }
+        /// Total volume available for transfers in source utility.
+        double available_transfer_volume =
+                (source_utility->getTotal_treatment_capacity()
+                 - source_treatment_buffer) * PEAKING_FACTOR
+                - source_utility->getUnrestrictedDemand();
 
         if (available_transfer_volume > 0) {
 
@@ -235,7 +237,8 @@ void Transfers::applyPolicy(int week) {
                         available_transfer_volume * requesting_utilities_rofs[i]
                         / sum_rofs;
             }
-            // Calculate allocations and flow rates through inter-utility connections.
+            /// Calculate allocations and flow rates through inter-utility
+            /// connections.
             flow_rates_and_allocations = solve_QP(transfer_requests,
                                                   available_transfer_volume,
                                                   min_transfer_volume,
@@ -252,7 +255,7 @@ void Transfers::applyPolicy(int week) {
             // Mitigate demands.
             double sum_allocations = 0;
             int price_week = Utils::weekOfTheYear(week);
-                
+
             for (unsigned long id = 0; id < util_id_to_vertex_id.size(); ++id) {
                 int bid = util_id_to_vertex_id[id];
                 if (bid != NON_INITIALIZED) {
@@ -264,9 +267,10 @@ void Transfers::applyPolicy(int week) {
                                                        allocations[id]);
                 }
             }
-            // cost of transfers is 2x the water price of the source utility at a given week.
-            double transfer_cost = 2. * source_utility->waterPrice(price_week);
-            source_utility->setDemand_offset(allocations[source_utility_id], transfer_cost);
+            // Cost of transfers is 2x the water price of the source utility at a given week.
+            source_utility->setDemand_offset(allocations[source_utility_id],
+                                             2. * source_utility->waterPrice
+                                                     (price_week));
         }
     }
 }
@@ -359,37 +363,16 @@ const vector<double> &Transfers::getAllocations() const {
 }
 
 void Transfers::setRealization(unsigned long realization_id, 
-    const vector<double> &utilities_rdm,
-    const vector<double> &water_sources_rdm, 
-    const vector<double> &policy_rdm,
-    const vector<double> &actions_rdm) { // ADDED ON 2025-04-28 by Lillian Lau.
+                               vector<double> &utilities_rdm,
+                               vector<double> &water_sources_rdm, 
+                               vector<double> &policy_rdm,
+                               vector<double> &actions_rdm) { // ADDED ON 2025-04-28 by Lillian Lau.
     // ADDED ON 2025-04-28 by Lillian Lau.
     // Shifting buyers_transfer_triggers by the realization actions_rdm
     for (unsigned long i = 0; i < buyers_transfer_triggers.size(); ++i) {
         int action_multiplier_idx = action_multiplier_ids.at(i);
         // Capping the trigger between 0 and 1
         buyers_transfer_triggers[i] = min(1.0, 
-            max(0.0, 
-                buyers_transfer_triggers[i] + actions_rdm.at(action_multiplier_idx)));
+            max(0.0, buyers_transfer_triggers[i] + actions_rdm.at(action_multiplier_idx)));
     }
-}
-
-const double Transfers::getSourceTreatmentBuffer() const {
-    return source_treatment_buffer;
-}
-
-double Transfers::getAveragePipeCapacity() const {
-    return average_pipe_capacity;
-}
-
-const vector<double> &Transfers::getBuyersTransferTriggers() const {
-    return buyers_transfer_triggers;
-}
-
-const Matrix<double> &Transfers::getAeq() const {
-    return Aeq;
-}
-
-const Vector<double> &Transfers::getUb() const {
-    return ub;
 }

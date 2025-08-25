@@ -15,7 +15,6 @@ File $Id: QuadProg++.cc 232 2007-06-21 12:29:00Z digasper $
 #include <iostream>
 #include <algorithm>
 #include <sstream>
-#include <limits>
 #include "QuadProg++.h"
 
 // Utility functions for updating some data needed by the solution method 
@@ -75,7 +74,6 @@ double solve_quadprog(Matrix<double> &G, Vector<double> &g0,
         throw std::logic_error(msg.str());
     }
     x.resize(n);
-    //register int i, j, k, l; /* indices */
     int i, j, k, l; /* indices */
     int ip; // this is the index of the constraint to be added to the active set
     Matrix<double> R(n, n);
@@ -509,8 +507,6 @@ void solve_quadprog_matlab_syntax(Matrix<double> &G, Vector<double> &g0,
 
 
 inline void compute_d(Vector<double> &d, const Matrix<double> &J, const Vector<double> &np) {
-    //register int i, j, n = (int) d.size();
-    //register double sum;
     int i, j, n = (int) d.size();
     double sum;
 
@@ -524,7 +520,6 @@ inline void compute_d(Vector<double> &d, const Matrix<double> &J, const Vector<d
 }
 
 inline void update_z(Vector<double> &z, const Matrix<double> &J, const Vector<double> &d, int iq) {
-    //register int i, j, n = (int) z.size();
     int i, j, n = (int) z.size();
 
     /* setting of z = H * d */
@@ -536,8 +531,6 @@ inline void update_z(Vector<double> &z, const Matrix<double> &J, const Vector<do
 }
 
 inline void update_r(const Matrix<double> &R, Vector<double> &r, const Vector<double> &d, int iq) {
-    //register int i, j;
-    //register double sum;
     int i, j;
     double sum;
 
@@ -555,7 +548,6 @@ bool add_constraint(Matrix<double> &R, Matrix<double> &J, Vector<double> &d, int
 #ifdef TRACE_SOLVER
     std::cout << "Add constraint " << iq << '/';
 #endif
-    //register int i, j, k;
     int i, j, k;
     double cc, ss, h, t1, t2, xny;
 
@@ -621,7 +613,6 @@ void delete_constraint(Matrix<double> &R, Matrix<double> &J, Vector<int> &A, Vec
 #ifdef TRACE_SOLVER
     std::cout << "Delete constraint " << l << ' ' << iq;
 #endif
-    //register int i, j, k, qq = -1; // just to prevent warnings from smart compilers
     int i, j, k, qq = -1; // just to prevent warnings from smart compilers
     double cc, ss, h, xny, t1, t2;
 
@@ -688,7 +679,6 @@ void delete_constraint(Matrix<double> &R, Matrix<double> &J, Vector<int> &A, Vec
 }
 
 inline double distance(double a, double b) {
-    //register double a1, b1, t;
     double a1, b1, t;
     a1 = fabs(a);
     b1 = fabs(b);
@@ -704,8 +694,6 @@ inline double distance(double a, double b) {
 
 
 inline double scalar_product(const Vector<double> &x, const Vector<double> &y) {
-    //register int i, n = x.size();
-    //register double sum;
     int i, n = x.size();
     double sum;
 
@@ -716,8 +704,6 @@ inline double scalar_product(const Vector<double> &x, const Vector<double> &y) {
 }
 
 void cholesky_decomposition(Matrix<double> &A) {
-    //register int i, j, k, n = A.nrows();
-    //register double sum;
     int i, j, k, n = A.nrows();
     double sum;
 
@@ -754,7 +740,6 @@ void cholesky_solve(const Matrix<double> &L, Vector<double> &x, const Vector<dou
 }
 
 inline void forward_elimination(const Matrix<double> &L, Vector<double> &y, const Vector<double> &b) {
-    //register int i, j, n = L.nrows();
     int i, j, n = L.nrows();
 
     y[0] = b[0] / L[0][0];
@@ -767,7 +752,6 @@ inline void forward_elimination(const Matrix<double> &L, Vector<double> &y, cons
 }
 
 inline void backward_elimination(const Matrix<double> &U, Vector<double> &x, const Vector<double> &y) {
-    //register int i, j, n = U.nrows();
     int i, j, n = U.nrows();
 
     x[n - 1] = y[n - 1] / U[n - 1][n - 1];

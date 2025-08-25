@@ -50,6 +50,44 @@ string UtilitiesDataCollector::printTabularString(int week) {
     return outStream.str();
 }
 
+string UtilitiesDataCollector::printCompactString(int week) {
+
+    stringstream outStream;
+
+    outStream << combined_storage[week]
+              << ","
+              << capacity[week]
+              << ","
+	          << net_stream_inflow[week]
+              << ","
+              << st_rof[week]
+              << ","
+              << lt_rof[week]
+              << ","
+              << restricted_demand[week]
+              << ","
+              << unrestricted_demand[week]
+              << ","
+              << unfulfilled_demand[week]
+              << ","
+              << waste_water_discharge[week]
+              << ","
+              << total_treatment_capacity[week]
+              << ","
+              << contingency_fund_size[week]
+              << ","
+              << insurance_payout[week]
+              << ","
+              << insurance_contract_cost[week]
+              << ","
+              << net_present_infrastructure_cost[week]
+              << ","
+              << debt_service_payments[week]
+              << ",";
+
+    return outStream.str();
+}
+
 string UtilitiesDataCollector::printTabularStringHeaderLine1() {
 
     stringstream outStream;
@@ -96,145 +134,24 @@ string UtilitiesDataCollector::printTabularStringHeaderLine2() {
     return outStream.str();
 }
 
-string UtilitiesDataCollector::printCompactString(int week) {
-
-    stringstream outStream;
-
-    outStream << combined_storage[week]
-              << ","
-              << capacity[week]
-              << ","
-	          << net_stream_inflow[week]
-              << ","
-              << st_rof[week]
-              << ","
-              << lt_rof[week]
-              << ","
-              << restricted_demand[week]
-              << ","
-              << unrestricted_demand[week]
-              << ","
-              << unfulfilled_demand[week]
-              << ","
-              << waste_water_discharge[week]
-              << ","
-              << total_treatment_capacity[week]
-              << ","
-              << contingency_fund_size[week]
-              << ","
-              << contingency_fund_contribution[week]
-              << ","
-              << insurance_payout[week]
-              << ","
-              << insurance_contract_cost[week]
-              << ","
-              << net_present_infrastructure_cost[week]
-              << ","
-              << debt_service_payments[week]
-              << ","
-              << gross_revenues[week]
-              << ","
-              << drought_mitigation_cost[week]
-              << ",";
-
-    return outStream.str();
-}
-
 string UtilitiesDataCollector::printCompactStringHeader() {
     stringstream outStream;
 
-    outStream << id << "st_vol" << ","  // Stored Volume 
-              << id << "capacity" << ","   // Total Storage Capacity
-              << id << "net_inf" << ","   // Net Inflow
-              << id << "st_rof" << ","   // Short Term Risk of Failure 
-              << id << "lt_rof" << ","   // Long Term Risk of Failure 
-              << id << "rest_demand" << ","   // Restricted Demand
-              << id << "unrest_demand" << ","   // Unrestricted Demand
-              << id << "unfulf_demand" << ","   // Unfulfilled Demand
-              << id << "ww_discharge" << ","   // Waste Water Discharge
-              << id << "treat_capacity" << ","   // Total Treatment Capacity
-              << id << "cont_fund_size" << ","   // Cumul. Contingency Fund Size
-              << id << "cont_fund_contr" << ","   // Annual Contingency Fund Contribution 
-              << id << "ins_pout" << ","   // Insurance Payout
-              << id << "ins_price" << ","   // Insurance Contract Cost (Premium) 
-              << id << "infra_npv" << ","   // Infrastructure Net Present Value 
-              << id << "debt_serv" << ","   // Debt Service Payments 
-              << id << "gross_rev" << ","  // Gross Revenues 
-              << id << "dm_cost" << ",";   // Drought Mitigation Cost
-
-    return outStream.str();
-}
-
-/**
- * @brief Prints the subset of the data collected by the utility data collector.
- * This is used for calculating time-varying performance metrics.
- * 
- * ADDED on 06-19-2025 by Lillian Lau
- * 
- * @param week 
- * @return string 
- */
-string UtilitiesDataCollector::printSubsetCompactString(int week) {
-
-    stringstream outStream;
-
-    outStream << combined_storage[week]
-              << ","
-              << capacity[week]
-              << ","
-	          << net_stream_inflow[week]
-              << ","
-              << st_rof[week]
-              << ","
-              << lt_rof[week]
-              << ","
-              << restricted_demand[week]
-              << ","
-              << unrestricted_demand[week]
-              << ","
-              << total_treatment_capacity[week]
-              << ","
-              << contingency_fund_size[week]
-              << ","
-              << insurance_contract_cost[week]
-              << ","
-              << net_present_infrastructure_cost[week]
-              << ","
-              << debt_service_payments[week]
-              << ","
-              << gross_revenues[week]
-              << ","
-              << drought_mitigation_cost[week]
-              << ",";
-
-    return outStream.str();
-}
-
-/**
- * @brief Prints out a subset of the data collected by the utility data collector.
- * This is used for calculating time-varying performance metrics.
- * 
- * ADDED on 06-19-2025 by Lillian Lau
- * 
- * @return string 
- */
-string UtilitiesDataCollector::printSubsetCompactStringHeader() {
-    stringstream outStream;
-
-    outStream << id << "st_vol" << ","  // Stored Volume - Y
-              << id << "capacity" << ","   // Total Storage Capacity - Y
-              << id << "net_inf" << ","   // Net Inflow - Y
-              << id << "st_rof" << ","   // Short Term Risk of Failure - Y
-              << id << "lt_rof" << ","   // Long Term Risk of Failure - Y
-              << id << "rest_demand" << ","   // Restricted Demand - Y
-              << id << "unrest_demand" << ","   // Unrestricted Demand - Y
-              << id << "treat_capacity" << ","   // Total Treatment Capacity - Y
-              << id << "cont_fund_size" << ","   // Cumul. Contingency Fund Size - Y
-              << id << "ins_price" << ","   // Insurance Contract Cost (Premium) - Y
-              << id << "infra_npv" << ","   // Infrastructure Net Present Value - Y
-              << id << "debt_serv" << ","   // Debt Service Payments - Y
-              << id << "gross_rev" << ","  // Gross Revenues - Y
-              << id << "dm_cost" << ",";   // Drought Mitigation Cost - Y
+    outStream << id << "st_vol" << ","
+              << id << "capacity" << ","
+              << id << "net_inf" << ","
+              << id << "st_rof" << ","
+              << id << "lt_rof" << ","
+              << id << "rest_demand" << ","
+              << id << "unrest_demand" << ","
+              << id << "unfulf_demand" << ","
+              << id << "wastewater" << ","
+              << id << "treat_capacity" << ","
+              << id << "cont_fund" << ","
+              << id << "ins_pout" << ","
+              << id << "ins_price" << ","
+              << id << "infra_npv" << ","
+              << id << "debt_serv" << ",";
 
     return outStream.str();
 }
@@ -253,13 +170,15 @@ void UtilitiesDataCollector::collect_data() {
     debt_service_payments.push_back(utility->getCurrent_debt_payment());
     contingency_fund_contribution.push_back(utility->getCurrent_contingency_fund_contribution());
     drought_mitigation_cost.push_back(utility->getDrought_mitigation_cost());
-    insurance_contract_cost.push_back(utility->getInsurance_purchased());
+    insurance_contract_cost.push_back(utility->getInsurance_purchase());
     insurance_payout.push_back(utility->getInsurance_payout());
     capacity.push_back(utility->getTotal_storage_capacity());
     waste_water_discharge.push_back(utility->getWaste_water_discharge());
     unfulfilled_demand.push_back(utility->getUnfulfilled_demand());
     net_stream_inflow.push_back(utility->getNet_stream_inflow());
     total_treatment_capacity.push_back(utility->getTotal_treatment_capacity());
+
+//    checkForNans();
 
     infra_built = utility->getInfrastructure_built();
     if (pathways.empty() && !infra_built.empty())
@@ -367,8 +286,4 @@ const vector<double> &UtilitiesDataCollector::getLt_rof() const {
 
 const vector<double> &UtilitiesDataCollector::getRestricted_demand() const {
     return restricted_demand;
-}
-
-const Utility *UtilitiesDataCollector::getUtility() const {
-    return utility;
 }

@@ -38,11 +38,9 @@ public:
 
     UtilitiesDataCollector &operator=(const UtilitiesDataCollector &utility_data_collector);
 
-    string printCompactString(int week) override;
-    
-    string printSubsetCompactString(int week);  // ADDED on 06-19-2025 by Lillian Lau
-
     string printTabularString(int week) override;
+
+    string printCompactString(int week) override;
 
     void collect_data() override;
 
@@ -51,8 +49,6 @@ public:
     string printTabularStringHeaderLine2() override;
 
     string printCompactStringHeader() override;
-
-    string printSubsetCompactStringHeader();   // ADDED on 06-19-2025 by Lillian Lau
 
     const vector<double> &getCombined_storage() const;
 
@@ -81,8 +77,6 @@ public:
     const vector<double> &getRestricted_demand() const;
 
     void checkForNans() const;
-
-    const Utility *getUtility() const;
 };
 
 
