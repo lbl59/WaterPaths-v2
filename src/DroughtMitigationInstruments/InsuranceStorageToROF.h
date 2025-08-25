@@ -13,9 +13,10 @@
 class InsuranceStorageToROF : public DroughtMitigationPolicy,
                               public ContinuityModelROF {
 private:
-    vector<double> rof_triggers;// = vector<double>(40, 0.);
+    vector<double> rof_triggers;
     const unsigned long total_simulation_time;
     const double insurance_premium;
+    vector<int> action_multiplier_ids;  // ADDED ON 2025-04-28 by Lillian Lau.
     vector<double> payout_multiplier;
     vector<double> insurance_price;
     const vector<double> &fixed_payouts;
@@ -26,6 +27,7 @@ private:
 public:
 
     InsuranceStorageToROF(const int id, vector<WaterSource *> &water_sources,
+                              const vector<int> &action_multiplier_ids, // ADDED ON 2025-04-28 BY LILLIAN LAU
                               const Graph &water_sources_graph,
                               const vector<vector<int>> &water_sources_to_utilities,
                               vector<Utility *> &utilities,
@@ -33,7 +35,9 @@ public:
                               vector<MinEnvFlowControl *> min_env_flow_controls,
                               vector<vector<double>>& utilities_rdm,
                               vector<vector<double>>& water_sources_rdm,
-                              vector<vector<double>>& policy_rdm, vector<double> &rof_triggers,
+                              vector<vector<double>>& policy_rdm, 
+                              vector<vector<double>>& actions_rdm,  // ADDED ON 2025-04-28 by Lillian Lau.
+                              vector<double> &rof_triggers,
                               const double insurance_premium, const vector<double> &fixed_payouts,
                               unsigned long total_simulation_time);
 
@@ -49,9 +53,12 @@ public:
                                  vector<WaterSource *> water_sources,
                                  vector<MinEnvFlowControl *> min_env_flow_controls) override;
 
-    void setRealization(unsigned long realization_id, vector<double> &utilities_rdm,
-                        vector<double> &water_sources_rdm, vector<double> &policy_rdm) override;
-
+    void setRealization(unsigned long realization_id, 
+                        vector<double> &utilities_rdm,
+                        vector<double> &water_sources_rdm, 
+                        vector<double> &policy_rdm,
+                        vector<double> &actions_rdm) override;
+                        
     vector<double> calculateShortTermROFTable(int week, const vector<Utility *> &utilities, const int &n_utilities);
 
     void updateOnlineInfrastructure(int week) override;

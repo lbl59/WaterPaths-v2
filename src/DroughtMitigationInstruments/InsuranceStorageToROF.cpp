@@ -7,6 +7,7 @@
 #include "../Utils/Utils.h"
 
 InsuranceStorageToROF::InsuranceStorageToROF(const int id, vector<WaterSource *> &water_sources,
+                                             const vector<int>&action_multiplier_ids, // ADDED ON 2025-04-28 by Lillian Lau.
                                              const Graph &water_sources_graph,
                                              const vector<vector<int>> &water_sources_to_utilities,
                                              vector<Utility *> &utilities,
@@ -14,7 +15,9 @@ InsuranceStorageToROF::InsuranceStorageToROF(const int id, vector<WaterSource *>
                                              vector<MinEnvFlowControl *> min_env_flow_controls,
                                              vector<vector<double>>& utilities_rdm,
                                              vector<vector<double>>& water_sources_rdm,
-                                             vector<vector<double>>& policy_rdm, vector<double> &rof_triggers,
+                                             vector<vector<double>>& policy_rdm, 
+                                             vector<vector<double>>& actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
+                                             vector<double> &rof_triggers,
                                              const double insurance_premium, const vector<double> &fixed_payouts,
                                              unsigned long total_simulation_time)
         : DroughtMitigationPolicy(id, INSURANCE_STORAGE_ROF),
@@ -26,6 +29,7 @@ InsuranceStorageToROF::InsuranceStorageToROF(const int id, vector<WaterSource *>
           total_simulation_time(total_simulation_time),
           insurance_premium(insurance_premium),
           insurance_price(NONE),
+          action_multiplier_ids(action_multiplier_ids),  // ADDED ON 2025-04-28 by Lillian Lau.
           fixed_payouts(fixed_payouts),
           utilities_revenue_update(vector<double>((unsigned long) n_utilities, 0.)),
           utilities_revenue_last_year(vector<double>((unsigned long) n_utilities, 0.)),
@@ -62,6 +66,7 @@ InsuranceStorageToROF::InsuranceStorageToROF(
                            Utils::copyMinEnvFlowControlVector(insurance.min_env_flow_controls),
                            insurance.utilities_rdm,
                            insurance.water_sources_rdm,
+                           insurance.actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
                            insurance.total_simulation_time,
                            false, insurance.realization_id),
         rof_triggers(insurance.rof_triggers),
