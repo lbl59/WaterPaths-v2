@@ -640,15 +640,16 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs, double *con
                                                            initial_restriction_triggers[2] + 0.35f,
                                                            initial_restriction_triggers[2] + 0.6f};
 
-    Restrictions restrictions_w(0,
+    // CHANGED BY LILLIAN LAU ON 2025-04-28 to include actions_rdm_multiplier ID number                                                      
+    Restrictions restrictions_w(0, 0,
                                 restriction_stage_multipliers_watertown,
                                 restriction_stage_triggers_watertown);
 
-    Restrictions restrictions_d(1,
+    Restrictions restrictions_d(1, 1,
                                 restriction_stage_multipliers_dryville,
                                 restriction_stage_triggers_dryville);
 
-    Restrictions restrictions_f(2,
+    Restrictions restrictions_f(2, 2,
                                 restriction_stage_multipliers_fallsland,
                                 restriction_stage_triggers_fallsland);
 
