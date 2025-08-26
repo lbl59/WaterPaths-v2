@@ -380,7 +380,6 @@ int main(int argc, char *argv[]) {
                 problem_ptr->runBootstrapRealizationThinning(
                         (int) standard_solution, n_sets, n_bs_samples, n_threads, realizations_to_run);
             } else if (import_export_rof_table != EXPORT_ROF_TABLES) {
-                //if (plotting)
                 problem.printTimeSeriesAndPathways(plotting, parquet);
                 auto objectives = problem_ptr->calculateAndPrintObjectives(!print_objs_row);
             }
@@ -400,7 +399,7 @@ int main(int argc, char *argv[]) {
                 problem_ptr->functionEvaluation(solutions[s].data(), c_obj, c_constr);
                 vector<double> objectives = problem_ptr->calculateAndPrintObjectives(false);
                 if (plotting)
-                    problem.printTimeSeriesAndPathways();
+                    problem.printTimeSeriesAndPathways(plotting, parquet);
                 problem_ptr->destroyDataCollector();
                 string line;
                 for (double &o : objectives) {
