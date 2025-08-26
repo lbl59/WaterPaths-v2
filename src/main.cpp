@@ -23,6 +23,7 @@ using namespace Solutions;
 
 PaperTestProblem *problem_ptr;
 int failures = 0;
+ofstream sol_out; // for debugging borg
 
 void print_decision_vars(double *vars) {
     int nsols = NUM_DEC_VAR;
