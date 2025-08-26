@@ -23,8 +23,9 @@ InsuranceStorageToROF::InsuranceStorageToROF(const int id, vector<WaterSource *>
         : DroughtMitigationPolicy(id, INSURANCE_STORAGE_ROF),
           ContinuityModelROF(Utils::copyWaterSourceVector(water_sources), water_sources_graph,
                              water_sources_to_utilities, Utils::copyUtilityVector(utilities, true),
-                             Utils::copyMinEnvFlowControlVector(min_env_flow_controls), utilities_rdm.at(0),
-                             water_sources_rdm.at(0), total_simulation_time, false, (unsigned int) NON_INITIALIZED),
+                             Utils::copyMinEnvFlowControlVector(min_env_flow_controls), 
+                             utilities_rdm.at(0), water_sources_rdm.at(0), actions_rdm.at(0), // ADDED ON 2025-04-28 by Lillian Lau.
+                             total_simulation_time, false, (unsigned int) NON_INITIALIZED),
           rof_triggers(rof_triggers),
           total_simulation_time(total_simulation_time),
           insurance_premium(insurance_premium),
