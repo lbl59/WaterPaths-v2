@@ -17,7 +17,7 @@
 vector<double> Problem::calculateAndPrintObjectives(bool print_files) {
     if (this->master_data_collector != nullptr) {
         if (print_files) {
-            this->master_data_collector->setOutputDirectory(io_directory);
+            this->master_data_collector->setOutputDirectory(output_dir);
         }
         string fo = "Objectives";
         objectives = this->master_data_collector->calculatePrintObjectives(
@@ -316,6 +316,6 @@ void Problem::setImport_export_rof_tables(int import_export_rof_tables, int n_we
 
 void Problem::runBootstrapRealizationThinning(int standard_solution, int n_sets, int n_bs_samples,
                                               int threads, vector<vector<int>> &realizations_to_run) {
-    master_data_collector->setOutputDirectory(io_directory);
+    master_data_collector->setOutputDirectory(output_dir);
     master_data_collector->performBootstrapAnalysis(standard_solution, n_sets, n_bs_samples, threads, realizations_to_run);
 }

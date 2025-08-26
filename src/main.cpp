@@ -253,6 +253,11 @@ int main(int argc, char *argv[]) {
     problem.setN_weeks(n_weeks);
     problem.setIODirectory(system_io);
     problem.setN_threads((unsigned long) n_threads);
+    problem.setOutputDirectory(output_dir);  // ADDED ON 2025-07-16 by Lillian Lau.
+    // Set up input/output suffix, if necessary.
+    if (strlen(inflows_evap_directory_suffix.c_str()) > 2) {
+        problem.set_inflow_evap_demand_suffix(inflows_evap_directory_suffix);
+    }
 
     // Load bootstrap samples if necessary.
     if (strlen(bootstrap_file.c_str()) > 2) {
@@ -271,10 +276,6 @@ int main(int argc, char *argv[]) {
                 "You must specify an input output directory.");
     }
 
-    // Set up input/output suffix, if necessary.
-    if (strlen(inflows_evap_directory_suffix.c_str()) > 2) {
-        problem.set_inflow_evap_demand_suffix(inflows_evap_directory_suffix);
-    }
     // Read RDM file, if any
     if (strlen(utilities_rdm_file.c_str()) > 2) {
         cout << "Reading RDM files" << endl;
@@ -368,9 +369,17 @@ int main(int argc, char *argv[]) {
         }
 
         // Run model
-        if (first_solution == -1) {
-            cout << endl << endl << endl << "Running solution "
-                 << standard_solution << endl;
+        if (first_solution == -1) {  // if only one solution is to be run
+            Utils::createDir(system_io + output_dir);
+            string file_name = system_io + output_dir + "Objectives" +
+                                (rdm_no == NON_INITIALIZED ? "" : "_RDM" + to_string(
+                                        rdm_no)) +
+                                "_sols" + to_string(solutions_to_run_range[0]) +
+                                "_to_" + to_string(solutions_to_run_range[0]+1) +
+                                ".csv";
+            objs_file.open(file_name);
+            
+            cout << endl << endl << endl << "Running solution " << standard_solution << endl;
             problem.setSol_number(standard_solution);
             problem_ptr->functionEvaluation(solutions[standard_solution].data(), c_obj, c_constr);
 
@@ -380,20 +389,36 @@ int main(int argc, char *argv[]) {
                         (int) standard_solution, n_sets, n_bs_samples, n_threads, realizations_to_run);
             } else if (import_export_rof_table != EXPORT_ROF_TABLES) {
                 problem.printTimeSeriesAndPathways(plotting, parquet);
-                auto objectives = problem_ptr->calculateAndPrintObjectives(!print_objs_row);
+                auto objectives = problem_ptr->calculateAndPrintObjectives(true);  // UPDATED ON 2025-08-25 by Lillian Lau.
             }
 
             problem_ptr->destroyDataCollector();
+            
+            string buffer;
+            int num_objectives = size(objectives);
+            for (int j = 0; j < num_objectives; ++j) {
+                    buffer += std::to_string(objectives[j]);
+                    if (j < num_objectives - 1) {
+                            buffer += ",";
+                    }
+            }
+
+            objs_file << buffer;
+            objs_file.flush();
+            objs_file.close();
+
         } else {
             double time_0 = omp_get_wtime();
             ofstream objs_file;
-            string file_name = system_io + "output" + BAR + "Objectives" + (rdm_no == -1 ? "" : "_RDM" + to_string(rdm_no)) +
-                               "_sols" + to_string(first_solution) + "_to_" + to_string(last_solution) + ".csv";
+            string file_name = output_dir + BAR + "Objectives" + 
+                                (rdm_no == -1 ? "" : "_RDM" + to_string(rdm_no)) +
+                               "_sols" + to_string(first_solution) + 
+                               "_to_" + to_string(last_solution) + ".csv";
             objs_file.open(file_name);
             printf("Objectives file will be printed at %s.\n", file_name.c_str());
+            
             for (int s = first_solution; s < last_solution; ++s) {
-                cout << endl << endl << endl << "Running solution "
-                     << s << endl;
+                cout << endl << endl << endl << "Running solution " << s << endl;
                 problem.setSol_number((unsigned long) s);
                 problem_ptr->functionEvaluation(solutions[s].data(), c_obj, c_constr);
                 vector<double> objectives = problem_ptr->calculateAndPrintObjectives(false);
