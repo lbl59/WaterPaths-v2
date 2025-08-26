@@ -379,6 +379,7 @@ int main(int argc, char *argv[]) {
                                 "_to_" + to_string(standard_solution+1) +
                                 ".csv";
             objs_file.open(file_name);
+            auto objectives;
             
             cout << endl << endl << endl << "Running solution " << standard_solution << endl;
             problem.setSol_number(standard_solution);
@@ -390,7 +391,7 @@ int main(int argc, char *argv[]) {
                         (int) standard_solution, n_sets, n_bs_samples, n_threads, realizations_to_run);
             } else if (import_export_rof_table != EXPORT_ROF_TABLES) {
                 problem.printTimeSeriesAndPathways(plotting, parquet);
-                auto objectives = problem_ptr->calculateAndPrintObjectives(true);  // UPDATED ON 2025-08-25 by Lillian Lau.
+                objectives = problem_ptr->calculateAndPrintObjectives(true);  // UPDATED ON 2025-08-25 by Lillian Lau.
             }
 
             problem_ptr->destroyDataCollector();
