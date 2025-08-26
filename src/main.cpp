@@ -16,7 +16,6 @@
 #include <fstream>
 #include <omp.h>
 
-using namespace filesystem;
 using namespace std;
 using namespace Constants;
 using namespace Solutions;
