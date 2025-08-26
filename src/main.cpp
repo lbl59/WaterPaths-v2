@@ -370,12 +370,13 @@ int main(int argc, char *argv[]) {
 
         // Run model
         if (first_solution == -1) {  // if only one solution is to be run
+            ofstream objs_file;
             Utils::createDir(system_io + output_dir);
             string file_name = system_io + output_dir + "Objectives" +
                                 (rdm_no == NON_INITIALIZED ? "" : "_RDM" + to_string(
                                         rdm_no)) +
-                                "_sols" + to_string(solutions_to_run_range[0]) +
-                                "_to_" + to_string(solutions_to_run_range[0]+1) +
+                                "_sols" + to_string(standard_solution) +
+                                "_to_" + to_string(standard_solution+1) +
                                 ".csv";
             objs_file.open(file_name);
             
