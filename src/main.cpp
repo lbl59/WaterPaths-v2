@@ -497,7 +497,7 @@ int main(int argc, char *argv[]) {
         sprintf(output_file_name, "%srefset_MM%lu_N%lu_bs200_seed%lu.set", io_directory, n_islands, nfe, seed);
         sprintf(runtime_file_name, "%sruntime_MM%lu_N%lu_M%lu_bs200_seed%lu.runtime", io_directory, n_islands, nfe, seed); // runtime
 
-        BORG_Algorithm_output_runtime(runtime);
+        BORG_Algorithm_output_runtime(runtime_file_name);
 
         //int rank; // different seed on each processor
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
