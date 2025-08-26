@@ -456,7 +456,7 @@ int main(int argc, char *argv[]) {
         
         // Get rank
         int rank;
-        MPI_Comm_rank(MPI_COMM_WORD, &rank);
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
         if (rank == 0) {
             cout << "setting up problem" << endl;
