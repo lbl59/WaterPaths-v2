@@ -348,7 +348,7 @@ int main(int argc, char *argv[]) {
     }
     problem.setImport_export_rof_tables(import_export_rof_table, (int) n_weeks, mode,
             system_io + rof_tables_directory);
-    problem.readInputData();
+    problem.readInputData(mode);
 
     // If Borg is not called, run in simulation mode
     if (!run_optimization) {
