@@ -112,7 +112,7 @@ ContinuityModel::ContinuityModel(vector<WaterSource *> &water_sources, vector<Ut
 
     // Set realization id on utilities and water sources, so that they use the
     // right streamflow, evaporation and demand data.
-    setRealization(realization_id, utilities_rdm, water_sources_rdm);
+    setRealization(realization_id, utilities_rdm, water_sources_rdm, actions_rdm); // MODIFIED ON 2025-04-28 by Lillian Lau.
 
     demands = std::vector<vector<double>>(
             continuity_water_sources.size(),
