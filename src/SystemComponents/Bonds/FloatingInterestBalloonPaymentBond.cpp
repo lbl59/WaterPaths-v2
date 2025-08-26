@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <stdexcept>
 #include "FloatingInterestBalloonPaymentBond.h"
 #include "../../Utils/Utils.h"
 

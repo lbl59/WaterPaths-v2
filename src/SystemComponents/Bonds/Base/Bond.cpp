@@ -3,7 +3,7 @@
 //
 
 #include "Bond.h"
-
+#include <stdexcept>
 Bond::Bond(const int id, const double cost_of_capital, const int n_payments,
            vector<int> pay_on_weeks, const int type,
            bool begin_repayment_at_issuance) :
