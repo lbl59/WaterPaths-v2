@@ -3,6 +3,7 @@
 //
 
 #include "ReservoirExpansion.h"
+#include <stdexcept>
 
 ReservoirExpansion::ReservoirExpansion(const char *name, const int id, const unsigned int parent_reservoir_ID,
                                        const double capacity, const vector<double> &construction_time_range,
