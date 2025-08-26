@@ -3,6 +3,7 @@
 //
 
 #include "Relocation.h"
+#include <stdexcept>
 
 Relocation::Relocation(const char *name, const int id, unsigned long parent_reservoir_ID,
                        vector<double> *allocated_fractions, vector<int> *utilities_with_allocations,
