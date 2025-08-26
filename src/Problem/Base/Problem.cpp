@@ -155,6 +155,11 @@ void Problem::setN_threads(unsigned long n_threads) {
     Problem::n_threads = n_threads;
 }
 
+// ADDED ON 2025-07-16 by Lillian Lau.
+void Problem::setOutputDirectory(string output_dir) {
+    Problem::output_dir = output_dir;
+}
+
 const vector<double> &Problem::getObjectives() const {
     return objectives;
 }
