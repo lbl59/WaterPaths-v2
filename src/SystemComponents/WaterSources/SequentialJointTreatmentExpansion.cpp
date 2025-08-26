@@ -3,6 +3,7 @@
 //
 
 #include <numeric>
+#include <stdexcept>
 #include "SequentialJointTreatmentExpansion.h"
 
 /**
