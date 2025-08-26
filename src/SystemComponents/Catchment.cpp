@@ -3,8 +3,8 @@
 //
 
 #include <cmath>
+#include <stdexcept>
 #include "Catchment.h"
-
 
 Catchment::Catchment(vector<vector<double>> *streamflows_all, int series_length)
         : streamflows_all(streamflows_all), series_length(series_length) {
