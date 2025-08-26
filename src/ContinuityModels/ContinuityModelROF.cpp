@@ -278,8 +278,7 @@ void ContinuityModelROF::updateStorageToROFTable(
                 (double) s * storage_percent_decrement;
         double delta_storage[n_sources];
         double available_volumes_shifted[n_sources];
-//        std::copy(available_volumes, available_volumes + n_sources,
-//                  available_volumes_shifted);
+
         memcpy(available_volumes_shifted, available_volumes, sizeof(double) * n_sources);
 
         // calculate the difference between the simulated available water and
