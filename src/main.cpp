@@ -379,13 +379,13 @@ int main(int argc, char *argv[]) {
                                 "_to_" + to_string(standard_solution+1) +
                                 ".csv";
             objs_file.open(file_name);
-            auto objectives;
             
             cout << endl << endl << endl << "Running solution " << standard_solution << endl;
             problem.setSol_number(standard_solution);
             problem_ptr->functionEvaluation(solutions[standard_solution].data(), c_obj, c_constr);
 
             // Export pathways and objectives, otherwise, if required, run bootstrap sub-sampling.
+            vector<double> objectives;
             if (n_sets > 0 && n_bs_samples > 0) {
                 problem_ptr->runBootstrapRealizationThinning(
                         (int) standard_solution, n_sets, n_bs_samples, n_threads, realizations_to_run);
