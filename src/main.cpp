@@ -138,8 +138,8 @@ int main(int argc, char *argv[]) {
                         "\t-A: Actions RDM file\n"
                         "\t-I: Inflows and evaporation folder suffix to"
                         " be added to folder names (e.g., _high or _inflows_bs)\n"
-                        "\t-M: Mode (format) of the input ROF and hydroclimatic files 
-                        (0: CSV, 1: Parquet)\n",
+                        "\t-M: Mode (format) of the input ROF and hydroclimatic files "
+                        "(0: CSV, 1: Parquet)\n",
                         "\t-O: Directory containing the pre-computed "
                         "ROF table binaries\n"
                         "\t-C: Import/export rof tables (1: export, 0:"
@@ -274,7 +274,7 @@ int main(int argc, char *argv[]) {
 
     // Set up input/output suffix, if necessary.
     if (strlen(inflows_evap_directory_suffix.c_str()) > 2) {
-        problem.setEvap_inflows_suffix(inflows_evap_directory_suffix);
+        problem.set_inflow_evap_demand_suffix(inflows_evap_directory_suffix);
     }
     // Read RDM file, if any
     if (strlen(utilities_rdm_file.c_str()) > 2) {
