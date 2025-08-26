@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
+#include <iomanip>
 #include "ContinuityModelROF.h"
 #include "../Utils/Utils.h"
 
