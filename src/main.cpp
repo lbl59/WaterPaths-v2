@@ -469,7 +469,7 @@ int main(int argc, char *argv[]) {
             n_islands, nfe, output_frequency, n_weeks, n_realizations);
 
             int world_size;
-            MPI_Comm_soze(MPI_COMM_WORLD, &world_size);
+            MPI_Comm_size(MPI_COMM_WORLD, &world_size);
             cout << "Total number of processes launched: " << world_size << endl;
         }
         // Set all the parameter bounds and epsilons
