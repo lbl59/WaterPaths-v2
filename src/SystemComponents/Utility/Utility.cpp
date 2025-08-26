@@ -165,7 +165,7 @@ Utility::Utility(const char *name, int id, int action_rdm_id, // ADDED BY LILLIA
         bond_term_multiplier(bond_term),
         bond_interest_rate_multiplier(bond_interest_rate),
         id(id),
-        action_rdm_id(utility.action_rdm_id), // ADDED BY LILLIAN LAU ON 2025-05-01
+        action_rdm_id(action_rdm_id), // ADDED BY LILLIAN LAU ON 2025-05-01
         number_of_week_demands(number_of_week_demands),
         name(name),
         percent_contingency_fund_contribution(percent_contingency_fund_contribution),
