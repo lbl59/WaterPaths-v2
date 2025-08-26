@@ -499,7 +499,7 @@ int main(int argc, char *argv[]) {
 
         BORG_Algorithm_output_runtime(runtime);
 
-        int rank; // different seed on each processor
+        //int rank; // different seed on each processor
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         string rank_out_file = "diagnostic_output/DVs_rank_" + to_string(rank) + ".csv";
         sol_out.open(rank_out_file.c_str());
