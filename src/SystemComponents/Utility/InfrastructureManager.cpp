@@ -8,6 +8,7 @@
 #include "../WaterSources/ReservoirExpansion.h"
 #include "../WaterSources/Relocation.h"
 #include "../../Utils/Utils.h"
+#include <omp.h>
 
 InfrastructureManager::InfrastructureManager(int id, const vector<double> &infra_construction_triggers,
                                              const vector<vector<int>> &infra_if_built_remove,

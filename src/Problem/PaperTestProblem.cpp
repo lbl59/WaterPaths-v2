@@ -69,9 +69,9 @@ void PaperTestProblem::setProblemDefinition(BORG_Problem &problem)
     // Set epsilons for objectives
 
     BORG_Problem_set_epsilon(problem, 0, 0.001);
-    BORG_Problem_set_epsilon(problem, 1, 0.02);
-    BORG_Problem_set_epsilon(problem, 2, 10.0);
-    BORG_Problem_set_epsilon(problem, 3, 0.025);
+    BORG_Problem_set_epsilon(problem, 1, 0.01);
+    BORG_Problem_set_epsilon(problem, 2, 5.0);
+    BORG_Problem_set_epsilon(problem, 3, 0.01);
     BORG_Problem_set_epsilon(problem, 4, 0.01);
 }
 #endif
@@ -184,9 +184,9 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs, double *con
      * to match descriptions in paper
      */
     double added_storage_college_rock_expansion_low = 
-        500 * calibrate_volume_multiplier;
+        100 * calibrate_volume_multiplier;
     double added_storage_college_rock_expansion_high = 
-        1000 * calibrate_volume_multiplier;
+        2500 * calibrate_volume_multiplier;
 
     checkAndFixInfraExpansionHighLowOrder(
             &rof_triggered_infra_order_watertown, &rofs_infra_watertown,
@@ -314,7 +314,11 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs, double *con
     vector<double> autumn_lake_area = {0.32 * 5734, 0.32 * 29000, 0.28 * 40434};
     DataSeries autumn_lake_storage_area(&autumn_lake_storage, &autumn_lake_area);
 
-    vector<double> new_river_res_storage = {0, 7300 * calibrate_volume_multiplier};
+    /**
+     * UPDATE ON 2025-08-24 BY Lillian Lau.
+     * Reduced New River Reservoir storage from 7300 to 3700 to match paper
+     */
+    vector<double> new_river_res_storage = {0, 3700 * calibrate_volume_multiplier};
     vector<double> new_river_res_area = {0, 0.3675 * new_river_res_storage[1]};
     DataSeries new_river_storage_area(&new_river_res_storage,
                                       &new_river_res_area);
@@ -322,14 +326,17 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs, double *con
     /**
      * UPDATE ON 2025-08-24 BY Lillian Lau.
      * Reduced Sugar Creek storage from 4500 to 2909 to match paper
-     * 
      */
-    vector<double> sugar_creek_res_storage = {0, 2909};//4500};
+    vector<double> sugar_creek_res_storage = {0, 4500};//2909};
     vector<double> sugar_creek_res_area = {0, 0.3675 * sugar_creek_res_storage[1]};
     DataSeries sugar_creek_storage_area(&sugar_creek_res_storage,
                                         &sugar_creek_res_area);
 
-    vector<double> granite_quarry_storage = {0, 1500};
+    /**
+     * UPDATE ON 2025-08-24 BY Lillian Lau.
+     * Decreasrf Granite Quarry storage from 1500 to 200 to match paper
+     */
+    vector<double> granite_quarry_storage = {0, 1500}; //200};
     vector<double> granite_quarry_area = {0, 0.3675 * granite_quarry_storage[1]};
     DataSeries granite_quarry_storage_area(&granite_quarry_storage,
                                            &granite_quarry_area);
@@ -588,7 +595,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs, double *con
                       rofs_infra_watertown, discount_rate, 30, .05);
 
     //FIXME: bond etc need to be updated, should chat about demand buffer
-    Utility dryville((char *) "Dryville", 1, 9,demand_dryville, demand_n_weeks, dryville_annual_payment,
+    Utility dryville((char *) "Dryville", 1, 9, demand_dryville, demand_n_weeks, dryville_annual_payment,
                      dryvilleDemandClassesFractions, dryvilleUserClassesWaterPrices,
                      wwtp_discharge_dryville, dryville_demand_buffer, rof_triggered_infra_order_dryville, vector<int>(),
                      rofs_infra_dryville, discount_rate, 30, 0.05);
@@ -1074,5 +1081,3 @@ void PaperTestProblem::readInputData(int mode) {
     }
     }
 }
-
-

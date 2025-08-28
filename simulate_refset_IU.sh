@@ -3,9 +3,9 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --qos=debug
-#SBATCH --job-name=sim_IU_updated_src_code
-#SBATCH --output=logs/sim_IU_updated_src_code.out
-#SBATCH --error=logs/sim_IU_updated_src_code.err
+#SBATCH --job-name=simulate_test_IU
+#SBATCH --output=logs/simulate_test_IU.out
+#SBATCH --error=logs/simulate_test_IU.err
 #SBATCH --time=00:30:00
 #SBATCH --mail-user=lbl59@cornell.edu
 #SBATCH --mail-type=ALL

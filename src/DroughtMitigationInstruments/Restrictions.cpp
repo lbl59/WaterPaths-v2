@@ -57,15 +57,16 @@ void Restrictions::applyPolicy(int week) {
 
     current_multiplier = 1.0;
     unsigned long stage = 0;
-    /// Loop through restriction stage rof triggers to see which stage should be applied, if any.
+    // Loop through restriction stage rof triggers to see which stage should be applied, if any.
     for (unsigned long i = 0; i < stage_triggers.size(); ++i) {
         if (realization_utilities[0]->getRisk_of_failure() > stage_triggers[i]) {
-            /// Demand multiplier to be applied, based on the rofs.
+            // Demand multiplier to be applied, based on the rofs.
             current_multiplier = stage_multipliers[i];
             stage = i + 1;
         } else
             break;
     }
+    
     realization_utilities[0]->setDemand_multiplier(current_multiplier);
     if (!restricted_weekly_average_volumetric_price.empty() && stage > 0) {
         int week_of_year = Utils::weekOfTheYear(week);
