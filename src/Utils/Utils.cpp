@@ -4,12 +4,12 @@
 
 #include "Utils.h"
 #include "../DroughtMitigationInstruments/Transfers.h"
-//#include "../DroughtMitigationInstruments/TransfersBilateral.h"
 #include "../SystemComponents/WaterSources/ReservoirExpansion.h"
 #include "../SystemComponents/WaterSources/Quarry.h"
 #include "../DroughtMitigationInstruments/InsuranceStorageToROF.h"
 #include "../SystemComponents/WaterSources/WaterReuse.h"
 #include "../SystemComponents/WaterSources/AllocatedReservoir.h"
+#include "../SystemComponents/WaterSources/SequentialJointTreatmentExpansion.h"
 #include "../SystemComponents/WaterSources/Relocation.h"
 #include "../Controls/FixedMinEnvFlowControl.h"
 #include "../Controls/InflowMinEnvFlowControl.h"
@@ -20,21 +20,19 @@
 #include "../SystemComponents/Bonds/LevelDebtServiceBond.h"
 #include "../SystemComponents/Bonds/BalloonPaymentBond.h"
 #include "../SystemComponents/Bonds/FloatingInterestBalloonPaymentBond.h"
-#include "../SystemComponents/WaterSources/JointTreatmentCapacityExpansion.h"
 #include <fstream>
 #include <algorithm>
 #include <climits>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <type_traits>
+
+// ADDING PARQUET CAPABILITY ON 2025-05-27 by Lillian Lau.
 #include <iostream>
 #include <stdexcept>
-// ADDING PARQUET CAPABILITY ON 2025-05-27 by Lillian Lau.
 #include <arrow/api.h>
 #include <arrow/io/api.h>
 #include <arrow/io/file.h>
 #include <parquet/arrow/reader.h>
-//#include <parquet/stream_reader.h>
 
 // ADDING NEW FUNCTION TO READ IN PARQUET FILES ON 2025-05-27 by Lillian Lau.
 vector<vector<double>> Utils::parse2DParquetFile(string file_name, 
@@ -105,20 +103,11 @@ vector<vector<double>> Utils::parse2DCsvFile(string file_name, unsigned long max
     int l = -1;
     int ml = (int) (rows_to_read.empty() ? max_lines : *max_element(
                             rows_to_read.begin(), rows_to_read.end())) + 1;
-//    if (!rows_to_read.empty())
-//        ml = max_lines;
-//    else
-//        ml = *max_element(rows_to_read.begin(), rows_to_read.end());
     if (inputFile.is_open()) {
         while (inputFile && l < ml) {
             l++;
             string s;
             if (!getline(inputFile, s)) break;
-	    if (s.find(" ") != string::npos) {
-		char error[500];
-		sprintf(error, "File %s seems to be space-separated.", file_name.c_str());
-	        throw std::invalid_argument(error);
-	    }
 
             vector<double> record;
             if (s[0] != '#' &&
@@ -255,14 +244,14 @@ vector<WaterSource *> Utils::copyWaterSourceVector(
             water_sources_new.push_back(
                     new AllocatedReservoir(
                             *dynamic_cast<AllocatedReservoir *>(ws)));
+        else if (ws->source_type == NEW_WATER_TREATMENT_PLANT)
+            water_sources_new.push_back(
+                    new SequentialJointTreatmentExpansion(
+                            *dynamic_cast<SequentialJointTreatmentExpansion *>(ws)));
         else if (ws->source_type == SOURCE_RELOCATION)
             water_sources_new.push_back(
                     new Relocation(
                             *dynamic_cast<Relocation *>(ws)));
-        else if (ws->source_type == NEW_JOINT_WATER_TREATMENT_PLANT)
-            water_sources_new.push_back(
-                    new JointTreatmentCapacityExpansion(
-                            *dynamic_cast<JointTreatmentCapacityExpansion *>(ws)));
         else
             throw invalid_argument("One of the water sources does not have "
                                              "an implementation in the "
@@ -302,11 +291,6 @@ Utils::copyDroughtMitigationPolicyVector(
         else if (dmp->type == TRANSFERS)
             drought_mitigation_policy_new.push_back(
                     new Transfers(*dynamic_cast<Transfers *>(dmp)));
-        /**
-        else if (dmp->type == BILATERAL_TRANSFERS)
-            drought_mitigation_policy_new.push_back(
-                    new TransfersBilateral(*dynamic_cast<TransfersBilateral *>(dmp)));
-         */
         else if (dmp->type == INSURANCE_STORAGE_ROF)
             drought_mitigation_policy_new.push_back(
                     new InsuranceStorageToROF(

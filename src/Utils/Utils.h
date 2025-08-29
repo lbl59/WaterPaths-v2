@@ -6,7 +6,6 @@
 #define TRIANGLEMODEL_AUX_H
 
 
-#include <sstream>
 #include "../SystemComponents/WaterSources/Base/WaterSource.h"
 #include "../SystemComponents/WaterSources/Intake.h"
 #include "../SystemComponents/Utility/Utility.h"
@@ -14,32 +13,10 @@
 #include "../DroughtMitigationInstruments/Restrictions.h"
 #include "../Controls/Base/MinEnvFlowControl.h"
 
-struct infraRank {
-    int id = NON_INITIALIZED;
-    double xreal = NON_INITIALIZED;
-    string name;
-
-    infraRank(int id, double xreal) {
-        this->id = id;
-        this->xreal = xreal;
-    }
-
-    infraRank(string name, double xreal) {
-        this->name = name;
-        this->xreal = xreal;
-    }
-};
-
-struct by_xreal {
-    bool operator()(const infraRank &ir1, const infraRank &ir2) {
-        return ir1.xreal < ir2.xreal;
-    }
-};
-
 class Utils {
 public:
     static vector<vector<double>> parse2DParquetFile(basic_string<char, char_traits<char>, allocator<char>> file_name,
-                                                 unsigned long n_realizations = 10000000);
+                                                 unsigned long n_realizations = 10000000);  // ADDED on 05-28-2025 by Lillian Lau
 
     static vector<vector<double>> parse2DCsvFile(basic_string<char, char_traits<char>, allocator<char>> file_name,
                                                  unsigned long max_lines = 10000000,
@@ -70,37 +47,6 @@ public:
     static vector<Bond *> copyBonds(vector<Bond *> bonds_original);
 
     static void createDir(string directory);
-
-
-private:
-    template<class T> struct the_type { using type = T; };
-
-    static double convert_token(string &s, the_type<double>) { return stod(s); };
-    static int convert_token(string &s, the_type<int>) { return stoi(s); };
-    static unsigned long convert_token(string &s, the_type<unsigned  long>) { return stoul(s); };
-    static string convert_token(string &s, the_type<string>) { return s; };
-public:
-    template <class T>
-    static void tokenizeString(const string &line, vector<T> &tokenized_vector, char token = ' ') {
-        tokenized_vector = vector<T>(0);
-        if (line[0] != '#') {
-            istringstream ss(line);
-
-            int c = 0;
-            while (!ss.eof()) {
-                string s;
-                if (!getline(ss, s, token))
-                    break;
-                try {
-                    tokenized_vector.push_back(convert_token(s, the_type<T>()));
-                } catch (const std::invalid_argument &e) {
-                    cout << "NaN found in string \"" << line << "\"" << endl;
-                    e.what();
-                }
-                c++;
-            }
-        }
-    };
 };
 
 

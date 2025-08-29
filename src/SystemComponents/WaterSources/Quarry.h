@@ -16,33 +16,26 @@ private:
 public:
 
     Quarry(
-            string name, const int id,
+            const char *name, const int id,
             const vector<Catchment *> &catchments, const double capacity,
             const double max_treatment_capacity,
             EvaporationSeries &evaporation_series,
-            DataSeries &storage_area_curve, double max_diversion);
+            DataSeries *storage_area_curve, double max_diversion);
 
-    Quarry(string name, const int id, const vector<Catchment *> &catchments,
-           const double capacity,
-           const double max_treatment_capacity,
-           EvaporationSeries &evaporation_series,
-           DataSeries &storage_area_curve,
-           vector<int> construction_prerequisites,
-           const vector<double> &construction_time_range,
+    Quarry(const char *name, const int id, const vector<Catchment *> &catchments, const double capacity,
+           const double max_treatment_capacity, EvaporationSeries &evaporation_series,
+           DataSeries *storage_area_curve, const vector<double> &construction_time_range,
            double permitting_period, Bond &bond, double max_diversion);
 
     Quarry(
-            string name, const int id,
+            const char *name, const int id,
             const vector<Catchment *> &catchments, const double capacity,
             const double max_treatment_capacity,
             EvaporationSeries &evaporation_series, double storage_area,
             double max_diversion);
 
-    Quarry(string name, const int id, const vector<Catchment *> &catchments,
-           const double capacity,
-           const double max_treatment_capacity,
-           EvaporationSeries &evaporation_series, double storage_area,
-           vector<int> construction_prerequisites,
+    Quarry(const char *name, const int id, const vector<Catchment *> &catchments, const double capacity,
+           const double max_treatment_capacity, EvaporationSeries &evaporation_series, double storage_area,
            const vector<double> &construction_time_range, double permitting_period, Bond &bond,
            double max_diversion);
 

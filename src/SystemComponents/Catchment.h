@@ -13,9 +13,9 @@ using namespace Constants;
 
 class Catchment {
 protected:
-    vector<vector<double>> *streamflows_all = nullptr;
+    vector<vector<double>> *streamflows_all;
     vector<double> streamflows_realization;
-    int series_length = NON_INITIALIZED;
+    int series_length;
     bool parent = true;
     // Number of historical years of data - used to set week delta_week to week 0.
     int delta_week = (int) std::round(
@@ -23,9 +23,7 @@ protected:
  
 
 public:
-    Catchment();
-
-    Catchment(vector<vector<double>> &streamflows_all, int series_length);
+    Catchment(vector<vector<double>> *streamflows_all, int series_length);
 
     Catchment(const Catchment &catchment);
 
@@ -33,11 +31,9 @@ public:
 
     Catchment &operator=(const Catchment &catchment);
 
-    double getStreamflow(int week) const;
+    double getStreamflow(int week);
 
-    virtual void setRealization(unsigned long r, const vector<double> &rdm_factors);
-
-    int getSeriesLength() const;
+    virtual void setRealization(unsigned long r, vector<double> &rdm_factors);
 };
 
 

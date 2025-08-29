@@ -9,18 +9,14 @@
 #include "Intake.h"
 
 Intake::Intake(
-        string name, const int id, const vector<Catchment *> &catchments,
+        const char *name, const int id, const vector<Catchment *> &catchments,
         const double max_treatment_capacity)
-        : WaterSource(name, id, catchments, NONE, max_treatment_capacity,
-                      INTAKE) {}
+        : WaterSource(name, id, catchments, NONE, vector<int>(), max_treatment_capacity, INTAKE) {}
 
-Intake::Intake(string name, const int id, const vector<Catchment *> &catchments,
-               const double raw_water_main_capacity,
-               vector<int> construction_prerequisites,
-               const vector<double> construction_time_range,
+Intake::Intake(const char *name, const int id, const vector<Catchment *> &catchments,
+               const double raw_water_main_capacity, const vector<double> construction_time_range,
                double permitting_period, Bond &bond) :
-        WaterSource(name, id, catchments, NONE, raw_water_main_capacity,
-                    construction_prerequisites, INTAKE, construction_time_range,
+        WaterSource(name, id, catchments, NONE, raw_water_main_capacity, vector<int>(), INTAKE, construction_time_range,
                     permitting_period, bond) {}
 
 /**
@@ -70,17 +66,17 @@ void Intake::applyContinuity(int week, double upstream_source_inflow,
 
     /// Get all upstream catchment inflow.
     upstream_catchment_inflow = 0;
-    for (Catchment &c : catchments)
+    for (Catchment c : catchments)
         upstream_catchment_inflow += c.getStreamflow(week);
 
     /// Water availability for next ime step.
     double next_upstream_catchment_inflow = 0;
-    for (Catchment &c : catchments)
+    for (Catchment c : catchments)
         next_upstream_catchment_inflow += c.getStreamflow(week + 1);
 
     /// The available volume for the following week will be next week's gain
     /// - this week's minimum environmental outflow (assuming next week's
-    /// will be more or less the same as this week's) as long as the intake
+    /// will be more or less the same and this week's) as long as the intake
     /// capacity is not exceeded. This should work well for small intakes.
     available_volume = min(total_treatment_capacity,
                            next_upstream_catchment_inflow -
@@ -95,8 +91,7 @@ void Intake::applyContinuity(int week, double upstream_source_inflow,
     this->wastewater_inflow = wastewater_inflow;
 }
 
-void
-Intake::setRealization(unsigned long r, const vector<double> &rdm_factors) {
+void Intake::setRealization(unsigned long r, vector<double> &rdm_factors) {
     WaterSource::setRealization(r, rdm_factors);
 
     total_demand = 0;

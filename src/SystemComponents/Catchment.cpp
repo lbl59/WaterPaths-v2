@@ -3,11 +3,11 @@
 //
 
 #include <cmath>
-#include "Catchment.h"
 #include <stdexcept>
+#include "Catchment.h"
 
-Catchment::Catchment(vector<vector<double>> &streamflows_all, int series_length)
-        : streamflows_all(&streamflows_all), series_length(series_length) {
+Catchment::Catchment(vector<vector<double>> *streamflows_all, int series_length)
+        : streamflows_all(streamflows_all), series_length(series_length) {
 
     if (series_length <
         Constants::WEEKS_IN_YEAR * Constants::NUMBER_REALIZATIONS_ROF)
@@ -20,10 +20,6 @@ Catchment::Catchment(vector<vector<double>> &streamflows_all, int series_length)
                                 + ") realizations times the number of "
                                         "weeks in a year ("
                                 + to_string(Constants::WEEKS_IN_YEAR) + ").");
-
-    if (streamflows_all.empty() || streamflows_all.at(0).empty()) {
-        throw std::length_error("Empty time series.");
-    }
 }
 
 /**
@@ -41,20 +37,12 @@ Catchment::Catchment(const Catchment &catchment) :
  * @param catchment
  * @return
  */
-Catchment &Catchment::operator=(const Catchment &catchment) {
-    streamflows_all = catchment.streamflows_all;
-    series_length = catchment.series_length;
-    return *this;
-}
-
-Catchment::Catchment() = default;
+Catchment &Catchment::operator=(const Catchment &catchment) = default;
 
 /**
  * Destructor.
  */
-Catchment::~Catchment() {
-    streamflows_all = nullptr;
-}
+Catchment::~Catchment() {}
 
 /**
  * Get streamflow for a given week. This function assures that the number of
@@ -63,7 +51,7 @@ Catchment::~Catchment() {
  * @param week
  * @return
  */
-double Catchment::getStreamflow(int week) const {
+double Catchment::getStreamflow(int week) {
     int adjusted_week = week + delta_week;
     return streamflows_realization[adjusted_week];
 }
@@ -74,13 +62,7 @@ double Catchment::getStreamflow(int week) const {
  * data set.
  * @param r
  */
-void Catchment::setRealization(unsigned long r, const vector<double> &rdm_factors) {
+void Catchment::setRealization(unsigned long r, vector<double> &rdm_factors) {
     streamflows_realization = vector<double>(streamflows_all->at(r));
 }
-
-int Catchment::getSeriesLength() const {
-    return series_length;
-}
-
-
 
