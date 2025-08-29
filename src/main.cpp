@@ -253,6 +253,7 @@ int main(int argc, char *argv[]) {
     problem.setN_weeks(n_weeks);
     problem.setIODirectory(system_io);
     problem.setN_threads((unsigned long) n_threads);
+    problem.setRDMDirectory(rdm_directory);  // ADDED ON 2025-05-27 by Lillian Lau.
     problem.setOutputDirectory(output_dir);  // ADDED ON 2025-07-16 by Lillian Lau.
     // Set up input/output suffix, if necessary.
     if (strlen(inflows_evap_directory_suffix.c_str()) > 2) {

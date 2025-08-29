@@ -121,6 +121,10 @@ void Problem::setIODirectory(const string &io_directory) {
     this->io_directory = io_directory;
 }
 
+void Problem::setRDMDirectory(const string &rdm_directory) {
+    this->rdm_directory = rdm_directory;
+}
+
 void Problem::setRDMOptimization(vector<vector<double>> &utilities_rdm,
                                  vector<vector<double>> &water_sources_rdm,
                                  vector<vector<double>> &policies_rdm,

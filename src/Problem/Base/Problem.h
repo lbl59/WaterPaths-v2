@@ -74,6 +74,8 @@ public:
 
     void setIODirectory(const string &io_directory);
 
+    void setRDMDirectory(const string &rdm_directory);  // ADDED ON 2025-05-27 by Lillian Lau.
+
     const vector<double> &getObjectives() const;
 
     vector<double> calculateAndPrintObjectives(bool print_files);
