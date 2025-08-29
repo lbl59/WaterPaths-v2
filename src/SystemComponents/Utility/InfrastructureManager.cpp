@@ -4,86 +4,62 @@
 
 #include <algorithm>
 #include "InfrastructureManager.h"
+#include "../WaterSources/SequentialJointTreatmentExpansion.h"
 #include "../WaterSources/ReservoirExpansion.h"
 #include "../WaterSources/Relocation.h"
 #include "../../Utils/Utils.h"
-#include "../WaterSources/JointTreatmentCapacityExpansion.h"
+#include <omp.h>
 
-InfrastructureManager::InfrastructureManager(
-                const string name, int id, 
-                const vector<double> &infra_construction_triggers, 
-                const vector<vector<int>> &infra_if_built_remove,
-                double infra_discount_rate, vector<int> rof_infra_construction_order,
-                vector<int> demand_infra_construction_order):
-        name(name),
-        id(id), 
+InfrastructureManager::InfrastructureManager(int id, const vector<double> &infra_construction_triggers,
+                                             const vector<vector<int>> &infra_if_built_remove,
+                                             double infra_discount_rate, double bond_term,
+                                             double bond_interest_rate, vector<int> rof_infra_construction_order,
+                                             vector<int> demand_infra_construction_order) :
+        id(id),
         infra_construction_triggers(rearrangeInfraRofVector
-                                            (infra_construction_triggers,
-                                             rof_infra_construction_order,
+                                            (infra_construction_triggers, rof_infra_construction_order,
                                              demand_infra_construction_order)),
+        infra_if_built_remove(infra_if_built_remove),
         infra_discount_rate(infra_discount_rate),
+        bond_term(bond_term),
+        bond_interest_rate(bond_interest_rate),
         rof_infra_construction_order(rof_infra_construction_order),
-        demand_infra_construction_order(demand_infra_construction_order) {
+        demand_infra_construction_order(demand_infra_construction_order) {}
 
 
-    rof_infra_construction_order.insert(rof_infra_construction_order.end(),
-                                        demand_infra_construction_order.begin(),
-                                        demand_infra_construction_order.end());
-    auto size = *max_element(rof_infra_construction_order.begin(),
-                             rof_infra_construction_order.end()) + 1;
+InfrastructureManager::InfrastructureManager() {}
 
-    restructureVectorOfRelatedInfrastructure(this->infra_if_built_remove,
-                                             infra_if_built_remove, size);
-}
 
-InfrastructureManager::InfrastructureManager(
-    InfrastructureManager &infrastructure_manager) :
-    name(infrastructure_manager.name),
-    id(infrastructure_manager.id),
-    shift(infrastructure_manager.shift),  // ADDED BY LILLIAN LAU ON 2025-05-01
-    infra_construction_triggers(
-            infrastructure_manager.infra_construction_triggers),
-    infra_if_built_remove(infrastructure_manager.infra_if_built_remove),
-    infra_discount_rate(infrastructure_manager.infra_discount_rate),
-    rof_infra_construction_order(
-            infrastructure_manager.rof_infra_construction_order),
-    demand_infra_construction_order(
-            infrastructure_manager.demand_infra_construction_order) {}
+InfrastructureManager::InfrastructureManager(InfrastructureManager &infrastructure_manager) :
+        id(infrastructure_manager.id),
+        shift(infrastructure_manager.shift),  // ADDED BY LILLIAN LAU ON 2025-05-01
+        infra_construction_triggers(infrastructure_manager.infra_construction_triggers),
+        infra_if_built_remove(infrastructure_manager.infra_if_built_remove),
+        infra_discount_rate(infrastructure_manager.infra_discount_rate),
+        bond_term(infrastructure_manager.bond_term),
+        bond_interest_rate(infrastructure_manager.bond_interest_rate),
+        rof_infra_construction_order(infrastructure_manager.rof_infra_construction_order),
+        demand_infra_construction_order(infrastructure_manager.demand_infra_construction_order) {}
 
-InfrastructureManager::InfrastructureManager() = default;
-
-InfrastructureManager &InfrastructureManager::operator=(const InfrastructureManager &infrastructure_manager) {
-    name = infrastructure_manager.name;
+InfrastructureManager& InfrastructureManager::operator=(const InfrastructureManager& infrastructure_manager) {
     id = infrastructure_manager.id;
     shift = infrastructure_manager.shift;  // ADDED BY LILLIAN LAU ON 2025-05-01
     infra_construction_triggers = infrastructure_manager.infra_construction_triggers;
     infra_if_built_remove = infrastructure_manager.infra_if_built_remove;
     infra_discount_rate = infrastructure_manager.infra_discount_rate;
+    bond_term = infrastructure_manager.bond_term;
+    bond_interest_rate = infrastructure_manager.bond_interest_rate;
     rof_infra_construction_order = infrastructure_manager.rof_infra_construction_order;
     demand_infra_construction_order = infrastructure_manager.demand_infra_construction_order;
 
     return *this;
 }
 
-
 // ADDED BY LILLIAN LAU ON 2025-05-01
 void InfrastructureManager::setShift(double new_shift) {
     for (unsigned long i = 0; i < infra_construction_triggers.size(); ++i) {
-        // Capping the trigger between 0 and 1
         if (infra_construction_triggers.at(i) != 1e10) {
             infra_construction_triggers.at(i) = min(1.0, max(0.0, infra_construction_triggers.at(i) + new_shift));
-        }
-    }
-}
-
-void InfrastructureManager::restructureVectorOfRelatedInfrastructure(
-        vector<vector<int>> &vec, const vector<vector<int>> &vec_original,
-        int size) {
-
-    vec.resize(size);
-    for (const auto &v : vec_original) {
-        for (unsigned long ws = 1; ws < v.size(); ++ws) {
-            vec.at(v.at(ws)) = vector<int>(v.begin(), v.begin() + ws);
         }
     }
 }
@@ -99,27 +75,6 @@ void InfrastructureManager::addWaterSource(WaterSource *water_source) {
         under_construction.resize(water_sources->size(), false);
         construction_end_date.resize(water_sources->size(), NON_INITIALIZED);
     }
-
-    auto all_infra_options = rof_infra_construction_order;
-    all_infra_options.insert(all_infra_options.end(), 
-                                demand_infra_construction_order.begin(), 
-                                demand_infra_construction_order.end());
-    for (double ws_id : all_infra_options) {
-        if (ws_id == water_source->id) {
-            try {
-                water_source->getBond(id);
-            } catch(...) {
-                char error[256];
-                sprintf(error,
-                        "Utility %s does not seem to have a bond for water "
-                        "source %s. Is water source %s already built?",
-                        name.c_str(), water_source->name.c_str(),
-                        water_source->name.c_str());
-                throw invalid_argument(error);
-            }
-        }
-    }
-
 }
 
 /**
@@ -129,13 +84,12 @@ void InfrastructureManager::addWaterSource(WaterSource *water_source) {
  * @param infra_construction_triggers
  * @param rof_infra_construction_order
  * @param demand_infra_construction_order
- * @return vector with construction triggers on positions corresponding to ids
- * of pertinent sources and 1e10 o/w.
+ * @return
  */
 vector<double> InfrastructureManager::rearrangeInfraRofVector(
-        const vector<double> &infra_construction_triggers, 
-        const vector<int> &rof_infra_construction_order,
-        const vector<int> &demand_infra_construction_order) {
+        const vector<double>& infra_construction_triggers,
+        const vector<int>& rof_infra_construction_order,
+        const vector<int>& demand_infra_construction_order) {
     int size_rof = (rof_infra_construction_order.empty() ? 0 :
                     *max_element(rof_infra_construction_order.begin(),
                                  rof_infra_construction_order.end()));
@@ -144,23 +98,17 @@ vector<double> InfrastructureManager::rearrangeInfraRofVector(
                                     demand_infra_construction_order.end()));
     int size = max(size_rof, size_demand) + 1;
 
-    /**
-    auto n_options = max(rof_infra_construction_order.size(),
-                         demand_infra_construction_order.size());
+    auto n_options = max(rof_infra_construction_order.size(), demand_infra_construction_order.size());
     if (infra_construction_triggers.size() != n_options) {
         char error[200];
-        sprintf(error,
-                "Number of ROF or demand triggers (%lu) for utility %d must match the number of "
-                "infrastructure options triggered by ROF or demand (%lu, %lu, respectively).",
-                infra_construction_triggers.size(), id,
-                rof_infra_construction_order.size(),
-                demand_infra_construction_order.size());
+        sprintf(error, "Number of ROF or demand triggers (%lu) for utility %d must match the number of "
+                            "infrastructure options triggered by ROf or demand (%lu, %lu, respectively).",
+			    infra_construction_triggers.size(), id, rof_infra_construction_order.size(), 
+			    demand_infra_construction_order.size());
         throw invalid_argument(error);
     }
-    */
 
     vector<double> infra_construction_triggers_new((unsigned long) size, 1e10);
-    
     for (unsigned long i = 0; i < rof_infra_construction_order.size(); ++i) {
         auto ws = (unsigned long) rof_infra_construction_order.at(i);
         infra_construction_triggers_new.at(ws) = infra_construction_triggers.at(i);
@@ -170,17 +118,16 @@ vector<double> InfrastructureManager::rearrangeInfraRofVector(
         auto ws = (unsigned long) demand_infra_construction_order.at(i);
         if (infra_construction_triggers_new.at(ws) != 1e10)
             throw invalid_argument("A source can be triggered only by "
-                                   "either ROF or by demand.");
-        infra_construction_triggers_new.at(
-                (unsigned long) demand_infra_construction_order.at(i)) =
+                                     "either rof or by demand.");
+        infra_construction_triggers_new.at((unsigned long) demand_infra_construction_order.at(i)) =
                 infra_construction_triggers.at(i);
     }
 
     return infra_construction_triggers_new;
 }
 
-void InfrastructureManager::addWaterSourceToOnlineLists(int source_id,
-                                                        double &total_storage_capacity,
+void InfrastructureManager::addWaterSourceToOnlineLists(int source_id, double &total_storage_capacity,
+                                                        double &total_treatment_capacity,
                                                         double &total_available_volume,
                                                         double &total_stored_volume) {
     auto ws = water_sources->at((unsigned long) source_id);
@@ -188,6 +135,8 @@ void InfrastructureManager::addWaterSourceToOnlineLists(int source_id,
     // Add capacities to utility.
     total_storage_capacity +=
             ws->getAllocatedCapacity(id);
+    total_treatment_capacity +=
+            ws->getAllocatedTreatmentCapacity(id);
     total_available_volume = total_storage_capacity;
 
     // Add source to the corresponding list of online water sources.
@@ -201,21 +150,14 @@ void InfrastructureManager::addWaterSourceToOnlineLists(int source_id,
 }
 
 
-void InfrastructureManager::setWaterSourceOnline(unsigned int source_id, int week,
-                                            vector<double> &utility_owned_wtp_capacities,
-                                            vector<int> &water_source_to_wtp,
-                                            double &total_storage_capacity,
-                                            double &total_available_volume,
-                                            double &total_stored_volume) {
+void
+InfrastructureManager::setWaterSourceOnline(unsigned int source_id, int week, double &total_storage_capacity,
+        double &total_treatment_capacity, double &total_available_volume, double &total_stored_volume) {
     // Sets water source online and add its ID to appropriate
     // priority/non-priority ID vector. If reservoir expansion, add its
     // capacity to the corresponding existing reservoir.
-    if (water_sources->at(source_id)->source_type ==
-        NEW_JOINT_WATER_TREATMENT_PLANT) {
-        waterTreatmentPlantConstructionHandler(source_id,
-                                               total_storage_capacity,
-                                               utility_owned_wtp_capacities,
-                                               water_source_to_wtp);
+    if (water_sources->at(source_id)->source_type == NEW_WATER_TREATMENT_PLANT) {
+        waterTreatmentPlantConstructionHandler(source_id, total_storage_capacity);
     } else if (water_sources->at(source_id)->source_type ==
                RESERVOIR_EXPANSION) {
         reservoirExpansionConstructionHandler(source_id);
@@ -223,13 +165,13 @@ void InfrastructureManager::setWaterSourceOnline(unsigned int source_id, int wee
         sourceRelocationConstructionHandler(source_id);
     } else {
         water_sources->at(source_id)->setOnline();
-        addWaterSourceToOnlineLists(source_id, total_storage_capacity,
-                                    total_available_volume,
-                                    total_stored_volume);
+        addWaterSourceToOnlineLists(source_id, total_storage_capacity, total_treatment_capacity,
+                                    total_available_volume, total_stored_volume);
     }
 
     // Updates total storage and treatment variables.
     total_storage_capacity = 0;
+    total_treatment_capacity = 0;
     total_available_volume = 0;
     for (WaterSource *ws : *water_sources) {
         if (ws &&
@@ -240,70 +182,60 @@ void InfrastructureManager::setWaterSourceOnline(unsigned int source_id, int wee
                   non_priority_draw_water_source->end(),
                   ws->id) != non_priority_draw_water_source->end())) {
             total_storage_capacity += ws->getAllocatedCapacity(id);
+            total_treatment_capacity += ws->getAllocatedTreatmentCapacity(id);
             total_available_volume += ws->getAvailableAllocatedVolume(id);
         }
-    }
-
-    if (water_sources->at(source_id)->source_type == WATER_REUSE) {
-        double treatment_capacity = water_sources->at(source_id)->getTotal_treatment_capacity();
-        utility_owned_wtp_capacities.resize(utility_owned_wtp_capacities.size() + 1, treatment_capacity);
-        water_source_to_wtp.resize(source_id + 1, NON_INITIALIZED);
-        water_source_to_wtp[source_id] = utility_owned_wtp_capacities.size() - 1;
     }
 }
 
 
-void InfrastructureManager::waterTreatmentPlantConstructionHandler(
-        unsigned int source_id, double &total_storage_capacity,
-        vector<double> &utility_owned_wtp_capacities,
-        vector<int> &water_source_to_wtp) {
-    auto wtp = dynamic_cast<JointTreatmentCapacityExpansion *>(water_sources->at(
-            source_id));
+void
+InfrastructureManager::waterTreatmentPlantConstructionHandler(unsigned int source_id, double &total_storage_capacity) {
+    auto wtp = dynamic_cast<SequentialJointTreatmentExpansion *>
+    (water_sources->at(source_id));
 
-    // Add treatment capacity to source
+    /// Add treatment capacity to source
     double added_capacity = wtp->implementTreatmentCapacity(id);
     try {
-
-        utility_owned_wtp_capacities[water_source_to_wtp[wtp->parent_source_id]] += added_capacity;
+        water_sources->at(wtp->parent_reservoir_ID)
+                ->addTreatmentCapacity(added_capacity, id);
     } catch (...) {
         throw runtime_error("Could not add treatment capacity to reservoir.");
     }
 
-    /// If source is intake or reuse and is not in the list of active
-    /// sources, add it to the priority list.
-    /// If source is not intake or reuse and is not in the list of active
-    /// sources, add it to the non-priority list.
+    // If source is intake or reuse and is not in the list of active
+    // sources, add it to the priority list.
+    // If source is not intake or reuse and is not in the list of active
+    // sources, add it to the non-priority list.
     bool is_priority_source =
-                water_sources->at(wtp->parent_source_id)->source_type ==
-            INTAKE ||
-                water_sources->at(wtp->parent_source_id)->source_type ==
+            water_sources->at(wtp->parent_reservoir_ID)->source_type == INTAKE ||
+            water_sources->at(wtp->parent_reservoir_ID)->source_type ==
             WATER_REUSE;
     bool is_not_in_priority_list =
             find(priority_draw_water_source->begin(),
                  priority_draw_water_source->end(),
-                     wtp->parent_source_id)
+                 wtp->parent_reservoir_ID)
             == priority_draw_water_source->end();
     bool is_not_in_non_priority_list =
             find(non_priority_draw_water_source->begin(),
                  non_priority_draw_water_source->end(),
-                     wtp->parent_source_id)
+                 wtp->parent_reservoir_ID)
             == non_priority_draw_water_source->end();
 
-        // Finally, the checking.
+    // Finally, the checking.
     if (is_priority_source && is_not_in_priority_list) {
-            priority_draw_water_source->push_back(wtp->parent_source_id);
+        priority_draw_water_source->push_back((int) wtp->parent_reservoir_ID);
         total_storage_capacity +=
-                    water_sources->at(wtp->parent_source_id)
+                water_sources->at(wtp->parent_reservoir_ID)
                         ->getAllocatedCapacity(id);
     } else if (is_not_in_non_priority_list) {
         non_priority_draw_water_source
-                    ->push_back(wtp->parent_source_id);
+                ->push_back((int) wtp->parent_reservoir_ID);
     }
     water_sources->at(source_id)->setOnline();
 }
 
-void InfrastructureManager::reservoirExpansionConstructionHandler(
-        unsigned int source_id) {
+void InfrastructureManager::reservoirExpansionConstructionHandler(unsigned int source_id) {
     ReservoirExpansion re =
             *dynamic_cast<ReservoirExpansion *>(water_sources->at(source_id));
 
@@ -312,8 +244,7 @@ void InfrastructureManager::reservoirExpansionConstructionHandler(
     water_sources->at(source_id)->setOnline();
 }
 
-void InfrastructureManager::sourceRelocationConstructionHandler(
-        unsigned int source_id) {
+void InfrastructureManager::sourceRelocationConstructionHandler(unsigned int source_id) {
     Relocation re =
             *dynamic_cast<Relocation *>(water_sources->at(source_id));
 
@@ -323,6 +254,7 @@ void InfrastructureManager::sourceRelocationConstructionHandler(
             resetAllocations(new_allocated_fractions);
     water_sources->at(source_id)->setOnline();
 }
+
 
 
 /**
@@ -343,7 +275,7 @@ void InfrastructureManager::forceInfrastructureConstruction(
         // the other utilities is in this utility's queue, force it to be
         // triggered.
         if (it != rof_infra_construction_order.end()) {
-            // Force infrastructure option new_infra_triggered to be built.
+            /// Force infrastructure option new_infra_triggered to be built.
             beginConstruction(week, ws);
         }
     }
@@ -355,139 +287,128 @@ void InfrastructureManager::forceInfrastructureConstruction(
  * @param long_term_rof
  * @param week
  */
-int InfrastructureManager::infrastructureConstructionHandler(
-        double long_term_rof, int week,
-        double past_year_average_demand,
-        vector<double> &utility_owned_wtp_capacities,
-        vector<int> &water_source_to_wtp,
-        double &total_storage_capacity,
-        double &total_available_volume, double &total_stored_volume) {
-    
+int InfrastructureManager::infrastructureConstructionHandler(double long_term_rof, int week, double past_year_average_demand,
+                                                             double &total_storage_capacity, double &total_treatment_capacity,
+                                                             double &total_available_volume, double &total_stored_volume) {
     int new_infra_triggered = NON_INITIALIZED;
     bool under_construction_any = (find(under_construction.begin(),
                                         under_construction.end(), true) !=
                                    under_construction.end());
 
+    // Checks whether the long-term ROF has been exceeded for the next
+    // infrastructure option in the list and, if not already under
+    // construction, starts building it.
+    if (!rof_infra_construction_order.empty() && !under_construction_any) {
+        // if there is anything to be built
 
-    if (demand_infra_construction_order.empty()) {
-        new_infra_triggered = getIdOfNewTriggeredInfra(
-                long_term_rof, week,
-                under_construction_any,
-                rof_infra_construction_order);
-    } else {
-        new_infra_triggered = getIdOfNewTriggeredInfra(
-                past_year_average_demand, week,
-                under_construction_any,
-                demand_infra_construction_order);
-        }
-
-    // If there's a water source under construction, check if it's ready and,
-    // if so, clear it from the to-build list.
-    if (under_construction_any) {
-        // Loops through vector of under-construction flags and sets online
-        // the ones for which construction period has passed.
-        for (unsigned long ws = 0; ws < under_construction.size(); ++ws)
-            if (under_construction.at(ws) &&
-                week > construction_end_date.at(ws)) {
-                vector<int> set_online_now;
-
-                // Set online all sources that to be set online now.
-                setWaterSourceOnline((unsigned int) ws, week,
-                                     utility_owned_wtp_capacities,
-                                     water_source_to_wtp,
-                                     total_storage_capacity,
-                                     total_available_volume,
-                                     total_stored_volume);
-
-                // Record ID of and when infrastructure option construction was
-                // completed. (utility_id, week, new source id)
-                infra_built_last_week = {id, week, (int) ws};
-
-                // Erase infrastructure option from both vectors of
-                // infrastructure to be built.
-                if (!rof_infra_construction_order.empty())
-                    Utils::removeIntFromVector(rof_infra_construction_order, ws);
-
-                else if (!demand_infra_construction_order.empty())
-                    Utils::removeIntFromVector(
-                        demand_infra_construction_order, ws);
-                else
-                    throw logic_error(
-                            "Infrastructure option whose construction was"
-                            " complete is not in the demand or "
-                            "rof triggered construction lists.");
-
-                under_construction[ws] = false;
-
-            }
-    }
-
-    return new_infra_triggered;
-}
-
-int
-InfrastructureManager::getIdOfNewTriggeredInfra(double trigger_var, int week, 
-                                                bool under_construction_any,
-                                                const vector<int> &construction_order) {
-    int infra_triggered = NON_INITIALIZED;
-
-    // Checks whether there are still options in the demand and long-term ROF
-    // queues, if there's nothing already under construction, and if there's
-    // nothing on triggered queue. If all three conditions are met, check
-    // permitting periods and trigger metrics before starting construction.
-    if (!construction_order.empty() && !under_construction_any &&
-        triggered_queue.empty()) {
-
-        vector<int> construction_prerequisites;
-        // Selects next water source whose permitting period is passed.
+        /// Selects next water source whose permitting period is passed.
         int next_construction = NON_INITIALIZED;
-        for (int id : construction_order) {
-            auto pp = water_sources->at(
-                    id)->getPermitting_period(); // permitting period of triggered source
-
-            // if option requiring other to be built together (e.g. second stage
-            // of a project normally requires first stage complete) is triggered,
-            // use the maximum permitting period between all dependent projects.
-            construction_prerequisites = water_sources->at(
-                    id)->getConstructionPrerequisites();
-            try {
-                for (int id_also : construction_prerequisites) {
-                    pp = max(pp,
-                             water_sources->at(
-                                     id_also)->getPermitting_period());
-                }
-            } catch (out_of_range &e) {}
-
-            // Check for permitting period
-            if (week > pp) {
+        for (int id : rof_infra_construction_order) {
+            auto idd = (unsigned long) id;
+            if (week > water_sources->at(idd)->getPermitting_period() && !water_sources->at(idd)->skipConstruction(id)) {
                 next_construction = id;
                 break;
             }
         }
 
-        // Checks if value of trigger metric for next infrastructure in line has
-        // been reached and if there is already infrastructure being built.
+        // Checks if ROF threshold for next infrastructure in line has been
+        // reached and if there is already infrastructure being built.
         if (next_construction != NON_INITIALIZED &&
-            trigger_var > infra_construction_triggers.at(next_construction)) {
-            if (!construction_prerequisites.empty() &&
-                !construction_prerequisites.empty()) {
-                triggered_queue = construction_prerequisites;
-            }
-            triggered_queue.push_back(next_construction);
+            long_term_rof > infra_construction_triggers[next_construction]) {
+            new_infra_triggered = next_construction;
 
-            beginConstruction(week, triggered_queue[0]);
-            infra_triggered = triggered_queue[0];
-            triggered_queue.erase(triggered_queue.begin());
+            /// Begin construction.
+            beginConstruction(week, next_construction);
         }
-        // If there's nothing under construction but there's an option on the queue,
-        // start building it next in queue.
-    } else if (!under_construction_any && !triggered_queue.empty()) {
-        beginConstruction(week, triggered_queue[0]);
-        infra_triggered = triggered_queue[0];
-        triggered_queue.erase(triggered_queue.begin());
     }
 
-    return infra_triggered;
+    // Checks whether the target demand has been exceeded for the next
+    // infrastructure option in the list and, if not already under
+    // construction, starts building it.
+    if (!demand_infra_construction_order.empty() && !under_construction_any &&
+        week > WEEKS_IN_YEAR) { // if there is anything to be built
+
+
+        // Selects next water source whose permitting period is passed.
+        int next_construction = NON_INITIALIZED;
+        for (int &id : demand_infra_construction_order) {
+            auto idd = (unsigned long) id;
+            if (week > water_sources->at(idd)->getPermitting_period() && !water_sources->at(idd)->skipConstruction(id)) {
+                next_construction = id;
+                break;
+            }
+        }
+        // Checks if demand threshold for next infrastructure in line has been
+        // reached and if there is already infrastructure being built.
+        if (next_construction != NON_INITIALIZED &&
+                past_year_average_demand >infra_construction_triggers[next_construction]) {
+            new_infra_triggered = next_construction;
+
+            /// Begin construction.
+            beginConstruction(week, next_construction);
+        }
+    }
+
+    /// If there's a water source under construction, check if it's ready and,
+    /// if so, clear it from the to-build list.
+    if (under_construction_any) {
+        /// Loops through vector of under-construction flags and sets online
+        /// the ones for which construction period has passed.
+        for (unsigned long ws = 0; ws < under_construction.size(); ++ws)
+            if (under_construction[ws] && week > construction_end_date[ws]) {
+                vector<int> set_online_now;
+
+                /// Check if water source to be set online is part of a series of expansions or constructions
+                /// That depend on previous water sources being built, in which case it's as if all of them had
+                /// been constructed at the same time. The total cost of building all at the same time is approximated
+                /// by the summation of their individual costs, and the construction time is approximated as that of the
+                /// source that was called -- both can be pretty rough approximations at times, so any improvement here
+                /// is welcome.
+                if (water_sources->at(ws)->getBuilt_in_sequence().empty()) {
+                    set_online_now.push_back((int) ws);
+                } else {
+                    for (const int &id_build : water_sources->at(ws)->getBuilt_in_sequence()) {
+                        /// Check if previous source/expansion is yet to be built.
+                        bool yet_to_be_built = find(rof_infra_construction_order.begin(),
+                                                    rof_infra_construction_order.end(), id_build)
+                                               != rof_infra_construction_order.end() ||
+                                               find(demand_infra_construction_order.begin(),
+                                                    demand_infra_construction_order.end(), id_build)
+                                               != demand_infra_construction_order.end();
+                        if (yet_to_be_built)
+                            set_online_now.push_back(id_build);
+                        if (id_build == ws)
+                            break;
+                    }
+                }
+
+                /// Set online all sources that at to be set online now.
+                for (const int &wss : set_online_now) {
+                    setWaterSourceOnline((unsigned int) wss, week, total_storage_capacity, total_treatment_capacity,
+                                         total_available_volume, total_stored_volume);
+
+                    /// Record ID of and when infrastructure option construction was
+                    /// completed. (utility_id, week, new source id)
+                    infra_built_last_week = {id, week, wss};
+
+                    /// Erase infrastructure option from both vectors of
+                    /// infrastructure to be built.
+                    if (!rof_infra_construction_order.empty())
+                        Utils::removeIntFromVector(rof_infra_construction_order, wss);
+
+                    else if (!demand_infra_construction_order.empty())
+                        Utils::removeIntFromVector(demand_infra_construction_order, wss);
+                    else
+                        throw logic_error("Infrastructure option whose construction was"
+                                            " complete is not in the demand or "
+                                            "rof triggered construction lists.");
+
+                    under_construction[wss] = false;
+                }
+            }
+    }
+
+    return new_infra_triggered;
 }
 
 /**
@@ -495,19 +416,19 @@ InfrastructureManager::getIdOfNewTriggeredInfra(double trigger_var, int week,
  * from being build and, if so, removes the latter from the queue.
  * @param next_construction
  */
-void
-InfrastructureManager::removeRelatedSourcesFromQueue(int next_construction) {
+void InfrastructureManager::removeRelatedSourcesFromQueue(int next_construction) {
+    if (!infra_if_built_remove.empty()) {
         for (auto &v : infra_if_built_remove) {
-        if (!v.empty() && v[0] == next_construction) {
+            if (v[0] == next_construction) {
                 for (int i : v) {
                     Utils::removeIntFromVector(rof_infra_construction_order, i);
-                    Utils::removeIntFromVector(demand_infra_construction_order,
-                                               i);
+                    Utils::removeIntFromVector(demand_infra_construction_order, i);
                 }
             }
         }
-
+    }
 }
+
 
 
 /**
@@ -515,42 +436,37 @@ InfrastructureManager::removeRelatedSourcesFromQueue(int next_construction) {
  * @param week
  */
 void InfrastructureManager::beginConstruction(int week, int infra_id) {
-    // Checks is piece of infrastructure to be built next prevents
-    // another one from being build and, if so, removes the latter
-    // from the queue. E.g. if the large expansion of a reservoir is
-    // triggered the small expansion must be removed from the to
-    // build list.
+    /// Checks is piece of infrastructure to be built next prevents
+    /// another one from being build and, if so, removes the latter
+    /// from the queue. E.g. if the large expansion of a reservoir is
+    /// triggered the small expansion must be removed from the to
+    /// build list.
     removeRelatedSourcesFromQueue(infra_id);
 
-    // Make water utility as under construction and determine construction
-    // end date (I wish that was how it worked in real constructions...)
+    /// Make water utility as under construction and determine construction
+    /// end date (I wish that was how it worked in real constructions...)
     try {
         under_construction[infra_id] = true;
         construction_end_date[infra_id] =
-                week + (int) water_sources->at(
-                        (unsigned long) infra_id)->construction_time;
+                week + (int) water_sources->at((unsigned long) infra_id)->construction_time;
     } catch (...) {
-        throw out_of_range(
-                "Infrastructure not present in infrastructure manager (in utility).");
+        throw out_of_range("Infrastructure not present in infrastructure manager (in utility).");
     }
 }
 
-void InfrastructureManager::connectWaterSourcesVectorsToUtilitys(
-        vector<WaterSource *> &water_sources,
-        vector<int> &priority_draw_water_source,
-        vector<int> &non_priority_draw_water_source) {
+void InfrastructureManager::connectWaterSourcesVectorsToUtilitys(vector<WaterSource *> &water_sources,
+                                                                 vector<int> &priority_draw_water_source,
+                                                                 vector<int> &non_priority_draw_water_source) {
     this->water_sources = &water_sources;
     this->priority_draw_water_source = &priority_draw_water_source;
     this->non_priority_draw_water_source = &non_priority_draw_water_source;
 }
 
-const vector<int> &
-InfrastructureManager::getRof_infra_construction_order() const {
+const vector<int> &InfrastructureManager::getRof_infra_construction_order() const {
     return rof_infra_construction_order;
 }
 
-const vector<int> &
-InfrastructureManager::getDemand_infra_construction_order() const {
+const vector<int> &InfrastructureManager::getDemand_infra_construction_order() const {
     return demand_infra_construction_order;
 }
 
@@ -560,18 +476,5 @@ const vector<int> &InfrastructureManager::getInfra_built_last_week() const {
 
 const vector<bool> &InfrastructureManager::getUnder_construction() const {
     return under_construction;
-}
-
-const vector<double> &
-InfrastructureManager::getInfraConstructionTriggers() const {
-    return infra_construction_triggers;
-}
-
-int InfrastructureManager::getId() const {
-    return id;
-}
-
-double InfrastructureManager::getInfraDiscountRate() const {
-    return infra_discount_rate;
 }
 

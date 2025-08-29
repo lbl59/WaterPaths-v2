@@ -38,11 +38,11 @@ public:
 
     UtilitiesDataCollector &operator=(const UtilitiesDataCollector &utility_data_collector);
 
-    string printCompactString(int week) override;
-    
-    string printSubsetCompactString(int week);  // ADDED on 06-19-2025 by Lillian Lau
-
     string printTabularString(int week) override;
+
+    string printCompactString(int week) override;
+
+    string printSubsetCompactString(int week);  // ADDED on 06-19-2025 by Lillian Lau
 
     void collect_data() override;
 
@@ -81,8 +81,6 @@ public:
     const vector<double> &getRestricted_demand() const;
 
     void checkForNans() const;
-
-    const Utility *getUtility() const;
 };
 
 

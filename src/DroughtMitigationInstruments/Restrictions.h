@@ -14,24 +14,25 @@ class Restrictions : public DroughtMitigationPolicy {
 private:
     double current_multiplier = 0;
     int action_multiplier_id = 0;  // ADDED ON 2025-04-28 by Lillian Lau.
-    vector<vector<double>> restricted_weekly_average_volumetric_price;
 
     vector<double> stage_multipliers;
-    vector<double> stage_triggers;
+    vector<double> stage_triggers;  // changed from const variable to allow shifting by action multiplier on 2025-08-11 by Lillian Lau.
+    vector<vector<double>> restricted_weekly_average_volumetric_price;
 
 public:
-    Restrictions(const int id, const int action_multiplier_id, 
+    Restrictions(const int id, const int action_multiplier_id, // ADDED ON 2025-04-28 by Lillian Lau.
                  const vector<double> &stage_multipliers,
                  const vector<double> &stage_triggers);
 
-    Restrictions(const int id, const int action_multiplier_id,
-                const vector<double> &stage_multipliers,
-                const vector<double> &stage_triggers,
-                const vector<vector<double>> *typesMonthlyDemandFraction,
-                const vector<vector<double>> *typesMonthlyWaterPrice,
-                const vector<vector<double>> *priceMultipliers);
+    Restrictions(
+            const int id, const int action_multiplier_id, // ADDED ON 2025-04-28 by Lillian Lau.
+            const vector<double> &stage_multipliers,
+            const vector<double> &stage_triggers,
+            const vector<vector<double>> *typesMonthlyDemandFraction,
+            const vector<vector<double>> *typesMonthlyWaterPrice,
+            const vector<vector<double>> *priceMultipliers);
 
-    Restrictions(const Restrictions &restrictions);
+    Restrictions(const Restrictions &reservoir);
 
     void applyPolicy(int week) override;
 
@@ -49,17 +50,10 @@ public:
             const vector<vector<double>> *priceMultipliers);
 
     void setRealization(unsigned long realization_id, 
-                        const vector<double> &utilities_rdm,
-                        const vector<double> &water_sources_rdm, 
-                        const vector<double> &policy_rdm,
-                        const vector<double> &actions_rdm) override; // ADDED ON 2025-04-28 by Lillian Lau.
-    
-    void setupTriggers(const vector<double> &stage_multipliers,
-                       const vector<double> &stage_triggers);
-    
-    const vector<double> &getStageMultipliers() const;
-
-    const vector<double> &getStageTriggers() const;
+                        vector<double> &utilities_rdm,
+                        vector<double> &water_sources_rdm, 
+                        vector<double> &policy_rdm,
+                        vector<double> &actions_rdm) override;
 };
 
 

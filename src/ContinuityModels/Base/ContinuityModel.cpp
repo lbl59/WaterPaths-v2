@@ -7,14 +7,15 @@
 #include <cstring>
 #include <algorithm>
 #include "ContinuityModel.h"
+#include "../../SystemComponents/WaterSources/SequentialJointTreatmentExpansion.h"
 
 ContinuityModel::ContinuityModel(vector<WaterSource *> &water_sources, vector<Utility *> &utilities,
                                  vector<MinEnvFlowControl *> &min_env_flow_controls,
                                  const Graph &water_sources_graph,
                                  const vector<vector<int>> &water_sources_to_utilities,
-                                 const vector<double> &utilities_rdm,
-                                 const vector<double> &water_sources_rdm,
-                                 const vector<double> &actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
+                                 vector<double> &utilities_rdm,
+                                 vector<double> &water_sources_rdm,
+                                 vector<double> &actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
                                  unsigned long realization_id) :
         continuity_water_sources(water_sources),
         continuity_utilities(utilities),
@@ -34,7 +35,8 @@ ContinuityModel::ContinuityModel(vector<WaterSource *> &water_sources, vector<Ut
     std::sort(continuity_water_sources.begin(), continuity_water_sources.end(), WaterSource::compare);
     std::sort(continuity_utilities.begin(), continuity_utilities.end(), Utility::compById);
 
-    // Link water sources to utilities by passing pointers of the former to the latter.
+    // Link water sources to utilities by passing pointers of the former to
+    // the latter.
     for (unsigned long u = 0; u < utilities.size(); ++u) {
         for (unsigned long ws = 0; ws < water_sources_to_utilities[u].size(); ++ws) {
             auto ws_id = water_sources_to_utilities[u][ws];
@@ -85,10 +87,10 @@ ContinuityModel::ContinuityModel(vector<WaterSource *> &water_sources, vector<Ut
         utilities_capacities.push_back(u->getTotal_storage_capacity());
         if (utilities_capacities.back() == 0) {
             char error[1000];
-            sprintf(error, "Utility %s has no currently-built storage capacity"
-                           " (0 MGD), which would lead to an ROF value of 0/0. "
-                           "WaterPaths currently requires utilities to have "
-                           "non-zero storage capacity\n", u->name.c_str());
+            sprintf(error, "Utility %d has no storage capacity (0 MGD), which "
+                           "would lead to an ROF value of 0/0. WaterPaths "
+                           "currently requires utilities to have non-zero "
+                           "storage capacity\n", u->id);
             throw invalid_argument(error);
         }
     }
@@ -110,7 +112,7 @@ ContinuityModel::ContinuityModel(vector<WaterSource *> &water_sources, vector<Ut
 
     // Set realization id on utilities and water sources, so that they use the
     // right streamflow, evaporation and demand data.
-    setRealization(realization_id, utilities_rdm, water_sources_rdm, actions_rdm); // CHANGED ON 2025-04-28 by Lillian Lau.
+    setRealization(realization_id, utilities_rdm, water_sources_rdm, actions_rdm); // MODIFIED ON 2025-04-28 by Lillian Lau.
 
     demands = std::vector<vector<double>>(
             continuity_water_sources.size(),
@@ -141,7 +143,6 @@ ContinuityModel::~ContinuityModel() {
     for (auto mef : min_env_flow_controls){
         delete mef;
     }
-
 }
 
 /**
@@ -152,7 +153,6 @@ ContinuityModel::~ContinuityModel() {
  */
 void ContinuityModel::continuityStep(
         int week, int rof_realization, bool apply_demand_buffer) {
-    
     double* upstream_spillage = new double[n_sources];
     fill_n(upstream_spillage, n_sources, 0.);
     double* wastewater_discharges = new double[n_sources];
@@ -203,14 +203,16 @@ void ContinuityModel::continuityStep(
             upstream_spillage[i] += continuity_water_sources.at(
                             static_cast<unsigned long>(ws))->getTotal_outflow();
         }
-
-        // Mass balance. The value of rof_realization for a a non-ROF continuity
-	    // step is -1 (NON_INITIALIZED), so adding 1 brings it to delta_realization_weeks[0]
-	    // which is 0, while delta_realization_weeks[1] is 52, and so on.
+        /**
+         * @brief Mass balance. 
+         * The value of rof_realization for a a non-ROF continuity step is -1 (NON_INITIALIZED), 
+         * so adding 1 brings it to delta_realization_weeks[0]
+         * which is 0, while delta_realization_weeks[1] is 52, and so on.
+         */
         continuity_water_sources[i]->continuityWaterSource(
                 week - delta_realization_weeks[rof_realization + 1],
                 upstream_spillage[i], wastewater_discharges[i], demands[i]);
-        demands[i] = vector<double>(n_utilities, 0.);
+        demands[i] = vector<double>(n_utilities, 0.);  // ADDED STATE RESET HERE BY LILLIAN LAU ON 2025-04-28.
     }
 
     // updates combined storage for utilities.
@@ -223,12 +225,12 @@ void ContinuityModel::continuityStep(
 }
 
 void ContinuityModel::setRealization(unsigned long realization_id, 
-    const vector<double> &utilities_rdm,
-    const vector<double> &water_sources_rdm, 
-    const vector<double> &actions_rdm) { // ADDED ON 2025-04-28 by Lillian Lau.
+                                     vector<double> &utilities_rdm,
+                                     vector<double> &water_sources_rdm,
+                                     vector<double> &actions_rdm) { // ADDED ON 2025-04-28 by Lillian Lau.
     if (realization_id != (unsigned) NON_INITIALIZED) {
         for (Utility *u : continuity_utilities)
-            u->setRealization(realization_id, utilities_rdm, actions_rdm);
+            u->setRealization(realization_id, utilities_rdm, actions_rdm); // ADDED ON 2025-04-28 by Lillian Lau.
         for (WaterSource *ws : continuity_water_sources)
             ws->setRealization(realization_id, water_sources_rdm);
         for (MinEnvFlowControl *mef : min_env_flow_controls)

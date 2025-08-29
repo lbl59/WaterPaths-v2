@@ -618,7 +618,6 @@ template <typename T>
 Matrix<T>::Matrix(unsigned int n, unsigned int m)
         : v(new T*[n])
 {
-    //register unsigned int i;
     unsigned int i;
     this->n = n; this->m = m;
     v[0] = new T[m * n];
@@ -630,7 +629,6 @@ template <typename T>
 Matrix<T>::Matrix(const T& a, unsigned int n, unsigned int m)
         : v(new T*[n])
 {
-    //register unsigned int i, j;
     unsigned int i, j;
     this->n = n; this->m = m;
     v[0] = new T[m * n];
@@ -645,7 +643,6 @@ template <class T>
 Matrix<T>::Matrix(const T* a, unsigned int n, unsigned int m)
         : v(new T*[n])
 {
-    //register unsigned int i, j;
     unsigned int i, j;
     this->n = n; this->m = m;
     v[0] = new T[m * n];
@@ -660,7 +657,6 @@ template <class T>
 Matrix<T>::Matrix(MType t, const T& a, const T& o, unsigned int n, unsigned int m)
         : v(new T*[n])
 {
-    //register unsigned int i, j;
     unsigned int i, j;
     this->n = n; this->m = m;
     v[0] = new T[m * n];
@@ -685,7 +681,6 @@ template <class T>
 Matrix<T>::Matrix(MType t, const Vector<T>& a, const T& o, unsigned int n, unsigned int m)
         : v(new T*[n])
 {
-    //register unsigned int i, j;
     unsigned int i, j;
     this->n = n; this->m = m;
     v[0] = new T[m * n];
@@ -710,7 +705,6 @@ template <typename T>
 Matrix<T>::Matrix(const Matrix<T>& rhs)
         : v(new T*[rhs.n])
 {
-    //register unsigned int i, j;
     unsigned int i, j;
     n = rhs.n; m = rhs.m;
     v[0] = new T[m * n];
@@ -736,7 +730,6 @@ inline Matrix<T>& Matrix<T>::operator=(const Matrix<T> &rhs)
 // if matrix and rhs were different sizes, matrix
 // has been resized to match the size of rhs
 {
-    //register unsigned int i, j;
     unsigned int i, j;
     if (this != &rhs)
     {
@@ -751,7 +744,6 @@ inline Matrix<T>& Matrix<T>::operator=(const Matrix<T> &rhs)
 template <typename T>
 inline Matrix<T>& Matrix<T>::operator=(const T& a) // assign a to every element
 {
-    //register unsigned int i, j;
     unsigned int i, j;
     for (i = 0; i < n; i++)
         for (j = 0; j < m; j++)
@@ -763,8 +755,7 @@ inline Matrix<T>& Matrix<T>::operator=(const T& a) // assign a to every element
 template <typename T>
 inline void Matrix<T>::resize(const unsigned int n, const unsigned int m)
 {
-    //register unsigned int i;
-    unsigned int i, j;
+    unsigned int i;
     if (n == this->n && m == this->m)
         return;
     if (v != 0)
@@ -782,7 +773,6 @@ inline void Matrix<T>::resize(const unsigned int n, const unsigned int m)
 template <typename T>
 inline void Matrix<T>::resize(const T& a, const unsigned int n, const unsigned int m)
 {
-    //register unsigned int i, j;
     unsigned int i, j;
     resize(n, m);
     for (i = 0; i < n; i++)
@@ -803,7 +793,6 @@ inline Vector<T> Matrix<T>::extractRow(const unsigned int i) const
 template <typename T>
 inline Vector<T> Matrix<T>::extractColumn(const unsigned int j) const
 {
-    //register unsigned int i;
     unsigned int i;
     if (j >= m)
         throw std::logic_error("Error in extractRow: trying to extract a row out of matrix bounds");
@@ -1182,7 +1171,6 @@ void forward_elimination(const Matrix<T>& L, Vector<T>& y, const Vector<T> b)
         throw std::logic_error("Error in Forward elimination: matrix must be squared (lower triangular)");
     if (b.size() != L.nrows())
         throw std::logic_error("Error in Forward elimination: b vector must be of the same dimensions of L matrix");
-    //register int i, j, n = b.size();
     int i, j, n = b.size();
     y.resize((const unsigned int) n);
 
@@ -1203,7 +1191,6 @@ void backward_elimination(const Matrix<T>& U, Vector<T>& x, const Vector<T>& y)
         throw std::logic_error("Error in Backward elimination: matrix must be squared (upper triangular)");
     if (y.size() != U.nrows())
         throw std::logic_error("Error in Backward elimination: b vector must be of the same dimensions of U matrix");
-    //register int i, j, n = y.size();
     int i, j, n = y.size();
     x.resize((const unsigned int) n);
 

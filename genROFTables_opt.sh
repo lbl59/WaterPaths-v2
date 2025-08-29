@@ -14,8 +14,8 @@ export OMP_NUM_THREADS=256
 
 srun ./SedentoValleySimulation -T ${OMP_NUM_THREADS} -t 2344 -r 200 \
     -d /pscratch/sd/l/lbl59/WaterPaths-IU/ \
-    -s sample_solutions.csv -m 0 -M 1 -I _bs200 \
-    -C 1 -O rof_tables_opt_IU/ \
+    -s sample_solutions.csv -m 0 -I _bs200 \
+    -C 1 -O rof_tables_opt_IU_smallExp/ \
     -U TestFiles/rdm_utilities_test_problem_opt_bs200.csv \
     -P TestFiles/rdm_dmp_test_problem_opt_bs200.csv \
     -W TestFiles/rdm_water_sources_test_problem_opt_bs200.csv \

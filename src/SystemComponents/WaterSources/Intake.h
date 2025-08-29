@@ -15,14 +15,12 @@ class Intake : public WaterSource {
 public:
 
     Intake(
-            string name, const int id,
+            const char *name, const int id,
             const vector<Catchment *> &catchments,
             const double max_treatment_capacity);
 
-    Intake(string name, const int id, const vector<Catchment *> &catchments,
-           const double raw_water_main_capacity,
-           vector<int> construction_prerequisites,
-           const vector<double> construction_time_range,
+    Intake(const char *name, const int id, const vector<Catchment *> &catchments,
+           const double raw_water_main_capacity, const vector<double> construction_time_range,
            double permitting_period, Bond &bond);
 
     Intake(const Intake &intake);
@@ -34,8 +32,7 @@ public:
     void applyContinuity(int week, double upstream_source_min_env_flow,
                              double wastewater_inflow, vector<double> &demand) override;
 
-    void
-    setRealization(unsigned long r, const vector<double> &rdm_factors) override;
+    void setRealization(unsigned long r, vector<double> &rdm_factors) override;
 
 };
 

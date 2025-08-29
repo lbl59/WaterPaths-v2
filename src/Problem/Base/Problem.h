@@ -10,9 +10,22 @@
 #include "../../DataCollector/MasterDataCollector.h"
 #include "../../Utils/Utils.h"
 #include "../../SystemComponents/WaterSources/Reservoir.h"
-#ifdef  PARALLEL
-#include "../../../Borg/borgms.h"
-#endif
+
+struct infraRank {
+    int id;
+    double xreal;
+
+    infraRank(int id, double xreal) {
+        this->id = id;
+        this->xreal = xreal;
+    }
+};
+
+struct by_xreal {
+    bool operator()(const infraRank &ir1, const infraRank &ir2) {
+        return ir1.xreal < ir2.xreal;
+    }
+};
 
 class Problem {
 protected:
@@ -20,77 +33,63 @@ protected:
     unsigned long  n_weeks;
     unsigned long  solution_no;
     unsigned long n_threads;
-    unsigned long n_dec_vars = NON_INITIALIZED;
-    unsigned long n_objectives = 5; // Number of objectives implemented in current version.
     int n_utilities = NON_INITIALIZED;
 
     string io_directory;
     string output_dir;  // ADDED ON 2025-07-16 by Lillian Lau.
     string rdm_directory;  // ADDED ON 2025-05-27 by Lillian Lau.
     string fname_sufix;
-    string rof_tables_directory;
-    string inflow_demand_evap_suffix;
+    string rof_tables_directory;  // ADDED ON 2025-05-27 by Lillian Lau.
+    string inflow_demand_evap_suffix; // CHANGED ON 2025-05-27 by Lillian Lau.
 
     vector<unsigned long > realizations_to_run;
     MasterDataCollector* master_data_collector = nullptr;
     vector<double> objectives;
     bool print_output_files = true;
 
-    int seed;
-    int rdm_no = NON_INITIALIZED;
+    unsigned long  rdm_no;
     int import_export_rof_tables;
     double table_gen_storage_multiplier;
-
-    // RDM DU factor vectors
     vector<vector<double>> utilities_rdm;
     vector<vector<double>> water_sources_rdm;
     vector<vector<double>> policies_rdm;
     vector<vector<double>> actions_rdm;  // ADDED ON 2025-04-28 by Lillian Lau.
-
     vector<vector<Matrix2D<double>>> rof_tables;
-    vector<vector<unsigned long>> bs_realizations;
-    vector<int> solutions_to_run_range;
-    string system_io, solutions_file, bootstrap_file;
-    int n_sets, n_bs_samples;
 
-    bool plotting, print_obj_row;
+    double checkAndFixInfraExpansionHighLowOrder(vector<int> *order, vector<double> *trigger, int id_low, int id_high, double capacity_low,
+                                                 double capacity_high);
 
-    virtual void readInputData();
+    vector<int> vecInfraRankToVecInt(vector<infraRank> v);
 
 public:
-    explicit Problem();
-
-    Problem(unsigned long n_weeks, int n_realizations,
-            int import_export_rof_table, string system_io,
-            string &rof_tables_directory, int seed,
-            unsigned long n_threads, 
-            int rdm_no, string rdm_directory, // ADDED ON 2025-05-27 by Lillian Lau.
-            string output_dir, // ADDED ON 2025-07-16 by Lillian Lau.
-            string bootstrap_file,
-            string &utilities_rdm_file, string &policies_rdm_file,
-            string &water_sources_rdm_file, string &actions_rdm_file,  // ADDED ON 2025-04-28 by Lillian Lau.
-            int n_sets, int n_bs_samples, 
-            string &solutions_file, vector<int> &solutions_to_run_range, 
-            bool plotting, bool print_obj_row, 
-            string &inflows_demand_evap_directory_suffix);
+    Problem(unsigned long n_weeks);
 
     virtual ~Problem();
 
     virtual int functionEvaluation(double* vars, double* objs, double* consts)=0;
-
-    vector<double> calculateAndPrintObjectives(bool print_files);
-
-    vector<int> vecInfraRankToVecInt(vector<infraRank> v);
-
-    MasterDataCollector* getMaster_data_collector();
-
-    const vector<double> &getObjectives() const;
 
     void setN_weeks(unsigned long n_weeks);
 
     void setSol_number(unsigned long sol_number);
 
     void setIODirectory(const string &io_directory);
+
+    void setRDMDirectory(const string &rdm_directory);  // ADDED ON 2025-05-27 by Lillian Lau.
+
+    const vector<double> &getObjectives() const;
+
+    vector<double> calculateAndPrintObjectives(bool print_files);
+
+    void setRDMOptimization(vector<vector<double>> &utilities_rdm, 
+        vector<vector<double>> &water_sources_rdm,
+        vector<vector<double>> &policies_rdm, 
+        vector<vector<double>> &actions_rdm); // ADDED ON 2025-04-28 by Lillian Lau.
+
+    void setRDMReevaluation(unsigned long rdm_no, 
+        vector<vector<double>> &utilities_rdm,
+        vector<vector<double>> &water_sources_rdm, 
+        vector<vector<double>> &policies_rdm, 
+        vector<vector<double>> &actions_rdm); // ADDED ON 2025-04-28 by Lillian Lau.
 
     void setN_threads(unsigned long n_threads);
 
@@ -102,52 +101,25 @@ public:
 
     void setRealizationsToRun(vector<unsigned long>& realizations_to_run);
 
+    void set_inflow_evap_demand_suffix(const string &inflow_demand_evap_suffix);  // MODIFIED ON 2025-05-27 by Lillian Lau.
+
     void setFname_sufix(const string &fname_sufix);
+
+    MasterDataCollector* getMaster_data_collector();
 
     void destroyDataCollector();
 
-    void printTimeSeriesAndPathways(bool plot_time_series = true);
+    void printTimeSeriesAndPathways(bool print_timeseries, bool parquet_format);
 
     void setRofTables(unsigned long n_realizations, string rof_tables_directory);
-    
-    void setRofTablesParquet(unsigned long n_realizations, string rof_tables_directory);
 
-    void setImport_export_rof_tables(int import_export_rof_tables,
-                                     string rof_tables_directory);
+    void setRofTablesParquet(unsigned long n_realizations, string rof_tables_directory); // ADDED ON 2025-05-27 by Lillian Lau.
 
-    void runBootstrapRealizationThinning(int standard_solution, int n_sets,
-                                         int n_bs_samples,
-                                         int threads,
-                                         const vector<vector<unsigned long>> &bs_realizations);
-    
-    void setRDMOptimization(vector<vector<double>> &utilities_rdm,
-                            vector<vector<double>> &water_sources_rdm,
-                            vector<vector<double>> &policies_rdm,
-                            vector<vector<double>> &actions_rdm);  // ADDED ON 2025-04-28 by Lillian Lau.
-    
-    void setRDMReevaluation(int rdm_no, 
-                            vector<vector<double>> &utilities_rdm,
-                            vector<vector<double>> &water_sources_rdm,
-                            vector<vector<double>> &policies_rdm,
-                            vector<vector<double>> &actions_rdm);  // ADDED ON 2025-04-28 by Lillian Lau.
-    
-    static double checkAndFixInfraExpansionHighLowOrder(vector<int> &order,
-                                                        vector<double> &triggers,
-                                                        int id_low, int id_high,
-                                                        double capacity_low,
-                                                        double capacity_high);
-    
-    virtual void runSimulation() = 0;
+    void setImport_export_rof_tables(int import_export_rof_tables, int n_weeks, int mode, string rof_tables_directory);
 
-    virtual unsigned long getNDecVars() const;
+    void runBootstrapRealizationThinning(int standard_solution, int n_sets, int n_bs_samples,
+                                         int threads, vector<vector<int>> &realizations_to_run);
 
-    virtual unsigned long getNObjectives() const;
-
-    void set_inflow_evap_demand_suffix(const string &inflow_demand_evap_suffix);
-
-#ifdef PARALLEL
-    virtual void setProblemDefinition(BORG_Problem &problem) = 0;
-#endif
 };
 
 

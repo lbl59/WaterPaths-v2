@@ -50,10 +50,11 @@ public:
 
     void setStorage_to_rof_table_(vector<Matrix2D<double>> &storage_to_rof_table_, int use_imported_tables);
 
-    virtual void setRealization(unsigned long realization_id, const vector<double> &utilities_rdm,
-                                const vector<double> &water_sources_rdm, 
-                                const vector<double> &policy_rdm,
-                                const vector<double> &actions_rdm)=0;
+    virtual void setRealization(unsigned long realization_id, 
+                                vector<double> &utilities_rdm,
+                                vector<double> &water_sources_rdm, 
+                                vector<double> &policy_rdm,
+                                vector<double> &actions_rdm)= 0;
 
 };
 
