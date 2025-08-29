@@ -16,11 +16,12 @@ private:
     const double source_treatment_buffer;
     double average_pipe_capacity = 0;
     int transfer_water_source_id;
+//    map<int, int> util_id_to_vertex_id;
     vector<int> util_id_to_vertex_id;
     vector<int> buyers_ids;
     vector<int> action_multiplier_ids;  // ADDED ON 2025-04-28 by Lillian Lau.
-    vector<double> allocations;   // Amount transfered to each utility
-    vector<double> conveyed_volumes;   // Flow rate through pipes
+    vector<double> allocations; // Amount transfered to each utility
+    vector<double> conveyed_volumes; // Flow rate through pipes
     vector<double> buyers_transfer_triggers;
     vector<double> flow_rates_and_allocations;
     Utility *source_utility = nullptr;
@@ -31,7 +32,7 @@ private:
 public:
 
     Transfers(
-            const int id, const int source_utility_id,
+            const int id, const int source_utility_id, 
             int transfer_water_source_id, const double source_treatment_buffer,
             const vector<int> &buyers_ids,
             const vector<int> &action_multiplier_ids, // ADDED ON 2025-04-28 by Lillian Lau.
@@ -57,11 +58,20 @@ public:
                  int week);
 
     void setRealization(unsigned long realization_id, 
-                        vector<double> &utilities_rdm,
-                        vector<double> &water_sources_rdm, 
-                        vector<double> &policy_rdm,
-                        vector<double> &actions_rdm) override; // ADDED ON 2025-04-28 by Lillian Lau.
+        const vector<double> &utilities_rdm,
+        const vector<double> &water_sources_rdm, 
+        const vector<double> &policy_rdm,
+        const vector<double> &actions_rdm) override; // ADDED ON 2025-04-28 by Lillian Lau.
 
+    const double getSourceTreatmentBuffer() const;
+
+    double getAveragePipeCapacity() const;
+
+    const vector<double> &getBuyersTransferTriggers() const;
+
+    const Matrix<double> &getAeq() const;
+
+    const Vector<double> &getUb() const;
 };
 
 

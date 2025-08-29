@@ -31,12 +31,13 @@ protected:
     vector<double> water_sources_capacities;
     vector<double> utilities_capacities;
     vector<vector<double>> demands;
-    vector<double> utilities_rdm;
-    vector<double> water_sources_rdm;
-    vector<double> actions_rdm; // ADDED ON 2025-04-28 by Lillian Lau.
+    const vector<double> utilities_rdm;
+    const vector<double> water_sources_rdm;
+    const vector<double> actions_rdm; // ADDED ON 2025-04-28 by Lillian Lau.
     const int n_utilities;
     const int n_sources;
     int delta_realization_weeks[NUMBER_REALIZATIONS_ROF + 1];
+//    int delta_realization_weeks[NUMBER_REALIZATIONS_ROF];
 
 public:
     const unsigned long realization_id;
@@ -45,23 +46,21 @@ public:
                     vector<MinEnvFlowControl *> &min_env_flow_controls,
                     const Graph &water_sources_graph,
                     const vector<vector<int>> &water_sources_to_utilities,
-                    vector<double> &utilities_rdm,
-                    vector<double> &water_sources_rdm,
-                    vector<double> &actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
+                    const vector<double> &utilities_rdm,
+                    const vector<double> &water_sources_rdm,
+                    const vector<double> &actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
                     unsigned long realization_id);
 
     ContinuityModel(ContinuityModel &continuity_model);
 
-    void continuityStep(
-            int week, int rof_realization = -1, bool
-    apply_demand_buffer = false);
+    void continuityStep(int week, int rof_realization = -1, bool apply_demand_buffer = false);
 
     virtual ~ContinuityModel();
 
     void setRealization(unsigned long realization_id, 
-                        vector<double> &utilities_rdm,
-                        vector<double> &water_sources_rdm,
-                        vector<double> &actions_rdm); // ADDED ON 2025-04-28 by Lillian Lau.
+        const vector<double> &utilities_rdm,
+        const vector<double> &water_sources_rdm, 
+        const vector<double> &actions_rdm); // ADDED ON 2025-04-28 by Lillian Lau.
 
     vector<int> getOnlineDownstreamSources();
 

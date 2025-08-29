@@ -10,8 +10,10 @@
 
 class EvaporationSeries : public Catchment {
 public:
+    EvaporationSeries();
+
     EvaporationSeries(
-            vector<vector<double>> *evaporation_series, int series_length);
+            vector<vector<double>> &evaporation_series, int series_length);
 
     EvaporationSeries(const EvaporationSeries &evaporation_series);
 
@@ -21,7 +23,7 @@ public:
 
     double getEvaporation(int week);
 
-    void setRealization(unsigned long r, vector<double> &rdm_factors) override;
+    void setRealization(unsigned long r, const vector<double> &rdm_factors) override;
 };
 
 

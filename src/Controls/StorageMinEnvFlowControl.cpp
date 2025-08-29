@@ -3,7 +3,6 @@
 //
 
 #include "StorageMinEnvFlowControl.h"
-#include <stdexcept>
 
 StorageMinEnvFlowControl::StorageMinEnvFlowControl(
         int water_source_id, const vector<int> &aux_water_sources_ids,
@@ -17,6 +16,14 @@ StorageMinEnvFlowControl::StorageMinEnvFlowControl(
         throw invalid_argument("Storage based control rules needs exactly one"
                                          " reservoir/quarry");
 }
+
+StorageMinEnvFlowControl::StorageMinEnvFlowControl(
+        int water_source_id, vector<double>& storages, vector<double>& releases)
+        : MinEnvFlowControl(water_source_id, vector<int>(water_source_id),
+                            vector<int>(),
+                            STORAGE_CONTROLS),
+          storages(storages),
+          releases(releases) {}
 
 StorageMinEnvFlowControl::StorageMinEnvFlowControl(
         const StorageMinEnvFlowControl &min_env_control) :

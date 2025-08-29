@@ -44,7 +44,7 @@ public:
 
     bool empty();
 
-    void setPartialData(int i, T *data, int length);
+    void setPartialData(unsigned long i, T *data, unsigned long length);
 
     void setData(T *data, int length);
 
@@ -150,9 +150,10 @@ void Matrix2D<T>::setData(T *data, int length) {
 }
 
 template<typename T>
-void Matrix2D<T>::setPartialData(int i, T *data, int length) {
-    if (i >= di_ + length)
-        throw length_error("Matrix3D subscript out of bounds or negative");
+void Matrix2D<T>::setPartialData(unsigned long i, T *data, unsigned long length) {
+    if (i * dj_ + length > di_ * dj_) {
+        throw length_error("Matrix2D subscript out of bounds");
+    }
     memcpy(data_.get() + i * dj_, data, length * sizeof(T));
 }
 

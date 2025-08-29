@@ -5,11 +5,15 @@
 #include "Relocation.h"
 #include <stdexcept>
 
-Relocation::Relocation(const char *name, const int id, unsigned long parent_reservoir_ID,
-                       vector<double> *allocated_fractions, vector<int> *utilities_with_allocations,
+Relocation::Relocation(string name, const int id,
+                       unsigned long parent_reservoir_ID,
+                       vector<double> *allocated_fractions,
+                       vector<int> *utilities_with_allocations,
+                       vector<int> construction_prerequisites,
                        const vector<double> &construction_time_range, double permitting_period,
                        Bond &bond)
-        : WaterSource(name, id, vector<Catchment *>(), NONE, NONE, vector<int>(), SOURCE_RELOCATION,
+        : WaterSource(name, id, vector<Catchment *>(), NONE, NONE,
+                      construction_prerequisites, SOURCE_RELOCATION,
                       construction_time_range, permitting_period, bond),
           parent_reservoir_ID(parent_reservoir_ID), new_allocated_fractions
                   (allocated_fractions),

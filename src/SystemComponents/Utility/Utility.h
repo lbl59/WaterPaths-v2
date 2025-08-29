@@ -12,6 +12,7 @@
 #include "../../Utils/Constants.h"
 #include "../../Controls/WwtpDischargeRule.h"
 #include "InfrastructureManager.h"
+//#include "../Utils/Matrix3D.h"
 
 class Utility {
 private:
@@ -25,19 +26,27 @@ private:
     double total_available_volume = 0;
     double total_stored_volume = 0;
     double total_treatment_capacity = 0;
+    double total_storage_treatment_capacity = 0;
     double waste_water_discharge = 0;
     double gross_revenue = 0;
     double unfulfilled_demand = 0;
     double net_stream_inflow = 0;
+    double price_rdm_multiplier = 1.;
+    double *available_treated_flow_rate = nullptr;
+    double *utility_owned_wtp_capacities_tmp = nullptr;
+    bool *has_treatment_capacity = nullptr;
+    unsigned long n_wtp = NONE;
     bool used_for_realization = true;
+    unsigned short n_storage_sources = 0;
     vector<WaterSource *> water_sources;
     WwtpDischargeRule wwtp_discharge_rule;
-    vector<vector<double>>& demands_all_realizations;
+    vector<vector<double>> &demands_all_realizations;
     vector<double> demand_series_realization;
-    double *rdm_factors_realization;
+    vector<double> utility_owned_wtp_capacities; // vector with water treatment capacity shared across one or more sources.
+    vector<int> water_source_to_wtp;
     InfrastructureManager infrastructure_construction_manager;
 
-    // Drought mitigation
+    /// Drought mitigation
     double fund_contribution = 0;
     double demand_multiplier = 1;
     double demand_offset = 0;
@@ -46,7 +55,7 @@ private:
     double contingency_fund = 0;
     double drought_mitigation_cost = 0;
     double insurance_payout = 0;
-    double insurance_purchase = 0;
+    double insurance_purchased = 0;
     double restricted_demand = 0;
     double unrestricted_demand = 0;
     int n_sources = 0;
@@ -55,8 +64,9 @@ private:
     double bond_interest_rate_multiplier;
     double max_capacity = 0;
 
-    // Infrastructure cost
+    /// Infrastructure cost
     double current_debt_payment = 0;
+    double current_present_valued_debt_payment = 0;
     vector<vector<double>> debt_payment_streams;
     double infra_net_present_cost = 0;
     vector<Bond *> issued_bonds;
@@ -67,40 +77,37 @@ private:
 public:
     const int id;
     const int number_of_week_demands;
-    const char *name;
+    string name;
     const double percent_contingency_fund_contribution;
     const double demand_buffer;
 
     Utility(
-            const char *name, int id, int action_rdm_id, // ADDED BY LILLIAN LAU ON 2025-05-01
-            vector<vector<double>>& demands_all_realizations,
+            string name, int id, int action_rdm_id, // ADDED BY LILLIAN LAU ON 2025-05-01
+            vector<vector<double>> &demands_all_realizations,
             int number_of_week_demands,
             const double percent_contingency_fund_contribution,
             const vector<vector<double>> &typesMonthlyDemandFraction,
             const vector<vector<double>> &typesMonthlyWaterPrice,
             WwtpDischargeRule wwtp_discharge_rule,
-            double demand_buffer);
+            double demand_buffer,
+            vector<vector<int>> water_source_to_wtp,
+            vector<double> utility_owned_wtp_capacities);
 
-    Utility(const char *name, int id, int action_rdm_id, // ADDED BY LILLIAN LAU ON 2025-05-01
-                vector<vector<double>>& demands_all_realizations,
-                int number_of_week_demands, const double percent_contingency_fund_contribution,
-                const vector<vector<double>> &typesMonthlyDemandFraction,
-                const vector<vector<double>> &typesMonthlyWaterPrice, WwtpDischargeRule wwtp_discharge_rule,
-                double demand_buffer, const vector<int> &rof_infra_construction_order,
-                const vector<int> &demand_infra_construction_order,
-                const vector<double> &infra_construction_triggers, double infra_discount_rate,
-                const vector<vector<int>>& infra_if_built_remove, double
-            bond_term, double bond_interest_rate);
-
-    Utility(const char *name, int id, int action_rdm_id, // ADDED BY LILLIAN LAU ON 2025-05-01
-                vector<vector<double>>& demands_all_realizations,
-                int number_of_week_demands, const double percent_contingency_fund_contribution,
-                const vector<vector<double>> &typesMonthlyDemandFraction,
-                const vector<vector<double>> &typesMonthlyWaterPrice, WwtpDischargeRule wwtp_discharge_rule,
-                double demand_buffer, const vector<int> &rof_infra_construction_order,
-                const vector<int> &demand_infra_construction_order,
-                const vector<double> &infra_construction_triggers, double infra_discount_rate, double bond_term,
-                double bond_interest_rate);
+    Utility(string name, int id, int action_rdm_id, // ADDED BY LILLIAN LAU ON 2025-05-01
+            vector<vector<double>> &demands_all_realizations,
+            int number_of_week_demands,
+            const double percent_contingency_fund_contribution,
+            const vector<vector<double>> &typesMonthlyDemandFraction,
+            const vector<vector<double>> &typesMonthlyWaterPrice,
+            WwtpDischargeRule wwtp_discharge_rule,
+            double demand_buffer,
+            vector<vector<int>> water_source_to_wtp,
+            vector<double> utility_owned_wtp_capacities,
+            const vector<int> &rof_infra_construction_order,
+            const vector<int> &demand_infra_construction_order,
+            const vector<double> &infra_construction_triggers,
+            double infra_discount_rate,
+            const vector<vector<int>> &infra_if_built_remove);
 
     Utility(Utility &utility);
 
@@ -108,9 +115,9 @@ public:
 
     Utility &operator=(const Utility &utility);
 
-    bool operator<(const Utility* other);
+    bool operator<(const Utility *other);
 
-    bool operator>(const Utility* other);
+    bool operator>(const Utility *other);
 
     static bool compById(Utility *a, Utility *b);
 
@@ -138,7 +145,8 @@ public:
 
     double waterPrice(int week);
 
-    void forceInfrastructureConstruction(int week, vector<int> new_infra_triggered);
+    void
+    forceInfrastructureConstruction(int week, vector<int> new_infra_triggered);
 
     int infrastructureConstructionHandler(double long_term_rof, int week);
 
@@ -168,6 +176,9 @@ public:
 
     double updateCurrent_debt_payment(int week);
 
+    // ADDED ON 2025-05-01 BY LILLIAN LAU 
+    double updateCurrent_present_value_debt_payment(int week);
+
     double getContingency_fund() const;
 
     double getUnrestrictedDemand() const;
@@ -184,6 +195,8 @@ public:
 
     double getCurrent_debt_payment() const;
 
+    double getCurrent_debt_payment_present_valued() const;
+
     double getCurrent_contingency_fund_contribution() const;
 
     double getDrought_mitigation_cost() const;
@@ -196,13 +209,13 @@ public:
 
     double getInsurance_payout() const;
 
-    double getInsurance_purchase() const;
+    double getInsurance_purchased() const;
 
     const vector<int> &getRof_infrastructure_construction_order() const;
 
-    void setRealization(unsigned long r, vector<double>& rdm_factors,
-                        vector<double> &actions_rdm);  // ADDED BY LILLIAN LAU ON 05-01-2025);
-
+    void setRealization(unsigned long r, const vector<double> &utilities_rdm, 
+                        const vector<double> &actions_rdm);  // ADDED BY LILLIAN LAU ON 05-01-2025
+ 
     const vector<int> getInfrastructure_built() const;
 
     void setNoFinaicalCalculations();
@@ -230,6 +243,33 @@ public:
     const InfrastructureManager &getInfrastructure_construction_manager() const;
 
     double getDemand_offset() const;
+
+    double getInfraDiscountRate() const;
+
+    void updateTreatmentAndNumberOfStorageSources();
+
+    static bool
+    idealDemandSplitUnconstrained(double *split_demands,
+                                  const double *available_treated_flow_rate,
+                                  double total_demand, const double *storage,
+                                  double total_storage, int n_storage_sources);
+
+    static bool
+    idealDemandSplitConstrained(double *split_demands, bool *over_allocated,
+                                bool *has_spare_capacity,
+                                const double *available_treated_flow_rate,
+                                double total_demand, const double *storage,
+                                double total_storage, int n_storage_sources);
+
+    void splitDemandsQP(int week, vector<vector<double>> &demands,
+                        bool apply_demand_buffer);
+
+    bool hasTreatmentConnected(int ws);
+
+    void
+    unrollWaterSourceToWtpVector(
+            const vector<vector<int>> &water_source_to_wtp,
+            const vector<double>& utility_owned_wtp_capacities);
 };
 
 

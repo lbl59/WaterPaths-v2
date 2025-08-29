@@ -18,14 +18,16 @@ private:
 
 public:
     BalloonPaymentBond(const int id, const double cost_of_capital, const int n_payments,
-                         const double coupon_rate, vector<int> pay_on_weeks);
+                         const double interest_rate, vector<int> pay_on_weeks);
 
-    BalloonPaymentBond(const int id, const double cost_of_capital, const int n_payments, const double coupon_rate,
+    BalloonPaymentBond(const int id, const double cost_of_capital, const int n_payments, const double interest_rate,
                        vector<int> pay_on_weeks, const int begin_repayment_after_n_years);
 
     double getDebtService(int week) override;
 
     double getNetPresentValueAtIssuance(double discount_rate, int week) const override;
+
+    double getPresentValueDebtService(int week, double discount_rate) override;
 
     void issueBond(int week, int construction_time, double bond_term_multiplier, double bond_interest_rate_multiplier) override;
 };

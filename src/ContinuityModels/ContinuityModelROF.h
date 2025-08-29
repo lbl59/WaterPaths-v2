@@ -12,6 +12,8 @@
 
 class ContinuityModelROF : public ContinuityModel {
 private:
+//    Matrix3D<double> storage_to_rof_table;
+//    Matrix3D<double> storage_to_rof_rof_realization;
     vector<Matrix2D<double>> ut_storage_to_rof_rof_realization;
     vector<int> online_downstream_sources;
     bool *storage_wout_downstream;
@@ -33,10 +35,12 @@ protected:
 public:
     ContinuityModelROF(vector<WaterSource *> water_sources, const Graph &water_sources_graph,
                        const vector<vector<int>> &water_sources_to_utilities, vector<Utility *> utilities,
-                       vector<MinEnvFlowControl *> min_env_flow_controls, vector<double>& utilities_rdm,
-                       vector<double>& water_sources_rdm, vector<double>& actions_rdm,
+                       vector<MinEnvFlowControl *> min_env_flow_controls, const vector<double> &utilities_rdm,
+                       const vector<double> &water_sources_rdm, const vector<double> &actions_rdm, 
                        unsigned long total_weeks_simulation,
                        const int use_precomputed_rof_tables, const unsigned long realization_id);
+
+//    ContinuityModelROF(ContinuityModelROF &continuity_model_rof);
 
     vector<double> calculateShortTermROF(int week, int import_export_rof_tables);
 
@@ -57,7 +61,7 @@ public:
 
     virtual void updateOnlineInfrastructure(int week);
 
-    virtual ~ContinuityModelROF();
+    ~ContinuityModelROF() override;
 
     void updateStorageToROFTable(double storage_percent_decrement,
                                  int week_of_the_year,

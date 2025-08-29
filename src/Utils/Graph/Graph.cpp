@@ -6,8 +6,11 @@
 // A C++ program to print topological sorting of a graph
 // using indegrees.
 
+#include <algorithm>
 #include "Graph.h"
+#include <queue>
 #include<bits/stdc++.h>
+
 
 using namespace std;
 
@@ -118,14 +121,9 @@ vector<int> Graph::topologicalSort() {
 
     // Check if there was a cycle
     if (cnt != V) {
-        cout << "There exists a cycle in the graph, and topological sort cannot handle that.\n";
+        printf("There exists a cycle in the graph, and topological sort cannot handle that.\n");
         return top_order;
     }
-
-    // Print topological order
-//    for (int i = 0; i < top_order.size(); i++)
-//        cout << top_order[i] << " ";
-//    cout << endl;
 
     return top_order;
 }

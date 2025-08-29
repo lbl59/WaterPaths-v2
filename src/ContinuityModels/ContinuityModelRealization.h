@@ -5,7 +5,6 @@
 #ifndef TRIANGLEMODEL_CONTINUITYMODELREALIZATION_H
 #define TRIANGLEMODEL_CONTINUITYMODELREALIZATION_H
 
-
 #include "Base/ContinuityModel.h"
 #include "../DroughtMitigationInstruments/Base/DroughtMitigationPolicy.h"
 
@@ -21,10 +20,10 @@ public:
             vector<Utility *> &utilities,
             const vector<DroughtMitigationPolicy *> &drought_mitigation_policies,
             vector<MinEnvFlowControl *> &min_env_flow_control,
-            vector<double>& utilities_rdm,
-            vector<double>& water_sources_rdm,
-            vector<double>& policy_rdm,
-            vector<double>& actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
+            const vector<double>& utilities_rdm,
+            const vector<double>& water_sources_rdm,
+            const vector<double>& policy_rdm,
+            const vector<double>& actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau.
             const unsigned int realization_index);
 
     ~ContinuityModelRealization() override;

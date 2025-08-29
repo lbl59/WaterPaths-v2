@@ -8,12 +8,15 @@
 #ifdef  PARALLEL
 #include "../../Borg/borgms.h"
 #endif
+
 #include "Base/Problem.h"
 #include "../Simulation/Simulation.h"
+//#include "Base/HardCodedProblem.h"
 
 using namespace std;
 
 
+//class PaperTestProblem : public HardCodedProblem {
 class PaperTestProblem : public Problem {
 private:
     const int n_utilities = 3;
@@ -47,18 +50,35 @@ private:
     vector<vector<double>> dryvilleUserClassesWaterPrices;
     vector<vector<double>> fallslandUserClassesWaterPrices;
 
+    void readInputData() override;
+
 public:
-    PaperTestProblem(unsigned long n_weeks, int import_export_rof_table);
+    PaperTestProblem(unsigned long n_weeks, int n_realizations,
+                     int import_export_rof_table,
+                     string system_io, string &rof_tables_directory, int seed,
+                     unsigned long n_threads,
+                     int rdm_no, string rdm_directory,  // ADDED ON 2025-05-27 by Lillian Lau.
+                     string output_directory, // ADDED ON 2025-07-16 by Lillian Lau.
+                     string bootstrap_file,
+                     string &utilities_rdm_file,
+                     string &policies_rdm_file,
+                     string &water_sources_rdm_file,
+                     string &actions_rdm_file,  // ADDED ON 2025-04-28 by Lillian Lau.
+                     int n_sets, int n_bs_samples,
+                     string &solutions_file,
+                     vector<int> &solutions_to_run_range, bool plotting,
+                     bool print_obj_row, 
+                     string &inflows_demand_evap_directory_suffix);
 
     ~PaperTestProblem() override;
 
 #ifdef PARALLEL
-    void setProblemDefinition(BORG_Problem &problem);
+    void setProblemDefinition(BORG_Problem &problem) override;
 #endif
 
     int functionEvaluation(double *vars, double *objs, double *consts) override;
+    void runSimulation() override;
 
-    void readInputData(int mode);
 };
 
 
