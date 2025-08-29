@@ -952,7 +952,7 @@ Utility::setRealization(unsigned long r, const vector<double> &utilities_rdm,
 
     // Apply demand multiplier and copy demands pertaining to current realization.
     double delta_demand =
-            demands_all_realizations.at(r)[0] * (1. - utilities_rdm.at(0)); // Change MGD to total MG per week
+            demands_all_realizations.at(r)[0] * (1. - utilities_rdm.at(0))
     for (unsigned long w = 0; w < n_weeks; ++w) {
         demand_series_realization[w] = (demands_all_realizations.at(r)[w] *
                                        utilities_rdm.at(0)
@@ -961,7 +961,10 @@ Utility::setRealization(unsigned long r, const vector<double> &utilities_rdm,
 
     // ADDED BY LILLIAN LAU ON 2025-05-01
     // This section adds the perturbation to the infrastructure trigger
-    infrastructure_construction_manager.setShift(actions_rdm.at(action_rdm_id));
+    double actions_shift = actions_rdm.at(action_rdm_id);
+    if (actions_shift != 0) {
+        infrastructure_construction_manager.setShift(actions_shift);
+    }
 
     try {
         bond_term_multiplier = utilities_rdm.at(1);
@@ -973,6 +976,7 @@ Utility::setRealization(unsigned long r, const vector<double> &utilities_rdm,
                 (&demands_all_realizations.at(r));
 
         price_rdm_multiplier = utilities_rdm.at(4);
+        /**
         for (double &awp : weekly_average_volumetric_price) {
             awp *= price_rdm_multiplier;
         }
@@ -984,6 +988,7 @@ Utility::setRealization(unsigned long r, const vector<double> &utilities_rdm,
                        "rate multiplier, and water tariff (price) multiplier.",
                        utilities_rdm.size());
         throw invalid_argument(error);
+         */
     }
 }
 

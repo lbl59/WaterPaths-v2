@@ -184,7 +184,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs, double *con
      * to match descriptions in paper
      */
     double added_storage_college_rock_expansion_low = 
-        100 * calibrate_volume_multiplier;
+        1000 * calibrate_volume_multiplier;
     double added_storage_college_rock_expansion_high = 
         2500 * calibrate_volume_multiplier;
 

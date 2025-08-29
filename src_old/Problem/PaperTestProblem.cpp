@@ -328,17 +328,17 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
      * to match descriptions in paper
      */
     double added_storage_college_rock_expansion_low =
-            500 * calibrate_volume_multiplier;
-    double added_storage_college_rock_expansion_high =
             1000 * calibrate_volume_multiplier;
-
+    double added_storage_college_rock_expansion_high =
+            2500 * calibrate_volume_multiplier;
+    /**
     checkAndFixInfraExpansionHighLowOrder(
             rof_triggered_infra_order_watertown, rofs_infra_watertown,
             7,
             8,
             added_storage_college_rock_expansion_low,
             added_storage_college_rock_expansion_high);
-
+    */
     double watertown_demand_buffer = 1.0;
     double dryville_demand_buffer = 1.0;
     double fallsland_demand_buffer = 1.0;
@@ -379,7 +379,7 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs,
     EvaporationSeries evaporation_durham(evap_durham, streamflow_n_weeks); //Evaporation
     EvaporationSeries evaporation_falls_lake(evap_falls_lake, streamflow_n_weeks); //Evaporation
     EvaporationSeries evaporation_jordan_lake(evap_jordan_lake, streamflow_n_weeks); // Lake Michael
-    EvaporationSeries evaporation_owasa(evap_owasa, streamflow_n_weeks); // OWASA
+    //EvaporationSeries evaporation_owasa(evap_owasa, streamflow_n_weeks); // OWASA
     
     // Create catchments and corresponding vectors
     
