@@ -10,14 +10,14 @@ dv_names = ['RT_W', 'RT_D', 'RT_F', 'TT_D', 'TT_F', 'LMA_W', 'LMA_D', 'LMA_F', \
     'NRR_F', 'WR2_W', 'WR2_D', 'WR2_F']
 
 objs_dvs_folder = 'objectives_dvs/'
-mode = 'IU'
-num_sols = 550
+mode = 'base'
+num_sols = 77
 dv_file = f'{objs_dvs_folder}dvs_{mode}_truncated.csv'
 dv_file_data = np.loadtxt(dv_file, delimiter=',', dtype=float)
 dv_file_df = pd.DataFrame(dv_file_data, columns=dv_names)
 
 print('Uploading DV perturbations...')
-dv_perturbations = pd.read_csv('rdm_actions_test_problem_reeval_500_with_header.csv',
+dv_perturbations = pd.read_csv('rdm_ranges_actions_500conf.csv',
                                index_col=None, header=0)
 output_folder = f'{objs_dvs_folder}/dvs_{mode}_perturbed/'
 # turn all header names into upper case 
