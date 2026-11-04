@@ -51,10 +51,13 @@ void Problem::printTimeSeriesAndPathways(bool print_timeseries, bool parquet_for
         if (print_timeseries) {
             cout << "Printing time series" << endl;
             // ADDED ON 2025-06-19 by Lillian Lau.
+            // MODIFIED ON 2025-11-20 by Lillian Lau.
             if (parquet_format) {
-                this->master_data_collector->printSubsetOutputParquet(
+                // check if fname_sufix contains "_RDM"
+                this->master_data_collector->printSubsetOutputHDF5(
                         0, (int) n_weeks, "subset_s" + std::to_string(solution_no) +
                                             fname_sufix);
+                
             } else {
                 /**
                 this->master_data_collector->printSubsetOutputCSV(

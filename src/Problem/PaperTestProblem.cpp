@@ -179,12 +179,11 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs, double *con
     // encompass the smal expansions.
     /**
      * UPDATE ON 2025-08-24 BY Lillian Lau.
-     * Updating added_storage_college_rock_expansion_low from 100 to 500 
-     * and added_storage_college_rock_expansion_high 2500 to 1000
-     * to match descriptions in paper
+     * College Rock Expansion (low) in paper is 500 
+     * College Rock Expansion (high) in paper is 1000
      */
     double added_storage_college_rock_expansion_low = 
-        1000 * calibrate_volume_multiplier;
+        100 * calibrate_volume_multiplier;
     double added_storage_college_rock_expansion_high = 
         2500 * calibrate_volume_multiplier;
 
@@ -325,9 +324,9 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs, double *con
 
     /**
      * UPDATE ON 2025-08-24 BY Lillian Lau.
-     * Reduced Sugar Creek storage from 4500 to 2909 to match paper
+     * Sugar Creek storage in paper is 2909
      */
-    vector<double> sugar_creek_res_storage = {0, 4500};//2909};
+    vector<double> sugar_creek_res_storage = {0, 4500};//2909};  
     vector<double> sugar_creek_res_area = {0, 0.3675 * sugar_creek_res_storage[1]};
     DataSeries sugar_creek_storage_area(&sugar_creek_res_storage,
                                         &sugar_creek_res_area);
@@ -698,8 +697,8 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs, double *con
                 vector<int>());
     drought_mitigation_policies.push_back(&t);
 
-    /**
     // Set up insurance
+    /**
     vector<double> insurance_triggers = {watertown_insurance_use,
                                          dryville_insurance_use,
                                          fallsland_insurance_use};
@@ -709,13 +708,13 @@ int PaperTestProblem::functionEvaluation(double *vars, double *objs, double *con
 
     vector<int> insured_utilities = {0, 1, 2};
 
-    InsuranceStorageToROF in(4, water_sources, g, reservoir_utility_connectivity_matrix, utilities,
-            drought_mitigation_policies, min_env_flow_controls, utilities_rdm, water_sources_rdm, policies_rdm,
+    InsuranceStorageToROF in(4, water_sources, {5, 6, 7}, g, reservoir_utility_connectivity_matrix, utilities,
+            drought_mitigation_policies, min_env_flow_controls, 
+            utilities_rdm, water_sources_rdm, policies_rdm, actions_rdm, // ADDED ON 2025-04-28 by Lillian Lau
             insurance_triggers, 1.2, fixed_payouts, n_weeks);
 
     drought_mitigation_policies.push_back(&in);
-     */
-
+    */
     // Creates simulation object depending on use (or lack thereof) ROF tables
     double start_time = omp_get_wtime();
     if (import_export_rof_tables == EXPORT_ROF_TABLES) {
@@ -907,24 +906,24 @@ void PaperTestProblem::readInputData(int mode) {
             evap_wheeler_benson = Utils::parse2DCsvFile(
                     io_directory + data_dir + 
                     "evaporation" + inflow_demand_evap_suffix +
-                    BAR + "wb_evap.csv", n_realizations);
+                    BAR + "lake_wb_evap.csv", n_realizations);
         // READING DEMAND DATA
 #pragma omp single
         // Watertown is Cary
         demand_watertown = Utils::parse2DCsvFile(
                  io_directory + data_dir + 
                  "demands" + inflow_demand_evap_suffix +
-                BAR + "cary_demand.csv", n_realizations);
+                BAR + "cary_demands.csv", n_realizations);
 #pragma omp single
         // Dryville is Durham
         demand_dryville = Utils::parse2DCsvFile(
                 io_directory + data_dir + "demands" + inflow_demand_evap_suffix +
-                BAR + "durham_demand.csv", n_realizations);
+                BAR + "durham_demands.csv", n_realizations);
 #pragma omp single
         // Fallsland is Raleigh
         demand_fallsland = Utils::parse2DCsvFile(
                 io_directory + data_dir + "demands" + inflow_demand_evap_suffix +
-                BAR + "raleigh_demand.csv", n_realizations);
+                BAR + "raleigh_demands.csv", n_realizations);
 
     } else if (mode == 1) { // if reading in Parquet files
 #pragma omp single

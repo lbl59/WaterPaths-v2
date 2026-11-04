@@ -15,6 +15,9 @@
 #include <parquet/arrow/writer.h>
 #include <parquet/file_writer.h>
 
+// Load HDF headers 
+#include <H5Cpp.h>
+
 #include "MasterDataCollector.h"
 #include "../Utils/ObjectivesCalculator.h"
 #include "../Utils/Utils.h"
@@ -336,8 +339,207 @@ void MasterDataCollector::printSubsetOutputParquet(
     if (failure_flag) {
         throw std::runtime_error("Arrow Append failed: " + failure_msg);
     }
-    
 }
+
+// ADDED ON 11-20-2025 by Lillian Lau.
+void MasterDataCollector::printSubsetOutputHDF5(
+    int week_i, int week_f, string file_name) {
+
+    // ADDED ON 07-16-2025 by Lillian Lau
+    string timeseries_directory = output_directory + "timeseries/";
+    Utils::createDir(timeseries_directory);
+
+    vector<string> column_names = getSubsetColumnNames();
+
+    vector<vector<DataCollector *>> p_matrix;
+    vector<vector<UtilitiesDataCollector *>> u_matrix;
+
+    // assign u_matrix to utility_collectors if it is not empty
+    if (!utility_collectors.empty()) {
+        u_matrix = utility_collectors;
+    }
+
+    // assign p_matrix to drought_mitigation_policy_collectors if it is not empty
+    if (!drought_mitigation_policy_collectors.empty()) {
+        p_matrix = drought_mitigation_policy_collectors;
+    }
+
+    const int num_columns      = static_cast<int>(column_names.size());
+    const int num_rows         = week_f - week_i;
+    const int num_realizations = static_cast<int>(realizations_ran.size());
+
+    if (num_realizations == 0 || num_rows <= 0 || num_columns == 0) {
+        throw std::runtime_error(
+            "printSubsetOutputParquet: invalid dimensions "
+            "(num_realizations == 0 or num_rows <= 0 or num_columns == 0).");
+    }
+
+    // Single HDF5 file for all realizations
+    // Example: timeseries/<file_name>.h5
+    string outfile_name = timeseries_directory + file_name + ".h5";
+
+    try {
+        // ---- Create HDF5 file and main 3D dataset ----
+        H5::H5File h5file(outfile_name, H5F_ACC_TRUNC);
+
+        // Main dataset dims: [realization, row, column]
+        hsize_t dims[3] = {
+            static_cast<hsize_t>(num_realizations),
+            static_cast<hsize_t>(num_rows),
+            static_cast<hsize_t>(num_columns)
+        };
+        H5::DataSpace filespace(3, dims);
+
+        // Dataset creation property list: chunking + gzip level 4
+        H5::DSetCreatPropList plist;
+        // Simple chunking: one realization per chunk, up to 1024 rows at a time
+        hsize_t chunk_dims[3] = {
+            1,
+            std::min<hsize_t>(dims[1], 1024),
+            dims[2]
+        };
+        plist.setChunk(3, chunk_dims);
+        plist.setDeflate(4);  // gzip compression level 4
+
+        H5::DataSet dset = h5file.createDataSet(
+            "data", H5::PredType::NATIVE_DOUBLE, filespace, plist);
+
+        // Memory dataspace for one [num_rows x num_columns] block
+        hsize_t mdims[2] = {
+            static_cast<hsize_t>(num_rows),
+            static_cast<hsize_t>(num_columns)
+        };
+        H5::DataSpace memspace(2, mdims);
+
+        // ---- Column names dataset (1D variable-length strings) ----
+        {
+            hsize_t cdims[1] = { static_cast<hsize_t>(num_columns) };
+            H5::DataSpace cdspace(1, cdims);
+            H5::StrType str_type(H5::PredType::C_S1, H5T_VARIABLE);
+
+            H5::DataSet col_dset = h5file.createDataSet(
+                "column_names", str_type, cdspace);
+
+            std::vector<const char *> cstrs;
+            cstrs.reserve(column_names.size());
+            for (const auto &s : column_names) {
+                cstrs.push_back(s.c_str());
+            }
+            col_dset.write(cstrs.data(), str_type);
+        }
+
+        // ---- Realization IDs dataset (1D) ----
+        {
+            hsize_t rdims[1] = { static_cast<hsize_t>(num_realizations) };
+            H5::DataSpace rdspace(1, rdims);
+
+            H5::DataSet r_dset = h5file.createDataSet(
+                "realization_ids", H5::PredType::NATIVE_INT, rdspace);
+
+            std::vector<long unsigned int> r_ids = realizations_ran;
+            r_dset.write(r_ids.data(), H5::PredType::NATIVE_INT);
+        }
+
+        for (int rr = 0; rr < num_realizations; ++rr) {
+            int r = realizations_ran[rr];
+
+            // 2D data buffer for this realization: row-major [row * num_columns + col]
+            std::vector<double> data;
+            data.assign(static_cast<size_t>(num_rows) * num_columns,
+                        std::numeric_limits<double>::quiet_NaN());
+
+            // Build the matrix for this realization
+            for (int w = week_i; w < week_f; ++w) {
+                std::vector<double> row_data;
+                row_data.reserve(num_columns);
+
+                if (!p_matrix.empty() && !u_matrix.empty()) {
+                    // Utilities collectors
+                    for (const std::vector<UtilitiesDataCollector *> &u_vec : u_matrix) {
+                        UtilitiesDataCollector *dc = u_vec[r];
+                        string data_w = dc->printSubsetCompactString(w);
+
+                        std::stringstream ss(data_w);
+                        string token;
+
+                        while (std::getline(ss, token, ',')) {
+                            double d = 0.0;
+                            try {
+                                d = std::stod(token);
+                            } catch (const std::exception &) {
+                                d = std::numeric_limits<double>::quiet_NaN();
+                            }
+                            row_data.push_back(d);
+                        }
+                    }
+
+                    // Policy collectors: only last three tokens per collector
+                    // Only collect every fourth p_vec to match the three transfer-related columns
+                    int p_vec_index = 0;
+                    for (const std::vector<DataCollector *> &p_vec : p_matrix) {
+                        if (((p_vec_index-3) % 4 == 0) && (p_vec_index >= 3)) {
+                            DataCollector *dc = p_vec[r];
+                            // the first three tokens are not needed
+                            string data_w = dc->printCompactString(w);
+
+                            std::stringstream ss(data_w);
+                            string token;
+                            while (std::getline(ss, token, ',')) {
+                                double d = 0.0;
+                                try {
+                                    d = std::stod(token);
+                                } catch (const std::exception &) {
+                                    d = std::numeric_limits<double>::quiet_NaN();
+                                }
+                                //cout << "Token: " << token << ", Value: " << d << endl; // Debugging line
+                                row_data.push_back(d);
+                            }
+                        }
+                        p_vec_index++;
+                    }
+                }
+
+                if (static_cast<int>(row_data.size()) != num_columns) {
+                    throw std::runtime_error(
+                        "Row " + std::to_string(w) +
+                        " produced " + std::to_string(row_data.size()) +
+                        " columns, expected " + std::to_string(num_columns) +
+                        " (realization " + std::to_string(r) + ").");
+                }
+
+                int row_idx = w - week_i;
+                for (int c = 0; c < num_columns; ++c) {
+                    data[static_cast<size_t>(row_idx) * num_columns + c] =
+                        row_data[c];
+                }
+            }
+
+            // ---- Write this realization's block into the 3D dataset ----
+            // Hyperslab: [rr, :, :]
+            hsize_t start[3] = {
+                static_cast<hsize_t>(rr),
+                0,
+                0
+            };
+            hsize_t count[3] = {
+                1,
+                static_cast<hsize_t>(num_rows),
+                static_cast<hsize_t>(num_columns)
+            };
+
+            filespace.selectHyperslab(H5S_SELECT_SET, count, start);
+            dset.write(data.data(), H5::PredType::NATIVE_DOUBLE,
+                       memspace, filespace);
+        }
+
+        h5file.close();
+    } catch (H5::Exception &e) {
+        throw std::runtime_error(
+            "HDF5 write failed in printSubsetOutputParquet: " +
+            std::string(e.getDetailMsg()));
+    }
+}
+
 
 /**
  * @brief Prints the output of the specified data collector type to Parquet files.
@@ -848,6 +1050,7 @@ void MasterDataCollector::printPathways(string file_name) {
     std::ofstream outStream;
     // ADDED ON 07-16-2025 by Lillian Lau
     string pathways_directory = output_directory + "pathways/";
+    Utils::createDir(pathways_directory);
     //outStream.open(output_directory + file_name + ".out");
     // MODIFIED BY LILLIAN LAU ON 07-16-2025
     outStream.open(pathways_directory + file_name + ".out");

@@ -53,25 +53,12 @@ double ObjectivesCalculator::calculateReliabilityObjective(
 
     /// Returns year with most realization failures, divided by the number of realizations (reliability objective).
     if (check_non_zero > 0) {
-        // Take the worst year (highest number of failures) across all years and realizations.
-        vector<double> year_realiabilities_allreals;
-        for (const unsigned long &r : realizations) {
-            year_realiabilities_allreals.push_back(
-                    1. - (double) *max_element(realizations_year_reliabilities[r].begin(),
-                                         realizations_year_reliabilities[r].end()));
-        }
-        // sort to get the 90th percentile.
-        sort(year_realiabilities_allreals.begin(),
-             year_realiabilities_allreals.end());
-        double obj_value = year_realiabilities_allreals.at(
-                (unsigned long) floor(0.90 * n_realizations));
 
-        /**
         double obj_value =
                 1. - (double) *max_element(year_reliabilities.begin(),
                                            year_reliabilities.end()) /
                      n_realizations;
-         */
+        
         if (std::isinf(obj_value)) {
             string error_inf = "Infinite reliability.";
             throw logic_error(error_inf.c_str());
@@ -84,7 +71,8 @@ double ObjectivesCalculator::calculateReliabilityObjective(
 }
 
 double ObjectivesCalculator::calculateRestrictionFrequencyObjective(
-        const vector<RestrictionsDataCollector *>& restriction_data, vector<unsigned long> realizations) {
+        const vector<RestrictionsDataCollector *>& restriction_data, 
+        vector<unsigned long> realizations) {
 
     unsigned long n_realizations = restriction_data.size();
     if (realizations.empty()) {
@@ -93,45 +81,42 @@ double ObjectivesCalculator::calculateRestrictionFrequencyObjective(
     } else {
         n_realizations = realizations.size();
     }
-    vector<double> restriction_freq;
 
-    /// Check if there were restriction policies in place.
+    // Check if there were restriction policies in place.
     if (!restriction_data.empty()) {
         unsigned long n_weeks = restriction_data[realizations[0]]->getRestriction_multipliers().size();
         unsigned long n_years = (unsigned long) round(n_weeks / WEEKS_IN_YEAR);
 
-        double restriction_frequency = 0;
-        
-        vector<double> restriction_freq_per_realization;
+        vector<double> restriction_freq_per_realization;  // ACTIVATE FOR WORST CASE
+
         /// Counts how many years across all realizations had restrictions.
         for (const unsigned long &r : realizations) {
-            vector<double> restriction_freq_y;
-
+            double restriction_frequency = 0;  // ACTIVATE FOR WORST CASE
             for (unsigned long y = 0; y < n_years; ++y) {
-                double restriction_freq_w = 0;
 
-                for (int w = (int) round(y * WEEKS_IN_YEAR);
-                     w < (int) min((int) n_weeks,
-                             (int) round((y + 1) * WEEKS_IN_YEAR)); ++w) {
-                    if (restriction_data[r]->getRestriction_multipliers()[w] !=
-                        1.0) {
-                        //restriction_frequency++;
-                        restriction_freq_w++;
+                for (int w = (int) round(y * WEEKS_IN_YEAR); 
+                    w < (int) min((int) n_weeks, (int) round((y + 1) * WEEKS_IN_YEAR)); ++w) {
+                    
+                    const double EPSILON = 1e-9;
+                    if (abs(restriction_data[r]->getRestriction_multipliers()[w] - 1.0) > EPSILON) {
+                        restriction_frequency++;
                         break;
                     }
-                    restriction_freq_y.push_back(restriction_freq_w);
+                    
                 }
-                sort(restriction_freq_y.begin(), restriction_freq_y.end());
-                restriction_freq_per_realization.push_back(
-                        restriction_freq_y.at((unsigned long) floor(0.90 * n_years)));
             }
+            // sum the total number of years with restrictions in the realization.
+            restriction_freq_per_realization.push_back(restriction_frequency/n_years);  // ACTIVATE FOR WORST CASE
         }
+        
+        // ACTIVATE FOR WORST CASE
         sort(restriction_freq_per_realization.begin(),
              restriction_freq_per_realization.end());
-        double obj_value = restriction_freq_per_realization.at(
-                (unsigned long) floor(0.90 * n_realizations));
-        //double obj_value = restriction_frequency / (n_realizations * n_years);
 
+        // get the 90th percentile restriction frequency across realizations.
+        double obj_value = restriction_freq_per_realization.at(
+                (unsigned long) floor(0.9 * n_realizations));
+        
         if (std::isinf(obj_value)) {
             string error_inf = "Infinite restriction frequency.";
             throw logic_error(error_inf.c_str());
@@ -146,7 +131,7 @@ double ObjectivesCalculator::calculateNetPresentCostInfrastructureObjective(
         const vector<UtilitiesDataCollector *>& utility_data, vector<unsigned long> realizations) {
 
     unsigned long n_realizations = utility_data.size();
-    vector<double> infrastructure_npc_per_realization;
+    vector<double> infrastructure_npc_per_realization; // ACTIVATE FOR WORST CASE
 
     if (realizations.empty()) {
         realizations = vector<unsigned long>(n_realizations);
@@ -154,30 +139,25 @@ double ObjectivesCalculator::calculateNetPresentCostInfrastructureObjective(
     } else {
         n_realizations = realizations.size();
     }
-
-    //double infrastructure_npc = 0;
+    
     for (const unsigned long &r : realizations) {
 	    auto realization = utility_data[r];
+        
+        // ACTIVATE FOR WORST CASE
         infrastructure_npc_per_realization.push_back(accumulate(
                 realization->getNet_present_infrastructure_cost().begin(),
                 realization->getNet_present_infrastructure_cost().end(),
                 0.));
-        /**
-        infrastructure_npc += accumulate(
-                realization->getNet_present_infrastructure_cost().begin(),
-                realization->getNet_present_infrastructure_cost().end(),
-                0.);
-        */
     }
+    
     // sort infrastructure npcs to get the top 10 percentile.
+    // ACTIVATE FOR WORST CASE
     sort(infrastructure_npc_per_realization.begin(),
          infrastructure_npc_per_realization.end());
     double infrastructure_npc = infrastructure_npc_per_realization.at(
-            (unsigned long) floor(0.90 * n_realizations));
-    // return average infrastructure npcs across realizations.
-    //return infrastructure_npc / n_realizations;
+            (unsigned long) floor(0.9 * n_realizations));
     return infrastructure_npc;
-}
+}  
 
 double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
         const vector<UtilitiesDataCollector *>& utility_data, vector<unsigned long> realizations) {
@@ -235,29 +215,24 @@ double ObjectivesCalculator::calculatePeakFinancialCostsObjective(
             }
         }
         // sort the year's costs to get the worse 10th percentile.
-        sort(year_financial_costs.begin(), year_financial_costs.end());
+        sort(year_financial_costs.begin(), year_financial_costs.end()); 
 
         // store highest year cost as the cost financial cost of the realization.
-        realization_financial_costs[r] = year_financial_costs.at(
-                (unsigned long) floor(0.90 * n_years));
-        /**
         realization_financial_costs[r] =
                 *max_element(year_financial_costs.begin(),
                              year_financial_costs.end());
         if (realization_financial_costs[r] > 1e10) {
             printf("Absurdly high financial cost in realization %lu.\n", r);
         }
-         */
     }
+    
+    // ACTIVATE FOR WORST CASE
+    
     // sort the realization's costs to get the peak financial cost.
     sort(realization_financial_costs.begin(), realization_financial_costs.end());
     double obj_value = realization_financial_costs.at(
-            (unsigned long) floor(0.90 * n_realizations));
-    /**
-    double obj_value = accumulate(realization_financial_costs.begin(),
-                                  realization_financial_costs.end(),
-                                  0.0) / n_realizations;
-    */
+            (unsigned long) floor(0.9 * n_realizations));
+    
     if (std::isinf(obj_value)) {
         string error_inf = "Infinite peak financial cost.";
         throw logic_error(error_inf.c_str());
@@ -314,14 +289,15 @@ double ObjectivesCalculator::calculateWorseCaseCostsObjective(
                 year_financial_costs.begin(),
                 year_financial_costs.end()));
     }
-
-    /// sort costs to get the worse 1 percentile.
+    
+    // Sort costs to get the worse 1 percentile.
+    // ACTIVATE FOR WORST CASE
     sort(worse_year_financial_costs.begin(),
          worse_year_financial_costs.end());
-
+    
     double obj_value = worse_year_financial_costs.at(
             (unsigned long) floor(WORSE_CASE_COST_PERCENTILE * n_realizations));
-
+    
     if (std::isinf(obj_value)) {
         string error_inf = "Infinite worse case cost.";
         throw logic_error(error_inf.c_str());

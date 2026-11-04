@@ -682,9 +682,8 @@ void Utility::setRealization(unsigned long r, vector<double>& rdm_factors,
     // This section adds the perturbation to the infrastructure trigger
     // if actions_rdm.at(action_rdm_id) is not zero.
     double actions_shift = actions_rdm.at(action_rdm_id);
-    if (actions_shift != 0) {
-        infrastructure_construction_manager.setShift(actions_rdm.at(action_rdm_id));
-    }
+    infrastructure_construction_manager.setShift(actions_shift);
+ 
     bond_term_multiplier = rdm_factors.at(1);
     bond_interest_rate_multiplier = rdm_factors.at(2);
     infra_discount_rate *= rdm_factors.at(3);

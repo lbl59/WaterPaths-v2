@@ -37,7 +37,10 @@ public:
 
     virtual ~MasterDataCollector();
 
-    // ADDED on 06-19-2026 by Lillian Lau
+    // ADDED on 11-20-2025 by Lillian Lau
+    void printSubsetOutputHDF5(int week_i, int week_f, string file_name);
+
+    // ADDED on 06-19-2025 by Lillian Lau
     void printSubsetOutputParquet(int week_i, int week_f, string file_name);
 
     // TO IMPLEMENT: Add in function to print subset output to CSV
